@@ -1,0 +1,6 @@
+-e .
+flake8
+pytest
+mock
+django
+pytest-django

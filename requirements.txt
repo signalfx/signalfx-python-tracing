@@ -1,0 +1,2 @@
+https://github.com/rmfitzpatrick/python-django/tarball/django_2#egg=django-opentracing
+opentracing
