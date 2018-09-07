@@ -30,3 +30,4 @@ uninstrument(django=False)  # removes previous instrumentation
 ## Supported Frameworks and Libraries
 
 * [Django](./signalfx_tracing/libraries/django_/README.md) - `instrument(django=True)`
+* [Tornado](./signalfx_tracing/libraries/tornado_/README.md) - `instrument(tornado=True)`

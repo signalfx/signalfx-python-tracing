@@ -1,5 +1,6 @@
 # Copyright (C) 2018 SignalFx, Inc. All rights reserved.
 from django_opentracing import DjangoTracer
+import opentracing
 
 from signalfx_tracing import utils
 
@@ -38,7 +39,7 @@ def instrument(tracer=None):
     if utils.is_instrumented(django):
         return
 
-    tracer = tracer or config.tracer
+    tracer = tracer or config.tracer or opentracing.tracer
 
     settings = utils.get_module('django.conf').settings
     # Tracer settings (need to be before initialization)

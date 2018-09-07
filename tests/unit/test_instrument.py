@@ -3,86 +3,111 @@ import sys
 
 import pytest
 import mock
+import six
 
-from signalfx_tracing.constants import instrumented_attr, traceable_libraries
+from signalfx_tracing.constants import instrumented_attr, traceable_libraries, auto_instrumentable_libraries
 from signalfx_tracing.instrumentation import instrument, uninstrument, auto_instrument
 from signalfx_tracing import utils
 
+if six.PY2:
+    from contextlib import nested
+else:
+    from contextlib import contextmanager, ExitStack
 
-expected_libraries = ('django',)
+    @contextmanager
+    def nested(*contexts):
+        with ExitStack() as stack:
+            for context in contexts:
+                stack.enter_context(context)
+            yield
+
+
+expected_traceable_libraries = ('django', 'tornado')
+expected_auto_instrumentable_libraries = ('tornado',)
 
 
 class TestInstrument(object):
 
     def test_traceable_libraries_contents(self):
-        assert traceable_libraries == expected_libraries
+        assert traceable_libraries == expected_traceable_libraries
+        assert auto_instrumentable_libraries == expected_auto_instrumentable_libraries
 
-    @pytest.fixture
+    @pytest.fixture(autouse=True)
     def stubbed_instrumenter(self):
         """
-        Allows us to stub instrumenter interface and target library manipulation.
+        Allows us to stub instrumenter interfaces and target library manipulation.
         Without doing so, all instrumented libraries would need to be available
         in pytest context and this would effectively be a large e2e.
-        TODO: make generic for all expected_libraries as more are added.
         """
-        class Mock(object):
+        class Mock(object):  # Use a generic object for attribute loading
             pass
 
-        django_lib = sys.modules.get('django')
-        django = Mock()  # Use a generic Mock for attribute loading
-        django.__spec__ = mock.MagicMock()  # needed for pkgutil.find_loader(library)
-        sys.modules['django'] = django
+        module_store = {}
+        contexts = []
 
-        sfx_django_lib = sys.modules.get('signalfx_tracing.libraries.django_')
-        sfx_django = mock.MagicMock()
-        sys.modules['signalfx_tracing.libraries.django_'] = sfx_django
+        for library in expected_traceable_libraries:
+            module = sys.modules.get(library)
+            module_store[library] = module
 
-        def _instrument(tracer=None):
-            utils.mark_instrumented(django)
+            stubbed_module = Mock()
+            stubbed_module.__spec__ = mock.MagicMock()  # needed for pkgutil.find_loader(library)
+            sys.modules[library] = stubbed_module
 
-        def _uninstrument():
-            utils.mark_uninstrumented(django)
+            sfx_library = 'signalfx_tracing.libraries.{}_'.format(library)
+            sfx_library_module = sys.modules.get(sfx_library)
+            module_store[sfx_library] = sfx_library_module
+
+            sfx_module = mock.MagicMock()
+            sys.modules[sfx_library] = sfx_module
+
+            def _instrument(tracer=None):
+                utils.mark_instrumented(stubbed_module)
+
+            def _uninstrument():
+                utils.mark_uninstrumented(stubbed_module)
+
+            contexts.append(mock.patch.object(sfx_module, 'instrument', _instrument))
+            contexts.append(mock.patch.object(sfx_module, 'uninstrument', _uninstrument))
 
         try:
-            with mock.patch.object(sfx_django, 'instrument', _instrument):
-                with mock.patch.object(sfx_django, 'uninstrument', _uninstrument):
-                    yield
+            with nested(*contexts):
+                yield
         finally:
-            if django_lib:
-                sys.modules['django'] = django_lib
-            else:
-                del sys.modules['django']
-            if sfx_django_lib:
-                sys.modules['signalfx_tracing.libraries.django_'] = sfx_django_lib
-            else:
-                del sys.modules['signalfx_tracing.libraries.django_']
+            for library, module in module_store.items():
+                if module:
+                    sys.modules[library] = module
+                else:
+                    del sys.modules[library]
 
-    def test_instrument_with_true_instruments_specified_libraries(self, stubbed_instrumenter):
-        django = utils.get_module('django')
-        assert not hasattr(django, instrumented_attr)
-        instrument(django=True)
-        assert getattr(django, instrumented_attr) is True
+    def test_instrument_with_true_instruments_specified_libraries(self):
+        tornado = utils.get_module('tornado')
+        assert not hasattr(tornado, instrumented_attr)
+        instrument(tornado=True)
+        assert getattr(tornado, instrumented_attr) is True
 
-    def test_uninstrument_uninstruments_specified_libraries(self, stubbed_instrumenter):
-        instrument(django=True)
-        django = utils.get_module('django')
-        assert getattr(django, instrumented_attr) is True
-        uninstrument('django')
-        assert not hasattr(django, instrumented_attr)
+    def test_uninstrument_uninstruments_specified_libraries(self):
+        instrument(tornado=True)
+        tornado = utils.get_module('tornado')
+        assert getattr(tornado, instrumented_attr) is True
+        uninstrument('tornado')
+        assert not hasattr(tornado, instrumented_attr)
 
-    def test_instrument_with_false_uninstruments_specified_libraries(self, stubbed_instrumenter):
-        instrument(django=True)
-        django = utils.get_module('django')
-        assert getattr(django, instrumented_attr) is True
-        instrument(django=False)
-        assert not hasattr(django, instrumented_attr)
+    def test_instrument_with_false_uninstruments_specified_libraries(self):
+        instrument(tornado=True)
+        tornado = utils.get_module('tornado')
+        assert getattr(tornado, instrumented_attr) is True
+        instrument(tornado=False)
+        assert not hasattr(tornado, instrumented_attr)
 
-    def test_auto_instrument_instruments_all_available_libraries(self, stubbed_instrumenter):
-        modules = [utils.get_module(l) for l in expected_libraries]
-        for module in modules:
+    def test_auto_instrument_instruments_all_available_libraries(self):
+        modules = [(utils.get_module(l), l) for l in expected_traceable_libraries]
+        for module, _ in modules:
             assert not hasattr(module, instrumented_attr)
 
         auto_instrument()
 
-        for module in modules:
-            assert getattr(module, instrumented_attr) is True
+        for module, library in modules:
+            if library in expected_auto_instrumentable_libraries:
+                assert getattr(module, instrumented_attr) is True
+            else:
+                assert not hasattr(module, instrumented_attr)
