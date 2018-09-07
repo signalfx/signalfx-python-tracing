@@ -4,3 +4,5 @@ pytest
 mock
 django
 pytest-django
+tornado
+requests
