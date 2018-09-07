@@ -1,6 +1,7 @@
 # Copyright (C) 2018 SignalFx, Inc. All rights reserved.
 import sys
 
+from wrapt import wrap_function_wrapper
 import pytest
 
 from signalfx_tracing import utils, constants
@@ -54,3 +55,20 @@ def test_config_with_kwargs():
     cfg.one = 'one'
     assert cfg['one'] == 'one'
     assert cfg.one == 'one'
+
+
+def test_revert_wrapper():
+
+    class Namespace():
+
+        def wrappee(self, *args, **kwargs):
+            return 'wrappee'
+
+    def wrapper(self, *args, **kwargs):
+        return 'wrapper'
+
+    wrap_function_wrapper(Namespace, 'wrappee', wrapper)
+    assert Namespace().wrappee() == 'wrapper'
+
+    utils.revert_wrapper(Namespace, 'wrappee')
+    assert Namespace().wrappee() == 'wrappee'

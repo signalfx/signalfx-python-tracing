@@ -1,4 +1,5 @@
 https://github.com/rmfitzpatrick/python-django/tarball/django_2#egg=django-opentracing
 tornado_opentracing
+flask_opentracing
 opentracing
 wrapt

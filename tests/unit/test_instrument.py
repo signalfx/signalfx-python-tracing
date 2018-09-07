@@ -22,8 +22,8 @@ else:
             yield
 
 
-expected_traceable_libraries = ('django', 'tornado')
-expected_auto_instrumentable_libraries = ('tornado',)
+expected_traceable_libraries = ('django', 'flask', 'tornado')
+expected_auto_instrumentable_libraries = ('flask', 'tornado')
 
 
 class TestInstrument(object):
@@ -39,17 +39,17 @@ class TestInstrument(object):
         Without doing so, all instrumented libraries would need to be available
         in pytest context and this would effectively be a large e2e.
         """
-        class Mock(object):  # Use a generic object for attribute loading
+        class Stub(object):  # Use a generic object for attribute loading
             pass
 
-        module_store = {}
-        contexts = []
+        module_store = {}  # Keep track of initial module state for teardown
+        contexts = []  # mock.patch.object() contexts
 
         for library in expected_traceable_libraries:
             module = sys.modules.get(library)
             module_store[library] = module
 
-            stubbed_module = Mock()
+            stubbed_module = Stub()
             stubbed_module.__spec__ = mock.MagicMock()  # needed for pkgutil.find_loader(library)
             sys.modules[library] = stubbed_module
 
@@ -60,14 +60,19 @@ class TestInstrument(object):
             sfx_module = mock.MagicMock()
             sys.modules[sfx_library] = sfx_module
 
-            def _instrument(tracer=None):
-                utils.mark_instrumented(stubbed_module)
+            # Ensure stubbed module references are immutable in closure patches
+            def wrap_env(module_stub):
 
-            def _uninstrument():
-                utils.mark_uninstrumented(stubbed_module)
+                def _instrument(tracer=None):
+                    utils.mark_instrumented(module_stub)
 
-            contexts.append(mock.patch.object(sfx_module, 'instrument', _instrument))
-            contexts.append(mock.patch.object(sfx_module, 'uninstrument', _uninstrument))
+                def _uninstrument():
+                    utils.mark_uninstrumented(module_stub)
+
+                contexts.append(mock.patch.object(sfx_module, 'instrument', _instrument))
+                contexts.append(mock.patch.object(sfx_module, 'uninstrument', _uninstrument))
+
+            wrap_env(stubbed_module)
 
         try:
             with nested(*contexts):
