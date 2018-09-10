@@ -2,6 +2,8 @@
 import importlib
 import sys
 
+from wrapt import ObjectProxy
+
 from .constants import instrumented_attr
 
 
@@ -37,3 +39,10 @@ class Config(object):
 
     def __setitem__(self, item, value):
         self.__dict__[item] = value
+
+
+def revert_wrapper(obj, wrapped_attr):
+    """Reverts a wrapt.wrap_function_wrapper() invocation"""
+    attr = getattr(obj, wrapped_attr, None)
+    if attr is not None and isinstance(attr, ObjectProxy) and hasattr(attr, '__wrapped__'):
+        setattr(obj, wrapped_attr, attr.__wrapped__)
