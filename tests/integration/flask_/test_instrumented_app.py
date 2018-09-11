@@ -1,6 +1,7 @@
 # Copyright (C) 2018 SignalFx, Inc. All rights reserved.
 from time import sleep
 
+from opentracing.scope_managers.flask import FlaskScopeManager
 from opentracing.mocktracer import MockTracer
 from threading import Thread
 import requests
@@ -31,7 +32,7 @@ class TestFlaskApp(object):
     @classmethod
     @pytest.fixture(scope='class', autouse=True)
     def instrumented_app(cls):
-        tracer = MockTracer()
+        tracer = MockTracer(scope_manager=FlaskScopeManager())
         cls._tracer_store[0] = tracer
 
         flask_config.traced_attributes = ['path', 'method', 'query_string', 'blueprint']
@@ -80,11 +81,15 @@ class TestFlaskApp(object):
         assert span.operation_name == 'my_route'
         tagged_method = http_method.upper()
         expected_query_string = query if six.PY2 else str(bytes(query, 'ascii'))
-        assert span.tags == {'method': tagged_method,
+        assert span.tags == {'blueprint': 'None',
+                             'component': 'Flask',
+                             'http.method': tagged_method,
+                             'http.status_code': 200,
+                             'http.url': app_endpoint,
+                             'method': tagged_method,
                              'path': '/hello/MyName',
                              'query_string': expected_query_string,
-                             'blueprint': 'None',
-                             'Extract failed': ''}
+                             'span.kind': 'server'}
 
     @pytest.mark.parametrize('http_method', ('get', 'head', 'post', 'delete',
                                              'patch', 'put', 'options'))
@@ -99,8 +104,12 @@ class TestFlaskApp(object):
         assert span.operation_name == 'MyBlueprint.my_blueprint_route'
         tagged_method = http_method.upper()
         expected_query_string = query if six.PY2 else str(bytes(query, 'ascii'))
-        assert span.tags == {'method': tagged_method,
+        assert span.tags == {'blueprint': 'MyBlueprint',
+                             'component': 'Flask',
+                             'http.method': tagged_method,
+                             'http.status_code': 200,
+                             'http.url': bp_endpoint,
+                             'method': tagged_method,
                              'path': '/bp/MyPage',
                              'query_string': expected_query_string,
-                             'blueprint': 'MyBlueprint',
-                             'Extract failed': ''}
+                             'span.kind': 'server'}

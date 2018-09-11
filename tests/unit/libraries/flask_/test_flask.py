@@ -59,7 +59,13 @@ class TestFlaskApplication(FlaskTestSuite):
         assert len(spans) == 1
         span = spans[0]
         assert span.operation_name == 'my_route'
-        assert span.tags == {'Extract failed': '', 'method': 'GET', 'path': '/'}
+        assert span.tags == {'component': 'Flask',
+                             'http.method': 'GET',
+                             'http.status_code': 200,
+                             'http.url': u'http://localhost/',
+                             'method': 'GET',
+                             'path': '/',
+                             'span.kind': 'server'}
 
     def test_trace_with_specified_tracer_and_attributes(self):
         tracer = MockTracer()
@@ -78,8 +84,14 @@ class TestFlaskApplication(FlaskTestSuite):
         assert len(spans) == 1
         span = spans[0]
         assert span.operation_name == 'my_route'
-        assert span.tags == {'Extract failed': '', 'method': 'GET',
-                             'url': 'http://localhost/', 'blueprint': 'None'}
+        assert span.tags == {'blueprint': 'None',
+                             'component': 'Flask',
+                             'http.method': 'GET',
+                             'http.status_code': 200,
+                             'http.url': u'http://localhost/',
+                             'method': 'GET',
+                             'span.kind': 'server',
+                             'url': 'http://localhost/'}
 
     def test_trace_without_trace_all(self):
         tracer = MockTracer()
