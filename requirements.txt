@@ -1,5 +1,5 @@
 https://github.com/rmfitzpatrick/opentracing-python/tarball/flask_scope_manager#egg=opentracing
 https://github.com/rmfitzpatrick/python-flask/tarball/use_flask_scope_manager#egg=flask_opentracing
-https://github.com/rmfitzpatrick/python-django/tarball/django_2#egg=django-opentracing
+https://github.com/rmfitzpatrick/python-django/tarball/django_2_ot_2#egg=django-opentracing
 tornado_opentracing
 wrapt

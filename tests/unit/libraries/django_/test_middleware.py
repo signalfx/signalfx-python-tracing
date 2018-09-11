@@ -1,5 +1,6 @@
 # Copyright (C) 2018 SignalFx, Inc. All rights reserved.
 from django.test import SimpleTestCase, Client
+from opentracing.mocktracer import MockTracer
 from django.conf import settings
 import opentracing
 import mock
@@ -14,12 +15,16 @@ class TestDjangoOpenTracingMiddleware(SimpleTestCase, DjangoTestSuite):
 
     def test_set_global_tracer_middleware_sanity(self):
         config.set_global_tracer = True
+        config.tracer_callable = 'opentracing.mocktracer.MockTracer'
         instrument(django=True)
+
         client = Client()
-        with mock.patch('opentracing.span.Span.set_tag') as set_tag:
-            client.get('/one/')
-            assert set_tag.call_args_list[0][0] == ('path', '/one/')
-            assert set_tag.call_args_list[1][0] == ('method', 'GET')
+        client.get('/one/')
+        tracer = opentracing.tracer
+        span = tracer.finished_spans().pop()
+
+        span.tags['path'] = '/one/'
+        span.tags['method'] = 'GET'
 
         assert settings.OPENTRACING_TRACER_CALLABLE == config.tracer_callable
         assert settings.OPENTRACING_TRACER_PARAMETERS == config.tracer_parameters
@@ -27,13 +32,14 @@ class TestDjangoOpenTracingMiddleware(SimpleTestCase, DjangoTestSuite):
 
     def test_unset_global_tracer_middleware_sanity(self):
         config.set_global_tracer = False
-        tracer = opentracing.tracer
+        tracer = MockTracer()
         instrument(tracer, django=True)
         client = Client()
-        with mock.patch('opentracing.span.Span.set_tag') as set_tag:
-            client.get('/one/')
-            assert set_tag.call_args_list[0][0] == ('path', '/one/')
-            assert set_tag.call_args_list[1][0] == ('method', 'GET')
+        client.get('/one/')
+
+        span = tracer.finished_spans().pop()
+        span.tags['path'] = '/one/'
+        span.tags['method'] = 'GET'
 
         assert not hasattr(settings, 'OPENTRACING_TRACER_CALLABLE')
         assert not hasattr(settings, 'OPENTRACING_TRACER_PARAMETERS')

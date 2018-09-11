@@ -11,6 +11,7 @@ SECRET_KEY = 'antiquing'
 DEBUG = True
 
 SIGNALFX_SET_GLOBAL_TRACER = True
+SIGNALFX_TRACER_CALLABLE = 'opentracing.mocktracer.MockTracer'
 
 # Application definition
 
