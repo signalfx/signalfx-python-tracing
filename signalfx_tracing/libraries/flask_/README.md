@@ -13,7 +13,7 @@ request attributes for span tagging:
 | -------------|------------|---------------|
 | trace_all | Whether to trace all requests. | `True` |
 | traced_attributes | [Request attributes](http://flask.pocoo.org/docs/1.0/api/#flask.Request) to use as span tags. | `['path', 'method']` |
-| tracer | An instance of an OpenTracing-compatible tracer for all Tornado traces. | `opentracing.tracer` |
+| tracer | An instance of an OpenTracing-compatible tracer for all Flask traces. | `opentracing.tracer` |
 
 ```python
 # my_app.py

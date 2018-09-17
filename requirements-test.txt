@@ -6,3 +6,5 @@ django
 pytest-django
 tornado
 requests
+pymysql
+docker
