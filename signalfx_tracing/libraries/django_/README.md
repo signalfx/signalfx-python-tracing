@@ -19,7 +19,7 @@ the desired tracer and request attributes for span tagging:
 | SIGNALFX\_MIDDLEWARE\_CLASS | The Django middleware configured during setup.  | `'django_opentracing.OpenTracingMiddleware'` |
 
 ```python
-# settings.py
+# my_app.settings.py
 INSTALLED_APPS = [..., 'signalfx_tracing', ...]  # Enables tracing in your application
 
 SIGNALFX_TRACE_ALL = True  # If False, will only trace those manually decorated with
@@ -32,6 +32,25 @@ SIGNALFX_SET_GLOBAL_TRACER = True
 # Equivalent to opentracing.tracer = import_module(SIGNALFX_TRACER_CALLABLE)(**SIGNALFX_TRACER_PARAMETERS)
 SIGNALFX_TRACER_CALLABLE = 'my_opentracing_compatible_tracer.Tracer'
 SIGNALFX_TRACER_PARAMETERS = dict(my_tracer_parameter='arg_one', another_parameter='arg_two')
+# ***
+# If using the Jaeger Python client, there is an known issue with
+# Tracer initialization before forking: 
+# https://github.com/jaegertracing/jaeger-client-python/issues/60
+#
+# As a workaround in Django, this pattern is suggested:
+#
+# from jaeger_client import Config
+#
+# def create_tracer():
+#     config = Config(...)
+#     return config.initialize_tracer()
+#
+# SIGNALFX_TRACER_CALLABLE = 'my_app.settings.create_tracer'
+#
+# Please note that you must use a version of django_opentracing
+# that supports lazy tracer initialization, such as that found at
+# https://github.com/rmfitzpatrick/python-django/tree/django_2_ot_2_jaeger
+# ***
 
 SIGNALFX_TRACER = MyTracer()  # Ignored if bool(SIGNALFX_SET_GLOBAL_TRACER).
 # Please note that instantiating your tracer within your settings.py file can be problematic
