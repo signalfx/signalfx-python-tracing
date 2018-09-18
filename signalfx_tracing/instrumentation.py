@@ -1,6 +1,7 @@
 # Copyright (C) 2018 SignalFx, Inc. All rights reserved.
 import logging
 import pkgutil
+import sys
 
 from .constants import traceable_libraries, auto_instrumentable_libraries
 from .utils import get_module
@@ -22,7 +23,7 @@ def _importable_libraries(*libraries):
     available = []
     unavailable = []
     for library in libraries:
-        if pkgutil.find_loader(library) is not None:
+        if library in sys.modules or pkgutil.find_loader(library) is not None:
             available.append(library)
         else:
             unavailable.append(library)
