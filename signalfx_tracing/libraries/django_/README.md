@@ -33,19 +33,14 @@ SIGNALFX_SET_GLOBAL_TRACER = True
 SIGNALFX_TRACER_CALLABLE = 'my_opentracing_compatible_tracer.Tracer'
 SIGNALFX_TRACER_PARAMETERS = dict(my_tracer_parameter='arg_one', another_parameter='arg_two')
 # ***
-# If using the Jaeger Python client, there is an known issue with
-# Tracer initialization before forking: 
+# If using the Jaeger Python client, there is a known issue with
+# tracer initialization before forking:
 # https://github.com/jaegertracing/jaeger-client-python/issues/60
-#
 # As a workaround in Django, this pattern is suggested:
 #
-# from jaeger_client import Config
-#
-# def create_tracer():
-#     config = Config(...)
-#     return config.initialize_tracer()
-#
-# SIGNALFX_TRACER_CALLABLE = 'my_app.settings.create_tracer'
+# SIGNALFX_TRACER_CALLABLE = 'signalfx_tracing.utils.create_tracer'
+# SIGNALFX_TRACER_PARAMETERS = dict(access_token='<MyAccessToken>',
+#                                   service_name='MyDjangoApp', ...)
 #
 # Please note that you must use a version of django_opentracing
 # that supports lazy tracer initialization, such as that found at
