@@ -1,6 +1,7 @@
 # Copyright (C) 2018 SignalFx, Inc. All rights reserved.
 import importlib
 import sys
+import os
 
 from wrapt import ObjectProxy
 
@@ -46,3 +47,30 @@ def revert_wrapper(obj, wrapped_attr):
     attr = getattr(obj, wrapped_attr, None)
     if attr is not None and isinstance(attr, ObjectProxy) and hasattr(attr, '__wrapped__'):
         setattr(obj, wrapped_attr, attr.__wrapped__)
+
+
+def create_tracer(access_token=None, set_global=True, config=None, *args, **kwargs):
+    """
+    Creates a jaeger_client.Tracer via Config().initialization_tracer.
+    Default config argument will consist only of service name of 'SignalFx-Tracing' value.
+    """
+    access_token = access_token or os.environ.get('SIGNALFX_ACCESS_TOKEN')
+    if not access_token:
+        raise ValueError('Please provide a valid SignalFx access token or '
+                         'set the SIGNALFX_ACCESS_TOKEN environment variable.')
+    from jaeger_client import Config
+
+    config = config or dict(service_name='SignalFx-Tracing')
+    if 'jaeger_endpoint' not in config:
+        config['jaeger_endpoint'] = 'https://ingest.signalfx.com/v1/trace'
+    if 'jaeger_user' not in config:
+        config['jaeger_user'] = 'auth'
+    if 'jaeger_password' not in config:
+        config['jaeger_password'] = access_token
+    jaeger_config = Config(config, *args, **kwargs)
+
+    tracer = jaeger_config.initialize_tracer()
+    if set_global:
+        import opentracing
+        opentracing.tracer = tracer
+    return tracer
