@@ -20,17 +20,19 @@ from signalfx_tracing import instrument, uninstrument
 from my_opentracing_compatible_tracer import Tracer
 
 tracer = Tracer()
-instrument(tracer, django=True)
+instrument(tracer, flask=True)
 # or
-instrument(django=True)  # uses the global Tracer from opentracing.tracer by default
+instrument(flask=True)  # uses the global Tracer from opentracing.tracer by default
 
-uninstrument(django=False)  # removes previous instrumentation
+uninstrument(flask=False)  # prevent future registrations and
+                           # remove previous instrumentation, where possible.
 ```
 
 ## Supported Frameworks and Libraries
 
 * [Django](./signalfx_tracing/libraries/django_/README.md) - `instrument(django=True)`
 * [Flask](./signalfx_tracing/libraries/flask_/README.md) - `instrument(flask=True)`
+* [PyMongo](./signalfx_tracing/libraries/pymongo_/README.md) - `instrument(pymongo=True)`
 * [PyMySQL](./signalfx_tracing/libraries/pymysql_/README.md) - `instrument(pymysql=True)`
 * [Tornado](./signalfx_tracing/libraries/tornado_/README.md) - `instrument(tornado=True)`
 

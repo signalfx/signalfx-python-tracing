@@ -1,10 +1,12 @@
 -e .
-flake8
-pytest
-mock
 django
-pytest-django
-tornado
-requests
-pymysql
 docker
+flake8
+mock
+mockupdb
+pymongo
+pymysql
+pytest
+pytest-django
+requests
+tornado
