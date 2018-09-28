@@ -9,7 +9,7 @@ import pytest
 import six
 
 from signalfx_tracing.libraries import flask_config
-from signalfx_tracing import auto_instrument
+from signalfx_tracing import instrument
 
 
 app_endpoint = 'http://127.0.0.1:32321/hello/MyName'
@@ -37,7 +37,7 @@ class TestFlaskApp(object):
 
         flask_config.traced_attributes = ['path', 'method', 'query_string', 'blueprint']
 
-        auto_instrument(tracer)
+        instrument(tracer, flask=True)
 
         from .app import app
         cls._app_store[0] = app

@@ -10,7 +10,7 @@ import pytest
 import six
 
 from signalfx_tracing.libraries import tornado_config
-from signalfx_tracing import auto_instrument
+from signalfx_tracing import instrument
 from .app import MyApplication, HelloHandler
 
 
@@ -43,7 +43,7 @@ class TestTornadoApp(object):
         tornado_config.start_span_cb = span_callback
         tornado_config.traced_attributes = ['path', 'method', 'query']
 
-        auto_instrument(tracer)
+        instrument(tracer, tornado=True)
 
         cls._app_store[0] = MyApplication([(r'/hello/(.*)', HelloHandler)])
         app_thread = Thread(target=cls.run_app)

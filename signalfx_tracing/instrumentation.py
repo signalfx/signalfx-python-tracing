@@ -52,7 +52,7 @@ def instrument(tracer=None, **libraries):
     for library, inst in libraries.items():
         if library not in traceable_libraries:
             log.warn('Unable to trace {}'.format(library))
-        if not inst:
+        elif not inst:
             uninstrument(library)
         else:
             imported_instrumenter(library).instrument(tracer)

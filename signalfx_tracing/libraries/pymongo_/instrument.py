@@ -1,5 +1,4 @@
 # Copyright (C) 2018 SignalFx, Inc. All rights reserved.
-from pymongo_opentracing import CommandTracing
 from wrapt import wrap_function_wrapper
 import opentracing
 
@@ -19,6 +18,8 @@ def instrument(tracer=None):
     if utils.is_instrumented(pymongo):
         return
 
+    pymongo_opentracing = utils.get_module('pymongo_opentracing')
+
     def pymongo_tracer(__init__, app, args, kwargs):
         """
         A function wrapper of pymongo.MongoClient.__init__ to register a corresponding
@@ -26,7 +27,7 @@ def instrument(tracer=None):
         """
         _tracer = tracer or config.tracer or opentracing.tracer
 
-        command_tracing = CommandTracing(
+        command_tracing = pymongo_opentracing.CommandTracing(
             tracer=_tracer, span_tags=config.span_tags or {},
         )
 
