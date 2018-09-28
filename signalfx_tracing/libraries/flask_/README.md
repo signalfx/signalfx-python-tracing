@@ -31,14 +31,13 @@ import flask
 # instrument(flask=True)  # or sfx_tracing.auto_instrument()
 # instrumented_app = flask.Flask(...)
 #
-# Accessing Flask from its parent flask module object requires no advanced instrumentation
-# beyond that of pre-initialization.  If you are importing Flask from flask directly, you
-# must instrument before doing so:
+# Importing Flask from its parent flask module object requires no advanced instrumentation
+# beyond that of pre-initialization:
 #
 # from sfx_tracing import instrument
-# instrument(flask=True)  # or sfx_tracing.auto_instrument()
-#
 # from flask import Flask
+#
+# instrument(flask=True)  # or sfx_tracing.auto_instrument()
 # instrumented_app = Flask(...)
 # ***
 

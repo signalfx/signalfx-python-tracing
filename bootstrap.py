@@ -20,6 +20,7 @@ instrumenters = {
     'django': 'https://github.com/signalfx/python-django/tarball/django_2_ot_2_jaeger#egg=django-opentracing',
     'pymongo': 'git+ssh://git@github.com/signalfx/python-pymongo.git#egg=pymongo-opentracing',
     'pymysql': 'git+ssh://git@github.com/signalfx/python-dbapi.git#egg=dbapi-opentracing',
+    'redis': 'https://github.com/signalfx/python-redis/tarball/ot_v2.0#egg=redis-opentracing',
     'requests': 'git+ssh://git@github.com/signalfx/python-requests.git#egg=requests-opentracing',
     'tornado': 'tornado_opentracing',
 }

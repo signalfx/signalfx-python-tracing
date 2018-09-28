@@ -1,9 +1,9 @@
 # Copyright (C) 2018 SignalFx, Inc. All rights reserved.
 from opentracing.mocktracer import MockTracer
 from flask_opentracing import FlaskTracer
+from flask import Flask
 import opentracing
 import pytest
-import flask
 
 from signalfx_tracing.libraries.flask_ import config, instrument, uninstrument
 from .conftest import FlaskTestSuite
@@ -19,7 +19,7 @@ class TestFlaskConfig(FlaskTestSuite):
         # config.traced_attributes adoption is not exposed
 
         instrument()
-        app = flask.Flask('MyFlaskApplication')
+        app = Flask('MyFlaskApplication')
 
         flask_tracer = app.config['FLASK_TRACER']
         assert isinstance(flask_tracer, FlaskTracer)
@@ -35,7 +35,7 @@ class TestFlaskConfig(FlaskTestSuite):
 class TestFlaskApplication(FlaskTestSuite):
 
     def make_app(self):
-        app = flask.Flask('MyFlaskApplication')
+        app = Flask('MyFlaskApplication')
 
         @app.route('/')
         def my_route():

@@ -22,8 +22,8 @@ else:
             yield
 
 
-expected_traceable_libraries = ('django', 'flask', 'pymongo', 'pymysql', 'requests', 'tornado')
-expected_auto_instrumentable_libraries = ('flask', 'pymongo', 'pymysql', 'requests', 'tornado')
+expected_traceable_libraries = ('django', 'flask', 'pymongo', 'pymysql', 'redis', 'requests', 'tornado')
+expected_auto_instrumentable_libraries = ('flask', 'pymongo', 'pymysql', 'redis', 'requests', 'tornado')
 
 
 class TestInstrument(object):
