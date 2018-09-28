@@ -29,14 +29,13 @@ import pymongo
 # instrument(pymongo=True)  # or sfx_tracing.auto_instrument()
 # traced_client = pymongo.MongoClient(...)
 #
-# Accessing MongoClient from its parent pymongo module object requires no advanced instrumentation
-# beyond that of pre-initialization.  If you are importing MongoClient from pymongo directly, you
-# must instrument before doing so:
+# Importing MongoClient from its parent pymongo module object requires no advanced instrumentation
+# beyond that of pre-initialization:
 #
 # from sfx_tracing import instrument
-# instrument(pymongo=True)  # or sfx_tracing.auto_instrument()
-#
 # from pymongo import MongoClient
+#
+# instrument(pymongo=True)  # or sfx_tracing.auto_instrument()
 # traced_client = MongoClient(...)
 # ***
 

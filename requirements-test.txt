@@ -8,5 +8,6 @@ pymongo
 pymysql
 pytest
 pytest-django
+redis
 requests
 tornado
