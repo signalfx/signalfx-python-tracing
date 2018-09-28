@@ -34,6 +34,7 @@ uninstrument(flask=False)  # prevent future registrations and
 * [Flask](./signalfx_tracing/libraries/flask_/README.md) - `instrument(flask=True)`
 * [PyMongo](./signalfx_tracing/libraries/pymongo_/README.md) - `instrument(pymongo=True)`
 * [PyMySQL](./signalfx_tracing/libraries/pymysql_/README.md) - `instrument(pymysql=True)`
+* [Requests](./signalfx_tracing/libraries/requests_/README.md) - `instrument(requests=True)`
 * [Tornado](./signalfx_tracing/libraries/tornado_/README.md) - `instrument(tornado=True)`
 
 ## Installation and Configuration

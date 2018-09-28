@@ -1,7 +1,5 @@
 # Copyright (C) 2018 SignalFx, Inc. All rights reserved.
-from tornado_opentracing.initialization import _unpatch_tornado, _unpatch_tornado_client
 from wrapt import wrap_function_wrapper
-import tornado_opentracing
 import opentracing
 
 from signalfx_tracing import utils
@@ -22,6 +20,8 @@ def instrument(tracer=None):
     tornado = utils.get_module('tornado')
     if utils.is_instrumented(tornado):
         return
+
+    tornado_opentracing = utils.get_module('tornado_opentracing')
 
     def _tracer_config(wrapped_tracer_config, _, wrapt_args, __):
         """
@@ -52,6 +52,9 @@ def uninstrument():
     tornado = utils.get_module('tornado')
     if not utils.is_instrumented(tornado):
         return
-    _unpatch_tornado()
-    _unpatch_tornado_client()
+
+    tornado_initialization = utils.get_module('tornado_opentracing.initialization')
+    tornado_initialization._unpatch_tornado()
+    tornado_initialization._unpatch_tornado_client()
+
     utils.mark_uninstrumented(tornado)

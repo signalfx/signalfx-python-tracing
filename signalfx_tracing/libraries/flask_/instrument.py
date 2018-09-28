@@ -1,5 +1,4 @@
 # Copyright (C) 2018 SignalFx, Inc. All rights reserved.
-from flask_opentracing import FlaskTracer
 from wrapt import wrap_function_wrapper
 import opentracing
 
@@ -20,6 +19,8 @@ def instrument(tracer=None):
     if utils.is_instrumented(flask):
         return
 
+    flask_opentracing = utils.get_module('flask_opentracing')
+
     def flask_tracer(__init__, app, args, kwargs):
         """
         A function wrapper of flask.Flask.__init__ to create a corresponding
@@ -30,7 +31,7 @@ def instrument(tracer=None):
 
         _tracer = tracer or config.tracer or opentracing.tracer
 
-        app.config['FLASK_TRACER'] = FlaskTracer(
+        app.config['FLASK_TRACER'] = flask_opentracing.FlaskTracer(
             tracer=_tracer, trace_all_requests=config.trace_all,
             app=app, traced_attributes=config.traced_attributes
         )

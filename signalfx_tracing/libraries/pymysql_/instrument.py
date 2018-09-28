@@ -1,7 +1,6 @@
 # Copyright (C) 2018 SignalFx, Inc. All rights reserved.
 import logging
 
-from dbapi_opentracing import ConnectionTracing, Cursor
 from wrapt import wrap_function_wrapper
 import opentracing
 
@@ -29,6 +28,7 @@ def instrument(tracer=None):
         return
 
     pymysql_cursors = utils.get_module('pymysql.cursors')
+    dbapi_opentracing = utils.get_module('dbapi_opentracing')
 
     def pymysql_tracer(connect, _, args, kwargs):
         """
@@ -38,7 +38,7 @@ def instrument(tracer=None):
 
         connection = connect(*args, **kwargs)
         _tracer = tracer or config.tracer or opentracing.tracer
-        tracing = ConnectionTracing(connection, _tracer, span_tags=config.span_tags)
+        tracing = dbapi_opentracing.ConnectionTracing(connection, _tracer, span_tags=config.span_tags)
 
         traced_commands = set(config.traced_commands)
         for command in traced_commands:
@@ -53,7 +53,7 @@ def instrument(tracer=None):
         for undesired_command in (traceable_cursor_commands - traced_commands):
             wrapped = getattr(pymysql_cursors.Cursor, undesired_command)
             # We must wrap our wrapper class for subsequent cursor() invocations
-            wrap_function_wrapper(Cursor, undesired_command, wrapped)
+            wrap_function_wrapper(dbapi_opentracing.Cursor, undesired_command, wrapped)
 
         return tracing
 
@@ -80,8 +80,9 @@ def uninstrument():
     utils.revert_wrapper(cursors.Cursor, 'callproc')
 
     # Revert blacklist
-    utils.revert_wrapper(Cursor, 'execute')
-    utils.revert_wrapper(Cursor, 'executemany')
-    utils.revert_wrapper(Cursor, 'callproc')
+    dbapi_opentracing = utils.get_module('dbapi_opentracing')
+    utils.revert_wrapper(dbapi_opentracing.Cursor, 'execute')
+    utils.revert_wrapper(dbapi_opentracing.Cursor, 'executemany')
+    utils.revert_wrapper(dbapi_opentracing.Cursor, 'callproc')
 
     utils.mark_uninstrumented(pymysql)
