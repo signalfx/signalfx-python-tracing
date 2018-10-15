@@ -4,6 +4,7 @@ from time import sleep
 from opentracing.scope_managers.flask import FlaskScopeManager
 from opentracing.mocktracer import MockTracer
 from threading import Thread
+import opentracing
 import requests
 import pytest
 import six
@@ -33,6 +34,7 @@ class TestFlaskApp(object):
     @pytest.fixture(scope='class', autouse=True)
     def instrumented_app(cls):
         tracer = MockTracer(scope_manager=FlaskScopeManager())
+        opentracing.tracer = tracer
         cls._tracer_store[0] = tracer
 
         flask_config.traced_attributes = ['path', 'method', 'query_string', 'blueprint']
@@ -81,15 +83,18 @@ class TestFlaskApp(object):
         assert span.operation_name == 'my_route'
         tagged_method = http_method.upper()
         expected_query_string = query if six.PY2 else str(bytes(query, 'ascii'))
-        assert span.tags == {'blueprint': 'None',
-                             'component': 'Flask',
-                             'http.method': tagged_method,
-                             'http.status_code': 200,
-                             'http.url': app_endpoint,
-                             'method': tagged_method,
-                             'path': '/hello/MyName',
-                             'query_string': expected_query_string,
-                             'span.kind': 'server'}
+        expected_tags = {'blueprint': 'None',
+                         'component': 'Flask',
+                         'http.method': tagged_method,
+                         'http.status_code': 200,
+                         'http.url': app_endpoint,
+                         'method': tagged_method,
+                         'path': '/hello/MyName',
+                         'query_string': expected_query_string,
+                         'span.kind': 'server'}
+        if http_method != 'options':
+            expected_tags['handled'] = 'tag'
+        assert span.tags == expected_tags
 
     @pytest.mark.parametrize('http_method', ('get', 'head', 'post', 'delete',
                                              'patch', 'put', 'options'))
@@ -104,12 +109,15 @@ class TestFlaskApp(object):
         assert span.operation_name == 'MyBlueprint.my_blueprint_route'
         tagged_method = http_method.upper()
         expected_query_string = query if six.PY2 else str(bytes(query, 'ascii'))
-        assert span.tags == {'blueprint': 'MyBlueprint',
-                             'component': 'Flask',
-                             'http.method': tagged_method,
-                             'http.status_code': 200,
-                             'http.url': bp_endpoint,
-                             'method': tagged_method,
-                             'path': '/bp/MyPage',
-                             'query_string': expected_query_string,
-                             'span.kind': 'server'}
+        expected_tags = {'blueprint': 'MyBlueprint',
+                         'component': 'Flask',
+                         'http.method': tagged_method,
+                         'http.status_code': 200,
+                         'http.url': bp_endpoint,
+                         'method': tagged_method,
+                         'path': '/bp/MyPage',
+                         'query_string': expected_query_string,
+                         'span.kind': 'server'}
+        if http_method != 'options':
+            expected_tags['handled'] = 'tag'
+        assert span.tags == expected_tags
