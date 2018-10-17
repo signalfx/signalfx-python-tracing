@@ -1,12 +1,13 @@
 # SignalFx-Tracing: A Python OpenTracing Auto-Instrumenter
 
 This utility provides users with the ability of automatically configuring
-OpenTracing community-contributed [instrumentation libraries](https://github.com/opentracing-contrib)
+OpenTracing 2.0-compatible community-contributed [instrumentation libraries](https://github.com/opentracing-contrib)
 for their Python 2.7 and 3.4+ applications via a single function.
 
 ```python
 from signalfx_tracing import auto_instrument
-from my_opentracing_compatible_tracer import Tracer
+
+from my_opentracing_2_dot_0_compatible_tracer_lib import Tracer
 
 tracer = Tracer()
 auto_instrument(tracer)
@@ -17,54 +18,74 @@ enabling instrumentation individually can be done by specifying your target modu
 
 ```python
 from signalfx_tracing import instrument, uninstrument
-from my_opentracing_compatible_tracer import Tracer
+
+from my_opentracing_2_dot_0_compatible_tracer import Tracer
 
 tracer = Tracer()
 instrument(tracer, flask=True)
 # or
 instrument(flask=True)  # uses the global Tracer from opentracing.tracer by default
 
-uninstrument(flask=False)  # prevent future registrations and
-                           # remove previous instrumentation, where possible.
+import flask
+
+traced_app = flask.Flask('MyTracedApplication')
+
+@traced_app.route('/hello_world')
+def traced_route():
+    # Obtain active span created by traced middleware
+    span = tracer.scope_manager.active.span
+    span.set_tag('Hello', 'World')
+    span.log_kv({'event': 'initiated'})
+    return 'Hello!'  # Span is automatically finished after request handler
+
+uninstrument('flask')  # prevent future registrations
+
+untraced_app = flask.Flask('MyUntracedApplication')
+
+@untraced_app.route('/untraced_hello_world')
+def untraced_route():
+    return 'Goodbye!'
 ```
 
 ## Supported Frameworks and Libraries
 
-* [Django](./signalfx_tracing/libraries/django_/README.md) - `instrument(django=True)`
-* [Flask](./signalfx_tracing/libraries/flask_/README.md) - `instrument(flask=True)`
-* [PyMongo](./signalfx_tracing/libraries/pymongo_/README.md) - `instrument(pymongo=True)`
-* [PyMySQL](./signalfx_tracing/libraries/pymysql_/README.md) - `instrument(pymysql=True)`
-* [Redis-Py](./signalfx_tracing/libraries/redis_/README.md) - `instrument(redis=True)`
-* [Requests](./signalfx_tracing/libraries/requests_/README.md) - `instrument(requests=True)`
-* [Tornado](./signalfx_tracing/libraries/tornado_/README.md) - `instrument(tornado=True)`
+* [Django 1.8+](./signalfx_tracing/libraries/django_/README.md) - `instrument(django=True)`
+* [Flask 0.10+](./signalfx_tracing/libraries/flask_/README.md) - `instrument(flask=True)`
+* [PyMongo 3.1+](./signalfx_tracing/libraries/pymongo_/README.md) - `instrument(pymongo=True)`
+* [PyMySQL 0.8+](./signalfx_tracing/libraries/pymysql_/README.md) - `instrument(pymysql=True)`
+* [Redis-Py 2.10](./signalfx_tracing/libraries/redis_/README.md) - `instrument(redis=True)`
+* [Requests 2.0+](./signalfx_tracing/libraries/requests_/README.md) - `instrument(requests=True)`
+* [Tornado 4.3+](./signalfx_tracing/libraries/tornado_/README.md) - `instrument(tornado=True)`
 
 ## Installation and Configuration
 
-For the most basic installation:
-```sh
- $ git clone https://github.com/signalfx/signalfx-python-tracing && pip install ./signalfx-python-tracing
-```
-
 SignalFx-Tracing works by detecting your available libraries and frameworks and configuring
-instrumenters for distributed tracing via the Python
+instrumentors for distributed tracing via the Python
 [OpenTracing API 2.0](https://pypi.org/project/opentracing/2.0.0/).  As adoption of this API
-is done on a per-instrumenter basis, it's recommended that you use the helpful bootstrap
-utility for obtaining and installing feature-ready instrumenter versions, instead of the basic
-pip installation:
+is done on a per-instrumentor basis, it's recommended that you use the helpful bootstrap
+utility for obtaining and installing feature-ready instrumentor versions:
 
 ```sh
  $ ./bootstrap.py
 ```
 
-Not all stable versions of OpenTracing-compatible tracers support the 2.0 API, so we provide
-the option of installing a modified [Jaeger Client](https://github.com/jaegertracing/jaeger-client-python)
+For example, if your environment has Requests and Flask in its Python path, the corresponding OpenTracing
+instrumentors will be pip installed.  Again, since OpenTracing-Contrib instrumentation support of API 2.0 is not
+ubiquitous, this bootstrap selectively installs custom instrumentors listed in
+[the requirements file](./requirements.txt).  As such, we suggest being sure to uninstall any previous
+instrumentor versions before running the bootstrapper, ideally in a clean environment.
+
+Not all stable versions of OpenTracing-compatible tracers support the 2.0 API, so we provide the option
+of, and highly recommend, installing a modified [Jaeger Client](https://github.com/jaegertracing/jaeger-client-python)
 ready for reporting to SignalFx:
 
 ```sh
  $ ./bootstrap.py --jaeger
 ```
 
-You can obtain an instance of this tracer using the `signalfx_tracing.utils.create_tracer()` helper.
+You can obtain an instance of this tracer using the `signalfx_tracing.utils.create_tracer()` helper.  By default
+it will enable tracing with constant sampling (100% chance of tracing) and report each span directly to SignalFx.
+Where applicable, context propagation will be done via [B3 headers](https://github.com/openzipkin/b3-propagation).
 
 ```python
 from signalfx_tracing import create_tracer
@@ -87,9 +108,10 @@ from signalfx_tracing import create_tracer
 
 tracer = create_tracer(
     '<MyAccessToken>',
-    config={'sampler': {'type': 'const', 'param': 1},
+    config={'sampler': {'type': 'probabilistic', 'param': .05 }, 
+    # 5% chance of tracing: 'sampler': {'type': 'const', 'param': 1} by default
             'logging': True},
     service_name='MyTracedApplication',
-    scope_manager=TornadoScopeManager
+    scope_manager=TornadoScopeManager  # Necessary for span scope in Tornado applications
 )
 ```

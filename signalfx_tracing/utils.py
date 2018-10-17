@@ -51,8 +51,9 @@ def revert_wrapper(obj, wrapped_attr):
 
 def create_tracer(access_token=None, set_global=True, config=None, *args, **kwargs):
     """
-    Creates a jaeger_client.Tracer via Config().initialization_tracer.
-    Default config argument will consist only of service name of 'SignalFx-Tracing' value.
+    Creates a jaeger_client.Tracer via Config().initialize_tracer().
+    Default config argument will consist of service name of 'SignalFx-Tracing' value,
+    B3 span propagation, and a ConstSampler.
     """
     access_token = access_token or os.environ.get('SIGNALFX_ACCESS_TOKEN')
     if not access_token:
@@ -67,6 +68,10 @@ def create_tracer(access_token=None, set_global=True, config=None, *args, **kwar
         config['jaeger_user'] = 'auth'
     if 'jaeger_password' not in config:
         config['jaeger_password'] = access_token
+    if 'sampler' not in config:
+        config['sampler'] = dict(type='const', param=1)
+    if 'propagation' not in config:
+        config['propagation'] = 'b3'
     jaeger_config = Config(config, *args, **kwargs)
 
     tracer = jaeger_config.initialize_tracer()
