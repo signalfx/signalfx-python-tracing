@@ -11,3 +11,4 @@ pytest-django
 redis
 requests
 tornado
+six
