@@ -5,5 +5,6 @@ git+ssh://git@github.com/signalfx/python-dbapi.git#egg=dbapi-opentracing
 git+ssh://git@github.com/signalfx/python-pymongo.git#egg=pymongo-opentracing
 https://github.com/signalfx/python-redis/tarball/ot_v2.0#egg=redis-opentracing
 git+ssh://git@github.com/signalfx/python-requests.git#egg=requests-opentracing
+https://github.com/signalfx/jaeger-client-python/tarball/ot_20_http_sender#egg=jaeger-client
 tornado_opentracing
 wrapt

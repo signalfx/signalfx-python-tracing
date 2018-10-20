@@ -115,3 +115,32 @@ tracer = create_tracer(
     scope_manager=TornadoScopeManager  # Necessary for span scope in Tornado applications
 )
 ```
+
+## Usage
+
+SignalFx-Tracing auto-instrumentation and its configuration can be performed while loading your
+framework-based and library-utilizing application as described in the corresponding
+[instrumentation instructions](#supported-frameworks-and-libraries).
+However, if you have installed the recommend Jaeger client (`./bootstrap.py --jaeger`) and would like to
+automatically instrument your applicable program with the default settings, a helpful `sfx-py-trace` entry point
+is provided by the installer:
+
+```sh
+ $ SIGNALFX_ACCESS_TOKEN=<MyAccessToken> sfx-py-trace my_application.py --app_arg_one --app_arg_two
+ # or
+ $ sfx-py-trace --token <MyAccessToken> my_application.py --app_arg_one --app_arg_two
+```
+
+**Note: `sfx-py-trace` cannot, at this time, enable auto-instrumentation of Django projects, as the instrumentor
+application must be added to the project settings' installed apps for lazy tracer creation.**
+
+This command line script loader will create a Jaeger tracer instance using the access token specified via
+environment variable or argument to report your spans to SignalFx.  It will then call `auto_instrument()` before
+running your target application file in its own module namespace.  It's important to note that due to potential
+deadlocks in importing forking code, a Jaeger tracer cannot be initialized as a side effect of an import statement
+(see: [Python threading doc](https://docs.python.org/2/library/threading.html#importing-in-threaded-code) and
+[known Jaeger issue](https://github.com/jaegertracing/jaeger-client-python/issues/60#issuecomment-318909730)).
+
+Because of this constraint, the `sfx-py-trace` utility is not a substitute for a system Python executable and
+must be provided a target Python script or path with `__main__` module.  There are plans to remove Jaeger's
+Tornado dependency that will remove this restriction in the future and allow expanded functionality.

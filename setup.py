@@ -31,5 +31,11 @@ setup(name='signalfx-tracing',
               'docker',
               'mock',
               'pytest',
+              'six',
           ],
+      },
+      entry_points={
+          'console_scripts': [
+              'sfx-py-trace = scripts.sfx_py_trace:main'
+          ]
       })
