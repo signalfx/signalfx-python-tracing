@@ -23,7 +23,7 @@ def main():
     auto_instrument(create_tracer(access_token=access_token, set_global=True))
 
     sys.argv = [args.target] + args.target_args
-    runpy.run_path(args.target)
+    runpy.run_path(args.target, run_name='__main__')
 
 
 if __name__ == '__main__':
