@@ -1,4 +1,4 @@
-# SignalFx-Tracing: A Python OpenTracing Auto-Instrumenter
+# SignalFx-Tracing Library for Python: An OpenTracing Auto-Instrumenter
 
 This utility provides users with the ability of automatically configuring
 OpenTracing 2.0-compatible community-contributed [instrumentation libraries](https://github.com/opentracing-contrib)
@@ -59,7 +59,7 @@ def untraced_route():
 
 ## Installation and Configuration
 
-SignalFx-Tracing works by detecting your available libraries and frameworks and configuring
+The SignalFx-Tracing Library for Python works by detecting your available libraries and frameworks and configuring
 instrumentors for distributed tracing via the Python
 [OpenTracing API 2.0](https://pypi.org/project/opentracing/2.0.0/).  As adoption of this API
 is done on a per-instrumentor basis, it's recommended that you use the helpful bootstrap
@@ -118,8 +118,8 @@ tracer = create_tracer(
 
 ## Usage
 
-SignalFx-Tracing auto-instrumentation and its configuration can be performed while loading your
-framework-based and library-utilizing application as described in the corresponding
+The SignalFx-Tracing Library for Python's auto-instrumentation configuration can be performed while loading
+your framework-based and library-utilizing application as described in the corresponding
 [instrumentation instructions](#supported-frameworks-and-libraries).
 However, if you have installed the recommend Jaeger client (`./bootstrap.py --jaeger`) and would like to
 automatically instrument your applicable program with the default settings, a helpful `sfx-py-trace` entry point
