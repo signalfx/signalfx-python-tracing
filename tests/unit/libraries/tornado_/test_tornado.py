@@ -1,6 +1,7 @@
 # Copyright (C) 2018 SignalFx, Inc. All rights reserved.
 from tornado.testing import AsyncHTTPTestCase
 from opentracing.mocktracer import MockTracer
+from opentracing.ext import tags
 import tornado.web
 import opentracing
 import pytest
@@ -80,7 +81,8 @@ class TestTornadoApplicationAndClient(AsyncHTTPTestCase, TornadoTestSuite):
                                     'http.method': 'GET',
                                     'http.status_code': 200,
                                     'method': 'GET',
-                                    'path': '/endpoint'}
+                                    'path': '/endpoint',
+                                    tags.SPAN_KIND: tags.SPAN_KIND_RPC_SERVER}
         assert client_span.operation_name == 'GET'
         assert client_span.tags == {'component': 'tornado',
                                     'span.kind': 'client',
@@ -131,7 +133,8 @@ class TestTornadoApplicationAndNotClient(AsyncHTTPTestCase, TornadoTestSuite):
                                     'http.method': 'GET',
                                     'http.status_code': 200,
                                     'method': 'GET',
-                                    'path': '/endpoint'}
+                                    'path': '/endpoint',
+                                    tags.SPAN_KIND: tags.SPAN_KIND_RPC_SERVER}
 
     def test_uninstrument_application(self):
         self.http_client.fetch(self.get_url('/endpoint'), self.stop)

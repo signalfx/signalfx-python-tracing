@@ -1,7 +1,7 @@
 # Copyright (C) 2018 SignalFx, Inc. All rights reserved.
 from time import sleep
 
-from opentracing.scope_managers.flask import FlaskScopeManager
+from flask_opentracing import FlaskScopeManager
 from opentracing.mocktracer import MockTracer
 from threading import Thread
 import opentracing

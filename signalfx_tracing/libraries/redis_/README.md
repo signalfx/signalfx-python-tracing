@@ -6,12 +6,10 @@
 The SignalFx Auto-instrumenter configures the OpenTracing Redis-Py instrumentation for your 2.10+ `StrictRedis`
 client commands.  You can enable instrumentation within your client, pipeline, and PubSub commands by invoking
 the `signalfx_tracing.auto_instrument()` function before initializing your `StrictRedis` object.
-To configure tracing, some tunables are provided via `redis_config` to establish the desired tracer and
-custom operation name prefixes for all created spans:
+To configure tracing, a tunable is provided via `redis_config` to establish the desired tracer:
 
 | Setting name | Definition | Default value |
 | -------------|------------|---------------|
-| operation_prefix | String prefix to prepend to all spans' operation names. | `"Redis"` |
 | tracer | An instance of an OpenTracing-compatible tracer for all Redis traces. | `opentracing.tracer` |
 
 ```python
@@ -39,7 +37,6 @@ import redis
 # traced_client = StrictRedis(...)
 # ***
 
-redis_config.operation_prefix = 'MyOperationalZone'
 redis_config.tracer = MyTracer()
 
 auto_instrument()  # or instrument(redis=True)

@@ -8,7 +8,6 @@ from signalfx_tracing import utils
 # Configures Redis tracing as described by
 # https://github.com/opentracing-contrib/python-redis/blob/master/README.rst
 config = utils.Config(
-    operation_prefix='Redis',
     tracer=None,
 )
 
@@ -20,8 +19,7 @@ def instrument(tracer=None):
 
     redis_opentracing = utils.get_module('redis_opentracing')
     redis_opentracing.init_tracing(tracer=tracer or config.tracer or opentracing.tracer,
-                                   trace_all_classes=False,
-                                   prefix=config.operation_prefix)
+                                   trace_all_classes=False)
 
     def traced_client(__init__, client, args, kwargs):
         __init__(*args, **kwargs)

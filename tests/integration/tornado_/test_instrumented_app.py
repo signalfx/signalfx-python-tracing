@@ -3,6 +3,7 @@ from time import sleep
 
 from opentracing.mocktracer import MockTracer
 from tornado.ioloop import IOLoop
+from opentracing.ext import tags
 from threading import Thread
 import requests
 import tornado
@@ -115,4 +116,5 @@ class TestTornadoApp(object):
                              'method': tagged_method,
                              'path': '/hello/MyName',
                              'query': query,
-                             'some_tag': True}
+                             'some_tag': True,
+                             tags.SPAN_KIND: tags.SPAN_KIND_RPC_SERVER}

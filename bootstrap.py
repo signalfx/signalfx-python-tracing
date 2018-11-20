@@ -12,17 +12,17 @@ def is_installed(library):
     return library in sys.modules or pkgutil.find_loader(library) is not None
 
 
-opentracing = 'https://github.com/signalfx/opentracing-python/tarball/flask_scope_manager#egg=opentracing'
+opentracing = 'opentracing==2.0.0'
 jaeger_client = 'https://github.com/signalfx/jaeger-client-python/tarball/ot_20_http_sender#egg=jaeger-client'
 
 instrumenters = {
-    'flask': 'https://github.com/signalfx/python-flask/tarball/use_flask_scope_manager#egg=flask-opentracing',
+    'flask': 'https://github.com/signalfx/python-flask/tarball/adopt_scope_manager#egg=flask_opentracing',
     'django': 'https://github.com/signalfx/python-django/tarball/django_2_ot_2_jaeger#egg=django-opentracing',
     'pymongo': 'git+ssh://git@github.com/signalfx/python-pymongo.git#egg=pymongo-opentracing',
     'pymysql': 'git+ssh://git@github.com/signalfx/python-dbapi.git#egg=dbapi-opentracing',
-    'redis': 'https://github.com/signalfx/python-redis/tarball/ot_v2.0#egg=redis-opentracing',
+    'redis': 'https://github.com/opentracing-contrib/python-redis/tarball/v1.0.0#egg=redis-opentracing',
     'requests': 'git+ssh://git@github.com/signalfx/python-requests.git#egg=requests-opentracing',
-    'tornado': 'tornado_opentracing',
+    'tornado': 'tornado_opentracing==1.0.1',
 }
 
 

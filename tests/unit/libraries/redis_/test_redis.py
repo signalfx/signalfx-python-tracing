@@ -25,7 +25,7 @@ class TestRedisConfig(RedisTestSuite):
 
         spans = tracer.finished_spans()
         assert len(spans) == 1
-        assert spans[0].operation_name == 'Redis/SET'
+        assert spans[0].operation_name == 'SET'
 
     def test_tracer_is_sourced(self):
         tracer = MockTracer()
@@ -38,21 +38,7 @@ class TestRedisConfig(RedisTestSuite):
 
         spans = tracer.finished_spans()
         assert len(spans) == 1
-        assert spans[0].operation_name == 'Redis/GET'
-
-    def test_prefix_is_sourced(self):
-        tracer = MockTracer()
-        config.tracer = tracer
-        config.operation_prefix = 'MyPrefix'
-
-        with mock.patch.object(redis.StrictRedis, 'execute_command', mock_execute_command):
-            instrument()
-            client = redis.StrictRedis()
-            client.move('key', 'db')
-
-        spans = tracer.finished_spans()
-        assert len(spans) == 1
-        assert spans[0].operation_name == 'MyPrefix/MOVE'
+        assert spans[0].operation_name == 'GET'
 
 
 class TestRedis(RedisTestSuite):
@@ -80,7 +66,7 @@ class TestRedis(RedisTestSuite):
 
         spans = tracer.finished_spans()
         assert len(spans) == 1
-        assert spans[0].operation_name == 'Redis/GET'
+        assert spans[0].operation_name == 'GET'
 
         uninstrument()
         tracer.reset()

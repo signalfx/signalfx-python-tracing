@@ -25,7 +25,6 @@ class TestClientTracing(object):
     def client_tracing(self, redis_container):
         tracer = MockTracer()
         config.tracer = tracer
-        config.operation_prefix = 'MyPrefix'
 
         instrument(redis=True)
         try:
@@ -47,7 +46,7 @@ class TestClientTracing(object):
         spans = tracer.finished_spans()
         assert len(spans) == 2
         req_span, root_span = spans
-        assert req_span.operation_name == 'MyPrefix/SET'
+        assert req_span.operation_name == 'SET'
 
         tags = req_span.tags
         assert tags[ext_tags.COMPONENT] == 'redis-py'

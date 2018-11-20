@@ -1,10 +1,10 @@
-https://github.com/signalfx/opentracing-python/tarball/flask_scope_manager#egg=opentracing
-https://github.com/signalfx/python-flask/tarball/use_flask_scope_manager#egg=flask_opentracing
+opentracing==2.0.0
+https://github.com/signalfx/python-flask/tarball/adopt_scope_manager#egg=flask_opentracing
 https://github.com/signalfx/python-django/tarball/django_2_ot_2_jaeger#egg=django-opentracing
 git+ssh://git@github.com/signalfx/python-dbapi.git#egg=dbapi-opentracing
 git+ssh://git@github.com/signalfx/python-pymongo.git#egg=pymongo-opentracing
-https://github.com/signalfx/python-redis/tarball/ot_v2.0#egg=redis-opentracing
+https://github.com/opentracing-contrib/python-redis/tarball/v1.0.0#egg=redis-opentracing
 git+ssh://git@github.com/signalfx/python-requests.git#egg=requests-opentracing
 https://github.com/signalfx/jaeger-client-python/tarball/ot_20_http_sender#egg=jaeger-client
-tornado_opentracing
+tornado_opentracing==1.0.1
 wrapt
