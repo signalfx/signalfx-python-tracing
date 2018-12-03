@@ -24,9 +24,8 @@ class TestCreateTracer(object):
         if prev is not None:
             os.environ[env_var] = prev
 
-    def test_creation_requires_access_token(self):
-        with pytest.raises(ValueError):
-            utils.create_tracer()
+    def test_access_token_optional(self):
+        utils.create_tracer()
 
     def test_creation_with_access_token_arg(self):
         tracer = utils.create_tracer('AccessToken')

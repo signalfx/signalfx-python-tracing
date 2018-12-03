@@ -17,8 +17,6 @@ ap.add_argument('target_args', help='Arguments for your application.', nargs=REM
 def main():
     args = ap.parse_args()
     access_token = args.token or os.environ.get('SIGNALFX_ACCESS_TOKEN')
-    if not access_token:
-        ap.error('You must provide --token or set "SIGNALFX_ACCESS_TOKEN" environment variable.')
 
     auto_instrument(create_tracer(access_token=access_token, set_global=True))
 

@@ -2,7 +2,7 @@ from subprocess import check_output, CalledProcessError, STDOUT
 import os.path
 import os
 
-from six import text_type as tt
+from six import PY2, text_type as tt
 import pytest
 
 
@@ -25,10 +25,12 @@ class TestRunner(object):
     def check_output(self, arg_ls, **kwargs):
         return check_output(arg_ls, stderr=STDOUT, **kwargs)
 
-    def test_missing_token_arg(self):
-        with pytest.raises(CalledProcessError) as e:
+    def test_token_arg_optional_without_env_var(self):
+        with pytest.raises(Exception) as e:
             self.check_output(['sfx-py-trace', 'file.py'])
-        assert 'You must provide --token or set "SIGNALFX_ACCESS_TOKEN" environment variable.' in tt(e.value.output)
+        # check that target run attempted after instrumentation
+        expected = "No such file or directory: {0}file.py{0}".format("\'" if PY2 else "\\'")
+        assert expected in tt(e.value.output)
 
     def test_env_var_missing_target(self):
         env = dict(os.environ)
@@ -65,5 +67,13 @@ class TestRunner(object):
         output = tt(e.value.output)
         assert 'required' in output or '--one' in output
 
-    def test_named_with_target_args(self):
+    def test_named_with_token_and_target_args(self):
         self.check_output(['sfx-py-trace', '--token', '123', target] + target_args)
+
+    def test_named_with_token_env_var_and_target_args(self):
+        env = dict(os.environ)
+        env['SIGNALFX_ACCESS_TOKEN'] = '123'
+        self.check_output(['sfx-py-trace', target] + target_args, env=env)
+
+    def test_named_without_token_and_target_args(self):
+        self.check_output(['sfx-py-trace', target] + target_args)

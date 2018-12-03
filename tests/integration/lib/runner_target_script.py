@@ -18,7 +18,7 @@ else:
     ap.add_argument('-i', dest='i', type=int, nargs='+')
     ap.add_argument('-j', dest='j', type=int, nargs='+')
 
-# Test for sfx_py_tracing collisions
+    # Test for sfx_py_tracing collisions
     ap.add_argument('-t', dest='t', type=str)
     ap.add_argument('--token', dest='token', type=str)
 

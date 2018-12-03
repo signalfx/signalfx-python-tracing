@@ -55,23 +55,21 @@ def create_tracer(access_token=None, set_global=True, config=None, *args, **kwar
     Default config argument will consist of service name of 'SignalFx-Tracing' value,
     B3 span propagation, and a ConstSampler.
     """
-    access_token = access_token or os.environ.get('SIGNALFX_ACCESS_TOKEN')
-    if not access_token:
-        raise ValueError('Please provide a valid SignalFx access token or '
-                         'set the SIGNALFX_ACCESS_TOKEN environment variable.')
-    from jaeger_client import Config
-
     config = config or dict(service_name='SignalFx-Tracing')
+    access_token = access_token or os.environ.get('SIGNALFX_ACCESS_TOKEN')
+
     if 'jaeger_endpoint' not in config:
         config['jaeger_endpoint'] = 'https://ingest.signalfx.com/v1/trace'
-    if 'jaeger_user' not in config:
+    if 'jaeger_user' not in config and access_token:
         config['jaeger_user'] = 'auth'
-    if 'jaeger_password' not in config:
+    if 'jaeger_password' not in config and access_token:
         config['jaeger_password'] = access_token
     if 'sampler' not in config:
         config['sampler'] = dict(type='const', param=1)
     if 'propagation' not in config:
         config['propagation'] = 'b3'
+
+    from jaeger_client import Config
     jaeger_config = Config(config, *args, **kwargs)
 
     tracer = jaeger_config.initialize_tracer()
