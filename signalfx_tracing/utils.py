@@ -53,23 +53,42 @@ def create_tracer(access_token=None, set_global=True, config=None, *args, **kwar
     """
     Creates a jaeger_client.Tracer via Config().initialize_tracer().
     Default config argument will consist of service name of 'SignalFx-Tracing' value,
-    B3 span propagation, and a ConstSampler.
+    B3 span propagation, and a ConstSampler.  These are tunable by env vars.
     """
-    config = config or dict(service_name='SignalFx-Tracing')
-    access_token = access_token or os.environ.get('SIGNALFX_ACCESS_TOKEN')
+    try:
+        from jaeger_client import Config
+        from jaeger_client import constants
+    except ImportError:
+        raise RuntimeError('create_tracer() is only for environments with jaeger-client installed.')
+
+    config = config or {}
+    if 'service_name' not in config:
+        config['service_name'] = _get_env_var('SIGNALFX_SERVICE_NAME', 'SignalFx-Tracing')
 
     if 'jaeger_endpoint' not in config:
-        config['jaeger_endpoint'] = 'https://ingest.signalfx.com/v1/trace'
-    if 'jaeger_user' not in config and access_token:
-        config['jaeger_user'] = 'auth'
-    if 'jaeger_password' not in config and access_token:
-        config['jaeger_password'] = access_token
-    if 'sampler' not in config:
-        config['sampler'] = dict(type='const', param=1)
-    if 'propagation' not in config:
-        config['propagation'] = 'b3'
+        config['jaeger_endpoint'] = _get_env_var('SIGNALFX_INGEST_URL', 'https://ingest.signalfx.com/v1/trace')
 
-    from jaeger_client import Config
+    access_token = access_token or _get_env_var('SIGNALFX_ACCESS_TOKEN')
+    if 'jaeger_user' not in config and access_token is not None:
+        config['jaeger_user'] = 'auth'
+    if 'jaeger_password' not in config and access_token is not None:
+        config['jaeger_password'] = access_token
+
+    if 'sampler' not in config:
+        sampler_type = _get_env_var('SIGNALFX_SAMPLER_TYPE', 'const')
+
+        sampler_param = _get_env_var('SIGNALFX_SAMPLER_PARAM', 1)
+        if sampler_type == constants.SAMPLER_TYPE_CONST:
+            sampler_param = int(float(sampler_param))
+        elif sampler_type in (constants.SAMPLER_TYPE_PROBABILISTIC,
+                              constants.SAMPLER_TYPE_RATE_LIMITING,
+                              constants.SAMPLER_TYPE_LOWER_BOUND):
+            sampler_param = float(sampler_param)
+        config['sampler'] = dict(type=sampler_type, param=sampler_param)
+    if 'propagation' not in config:
+        propagation = _get_env_var('SIGNALFX_PROPAGATION', 'b3')
+        config['propagation'] = propagation
+
     jaeger_config = Config(config, *args, **kwargs)
 
     tracer = jaeger_config.initialize_tracer()
@@ -77,3 +96,9 @@ def create_tracer(access_token=None, set_global=True, config=None, *args, **kwar
         import opentracing
         opentracing.tracer = tracer
     return tracer
+
+
+def _get_env_var(env_var, default=None):
+    not_provided = '__not_provided__'
+    val = os.environ.get(env_var, not_provided)
+    return default if val == not_provided else val
