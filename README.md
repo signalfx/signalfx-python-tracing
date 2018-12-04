@@ -90,15 +90,14 @@ Where applicable, context propagation will be done via [B3 headers](https://gith
 ```python
 from signalfx_tracing import create_tracer
 
-tracer = create_tracer('<MyAccessToken>', ...)  # sets the global opentracing.tracer by default
+# sets the global opentracing.tracer by default:
+tracer = create_tracer()  # uses 'SIGNALFX_ACCESS_TOKEN' environment variable if provided
 
-# or by using the token environment variable:
-import os
-os.environ['SIGNALFX_ACCESS_TOKEN'] = '<MyAccessToken>'
-tracer = create_tracer()
+# or directly provide your organization access token if not using the Smart Agent or Smart Gateway to analyze spans:
+tracer = create_tracer('<OrganizationAccessToken>', ...)
 
 # or to disable setting the global tracer:
-tracer = create_tracer('<MyAccessToken>', set_global=False)
+tracer = create_tracer(set_global=False)
 ```
 
 All other `create_tracer()` arguments are those that can be passed to a `jaeger_client.Config` constructor:
@@ -107,14 +106,28 @@ from opentracing.scope_managers.tornado import TornadoScopeManager
 from signalfx_tracing import create_tracer
 
 tracer = create_tracer(
-    '<MyAccessToken>',
+    '<OrganizationAccessToken>',
     config={'sampler': {'type': 'probabilistic', 'param': .05 }, 
     # 5% chance of tracing: 'sampler': {'type': 'const', 'param': 1} by default
             'logging': True},
     service_name='MyTracedApplication',
+    jaeger_endpoint='http://localhost:9080/v1/trace',
     scope_manager=TornadoScopeManager  # Necessary for span scope in Tornado applications
 )
 ```
+
+If a `config` dictionary isn't provided or doesn't specify the desired items for your tracer, the following environment
+variables are checked for before selecting a default value:
+
+| Config kwarg | environment variable | default value |
+|--------------|----------------------|---------------|
+| `service_name` | `SIGNALFX_SERVICE_NAME` | `'SignalFx-Tracing'` |
+| `jaeger_endpoint` | `SIGNALFX_INGEST_URL` | `'https://ingest.signalfx.com/v1/trace'` |
+| `jaeger_password` | `SIGNALFX_ACCESS_TOKEN` | `None` |
+| `['sampler']['type']` | `SIGNALFX_SAMPLER_TYPE` | `'const'` |
+| `['sampler']['param']` | `SIGNALFX_SAMPLER_PARAM` | `1` |
+| `propagation` | `SIGNALFX_PROPAGATION` | `'b3'` |
+
 
 ## Usage
 
@@ -126,9 +139,11 @@ automatically instrument your applicable program with the default settings, a he
 is provided by the installer:
 
 ```sh
- $ SIGNALFX_ACCESS_TOKEN=<MyAccessToken> sfx-py-trace my_application.py --app_arg_one --app_arg_two
+ $ SIGNALFX_INGEST_URL='http://localhost:9080/v1/trace' sfx-py-trace my_application.py --app_arg_one --app_arg_two
+ # not providing an access token assumes usage of the Smart Agent and/or Smart Gateway
+ $ SIGNALFX_ACCESS_TOKEN=<OrganizationAccessToken> sfx-py-trace my_application.py --app_arg_one --app_arg_two
  # or
- $ sfx-py-trace --token <MyAccessToken> my_application.py --app_arg_one --app_arg_two
+ $ sfx-py-trace --token <OrganizationAccessToken> my_application.py --app_arg_one --app_arg_two
 ```
 
 **Note: `sfx-py-trace` cannot, at this time, enable auto-instrumentation of Django projects, as the instrumentor
