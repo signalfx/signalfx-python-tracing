@@ -18,10 +18,10 @@ jaeger_client = 'https://github.com/signalfx/jaeger-client-python/tarball/ot_20_
 instrumenters = {
     'flask': 'https://github.com/signalfx/python-flask/tarball/adopt_scope_manager#egg=flask_opentracing',
     'django': 'https://github.com/signalfx/python-django/tarball/django_2_ot_2_jaeger#egg=django-opentracing',
-    'pymongo': 'git+ssh://git@github.com/signalfx/python-pymongo.git#egg=pymongo-opentracing',
-    'pymysql': 'git+ssh://git@github.com/signalfx/python-dbapi.git#egg=dbapi-opentracing',
+    'pymongo': 'https://github.com/signalfx/python-pymongo/tarball/master#egg=pymongo-opentracing',
+    'pymysql': 'https://github.com/signalfx/python-dbapi/tarball/master#egg=dbapi-opentracing',
     'redis': 'https://github.com/opentracing-contrib/python-redis/tarball/v1.0.0#egg=redis-opentracing',
-    'requests': 'git+ssh://git@github.com/signalfx/python-requests.git#egg=requests-opentracing',
+    'requests': 'https://github.com/signalfx/python-requests/tarball/master#egg=requests-opentracing',
     'tornado': 'tornado_opentracing==1.0.1',
 }
 
