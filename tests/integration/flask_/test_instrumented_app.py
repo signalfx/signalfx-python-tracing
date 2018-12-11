@@ -12,14 +12,14 @@ import six
 from signalfx_tracing.libraries import flask_config
 from signalfx_tracing import instrument
 
-
-app_endpoint = 'http://127.0.0.1:32321/hello/MyName'
-bp_endpoint = 'http://127.0.0.1:32321/bp/MyPage'
+base_url = 'http://127.0.0.1:32321/'
+app_endpoint = '{0}hello/MyName'.format(base_url)
+bp_endpoint = '{0}bp/MyPage'.format(base_url)
+traced_endpoint = '{0}traced'.format(base_url)
 
 
 class TestFlaskApp(object):
-
-    _app_store = [None]     # pytest doesn't persist attributes set in class-scoped autouse
+    _app_store = [None]  # pytest doesn't persist attributes set in class-scoped autouse
     _tracer_store = [None]  # fixtures, so use stores as a hack.
 
     @property
@@ -121,3 +121,26 @@ class TestFlaskApp(object):
         if http_method != 'options':
             expected_tags['handled'] = 'tag'
         assert span.tags == expected_tags
+
+    def test_traced_helper(self):  # piggyback integration test for trace decorator
+        assert requests.get(traced_endpoint).status_code == 200
+        spans = self.tracer.finished_spans()
+        assert len(spans) == 2
+        child, parent = spans
+
+        assert child.tags == dict(one=1, two=2)
+        assert child.operation_name == 'myTracedHelper'
+        assert child.context.trace_id == parent.context.trace_id
+        assert child.parent_id == parent.context.span_id
+
+        assert parent.operation_name == 'my_traced_route'
+        expected_tags = {'blueprint': 'None',
+                         'component': 'Flask',
+                         'http.method': 'GET',
+                         'http.status_code': 200,
+                         'http.url': traced_endpoint,
+                         'method': 'GET',
+                         'path': '/traced',
+                         'span.kind': 'server',
+                         'handled': 'tag'}
+        assert parent.tags == expected_tags
