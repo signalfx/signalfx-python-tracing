@@ -63,10 +63,11 @@ The SignalFx-Tracing Library for Python works by detecting your available librar
 instrumentors for distributed tracing via the Python
 [OpenTracing API 2.0](https://pypi.org/project/opentracing/2.0.0/).  As adoption of this API
 is done on a per-instrumentor basis, it's recommended that you use the helpful bootstrap
-utility for obtaining and installing feature-ready instrumentor versions:
+utility for obtaining and installing feature-ready instrumentor versions and a compatible tracer:
 
 ```sh
- $ ./bootstrap.py
+ $ pip install signalfx-tracing
+ $ sfx-py-trace-bootstrap
 ```
 
 For example, if your environment has Requests and Flask in its Python path, the corresponding OpenTracing
@@ -75,12 +76,14 @@ ubiquitous, this bootstrap selectively installs custom instrumentors listed in
 [the requirements file](./requirements.txt).  As such, we suggest being sure to uninstall any previous
 instrumentor versions before running the bootstrapper, ideally in a clean environment.
 
-Not all stable versions of OpenTracing-compatible tracers support the 2.0 API, so we provide the option
-of, and highly recommend, installing a modified [Jaeger Client](https://github.com/jaegertracing/jaeger-client-python)
-ready for reporting to SignalFx:
+Not all stable versions of OpenTracing-compatible tracers support the 2.0 API, so we provide
+and highly recommend installing a modified [Jaeger Client](https://github.com/jaegertracing/jaeger-client-python)
+ready for reporting to SignalFx.  This is done by default when running `sfx-py-trace-bootstrap`.  To
+run the instrumentor bootstrap process without installing our Jaeger fork, you can run:
 
 ```sh
- $ ./bootstrap.py --jaeger
+ $ pip install signalfx-tracing
+ $ scripts/bootstrap.py --deps-only
 ```
 
 You can obtain an instance of this tracer using the `signalfx_tracing.utils.create_tracer()` helper.  By default

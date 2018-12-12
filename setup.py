@@ -2,7 +2,6 @@
 # Copyright (C) 2018 SignalFx, Inc. All rights reserved.
 from setuptools import setup, find_packages
 
-
 version = '0.0.1'
 
 setup(name='signalfx-tracing',
@@ -12,7 +11,7 @@ setup(name='signalfx-tracing',
       description='Provides auto-instrumentation for OpenTracing traced libraries and frameworks',
       license='Apache Software License v2',
       classifiers=[
-          'Development Status :: 3 - Alpha',
+          'Development Status ::  4 - Beta',
           'Intended Audience :: Developers',
           'Natural Language :: English',
           'License :: OSI Approved :: Apache Software License',
@@ -25,7 +24,10 @@ setup(name='signalfx-tracing',
           'Programming Language :: Python :: 3.6',
       ],
       packages=find_packages(),
-      install_requires=['wrapt'],
+      install_requires=[
+          'opentracing==2.0.0',
+          'wrapt'
+      ],
       extras_require={
           'tests': [
               'docker',
@@ -36,6 +38,7 @@ setup(name='signalfx-tracing',
       },
       entry_points={
           'console_scripts': [
-              'sfx-py-trace = scripts.sfx_py_trace:main'
+              'sfx-py-trace = scripts.sfx_py_trace:main',
+              'sfx-py-trace-bootstrap = scripts.bootstrap:console_script'
           ]
       })

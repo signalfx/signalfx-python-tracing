@@ -12,10 +12,9 @@ def is_installed(library):
     return library in sys.modules or pkgutil.find_loader(library) is not None
 
 
-opentracing = 'opentracing==2.0.0'
 jaeger_client = 'https://github.com/signalfx/jaeger-client-python/tarball/ot_20_http_sender#egg=jaeger-client'
 
-instrumenters = {
+instrumentors = {
     'flask': 'https://github.com/signalfx/python-flask/tarball/adopt_scope_manager#egg=flask_opentracing',
     'django': 'https://github.com/signalfx/python-django/tarball/django_2_ot_2_jaeger#egg=django-opentracing',
     'pymongo': 'https://github.com/signalfx/python-pymongo/tarball/master#egg=pymongo-opentracing',
@@ -26,20 +25,43 @@ instrumenters = {
 }
 
 
-if __name__ == '__main__':
+def install_jaeger():
+    print('Installing Jaeger Client.')
+    subprocess.check_call([sys.executable, '-m', 'pip', 'install', jaeger_client])
+
+
+def install_deps():
+    for library, instrumentor in instrumentors.items():
+        if is_installed(library):
+            print('Installing {} instrumentor.'.format(library))
+            subprocess.check_call([sys.executable, '-m', 'pip', 'install', instrumentor])
+
+
+def install_sfx_py_trace():
+    cwd = os.path.abspath(os.path.join(os.path.dirname(__file__), '../'))
+    print('Installing SignalFx-Tracing.')
+    subprocess.check_call([sys.executable, '-m', 'pip', 'install', '-I', cwd])
+
+
+def console_script():
+    install_jaeger()
+    install_deps()
+
+
+def main():
     ap = ArgumentParser()
     ap.add_argument('--jaeger', action='store_true')
+    ap.add_argument('--deps-only', action='store_true')
     args = ap.parse_args()
-    cwd = os.path.abspath(os.path.dirname(__file__))
 
     if args.jaeger:
-        print('Installing Jaeger Client.')
-        subprocess.check_call([sys.executable, '-m', 'pip', 'install', jaeger_client])
+        install_jaeger()
 
-    for library, instrumenter in instrumenters.items():
-        if is_installed(library):
-            print('Installing {} instrumenter.'.format(library))
-            subprocess.check_call([sys.executable, '-m', 'pip', 'install', instrumenter])
+    install_deps()
 
-    print('Installing SignalFx-Tracing.')
-    subprocess.check_call([sys.executable, '-m', 'pip', 'install', '-I', opentracing, cwd])
+    if not args.deps_only:
+        install_sfx_py_trace()
+
+
+if __name__ == '__main__':
+    sys.exit(main())
