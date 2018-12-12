@@ -1,3 +1,4 @@
+# Copyright (C) 2018 SignalFx, Inc. All rights reserved.
 from argparse import ArgumentParser
 import sys
 import os

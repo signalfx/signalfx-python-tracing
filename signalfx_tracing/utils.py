@@ -1,9 +1,13 @@
 # Copyright (C) 2018 SignalFx, Inc. All rights reserved.
+import functools
 import importlib
+import traceback
 import sys
 import os
 
-from wrapt import ObjectProxy
+from opentracing.ext import tags as ext_tags
+from wrapt import decorator, ObjectProxy
+import opentracing
 
 from .constants import instrumented_attr
 
@@ -102,3 +106,49 @@ def _get_env_var(env_var, default=None):
     not_provided = '__not_provided__'
     val = os.environ.get(env_var, not_provided)
     return default if val == not_provided else val
+
+
+def trace(operation_name=None, tags=None, **kwargs):
+    """Tracer decorator to allow easy instrumentation:
+    @trace
+    def my_traced_function():  # operation name defaults to function name
+        return do_work()
+
+    @trace(operation_name='myOperationName', tags=dict(desired_tag='desired_value'))
+    def my_other_traced_function(*args, **kwargs):
+        # Will be active span created for this traced method
+        span = opentracing.tracer.active_span
+        span.log_kv(dict(some='thing'))
+        span.set_tag('MyTag', 'MyValue')
+        return 'MyValue'
+
+    @trace('myOtherOperationName', dict(desired_tag='desired_value'))
+    def another_traced_function(*args, **kwargs):
+        span = opentracing.tracer.active_span
+        span.set_tag('MyTag', 'MyValue')
+        return 'MyValue'
+    """
+
+    # operation_name will be the traced function if not providing trace arguments
+    if not callable(operation_name):
+        deferred_kwargs = dict(tags=tags)
+        if operation_name is not None:  # not only tags provided
+            deferred_kwargs['deferred_operation_name'] = operation_name
+        return functools.partial(trace, **deferred_kwargs)
+
+    _wrapped = operation_name
+    operation_name = kwargs.pop('deferred_operation_name', _wrapped.__name__)
+
+    @decorator
+    def _trace(wrapped, _, _args, _kwargs):
+        with opentracing.tracer.start_active_span(operation_name, tags=tags) as scope:
+            try:
+                return wrapped(*_args, **_kwargs)
+            except Exception:
+                span = scope.span
+                span.set_tag(ext_tags.ERROR, True)
+                span.log_kv({'event': 'error',
+                             'error.object': traceback.format_exc()})
+                raise
+
+    return _trace(_wrapped)
