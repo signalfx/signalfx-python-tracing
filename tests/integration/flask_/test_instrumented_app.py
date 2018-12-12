@@ -143,4 +143,6 @@ class TestFlaskApp(object):
                          'path': '/traced',
                          'span.kind': 'server',
                          'handled': 'tag'}
+        if six.PY3:  # https://github.com/opentracing-contrib/python-flask/pull/28
+            expected_tags['query_string'] = "b''"
         assert parent.tags == expected_tags
