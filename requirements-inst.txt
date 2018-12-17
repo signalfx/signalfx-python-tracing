@@ -1,0 +1,8 @@
+dbapi-opentracing
+https://github.com/signalfx/python-django.git@django_2_ot_2_jaeger#egg=django-opentracing
+https://github.com/signalfx/python-flask.git@adopt_scope_manager#egg=flask_opentracing
+https://github.com/signalfx/jaeger-client-python.git@ot_20_http_sender#egg=jaeger-client
+pymongo-opentracing
+https://github.com/opentracing-contrib/python-redis.git@v1.0.0#egg=redis-opentracing
+requests-opentracing
+tornado_opentracing>=1.0.1

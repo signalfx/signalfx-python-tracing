@@ -59,33 +59,63 @@ def untraced_route():
 
 ## Installation and Configuration
 
-The SignalFx-Tracing Library for Python works by detecting your available libraries and frameworks and configuring
-instrumentors for distributed tracing via the Python
-[OpenTracing API 2.0](https://pypi.org/project/opentracing/2.0.0/).  As adoption of this API
-is done on a per-instrumentor basis, it's recommended that you use the helpful bootstrap
-utility for obtaining and installing feature-ready instrumentor versions:
+### Library and Instrumentors
+The SignalFx-Tracing Library for Python works by detecting your libraries and frameworks and configuring available
+instrumentors for distributed tracing via the Python [OpenTracing API 2.0](https://pypi.org/project/opentracing/2.0.0/). 
+By default, its footprint is small and doesn't declare any instrumentors as dependencies. That is, it operates on the
+assumption that you have 2.0-compatible instrumentors installed as needed. As adoption of this API is done on a
+per-instrumentor basis, it's highly recommended you use the helpful bootstrap utility for obtaining and installing any
+applicable, feature-ready instrumentors along with a compatible tracer:
 
 ```sh
- $ ./bootstrap.py
+ $ pip install signalfx-tracing
+ $ sfx-py-trace-bootstrap
 ```
 
 For example, if your environment has Requests and Flask in its Python path, the corresponding OpenTracing
 instrumentors will be pip installed.  Again, since OpenTracing-Contrib instrumentation support of API 2.0 is not
 ubiquitous, this bootstrap selectively installs custom instrumentors listed in
-[the requirements file](./requirements.txt).  As such, we suggest being sure to uninstall any previous
+[the instrumentor requirements file](./requirements-inst.txt).  As such, we suggest being sure to uninstall any previous
 instrumentor versions before running the bootstrapper, ideally in a clean environment.
 
-Not all stable versions of OpenTracing-compatible tracers support the 2.0 API, so we provide the option
-of, and highly recommend, installing a modified [Jaeger Client](https://github.com/jaegertracing/jaeger-client-python)
-ready for reporting to SignalFx:
+To run the instrumentor bootstrap process without installing the suggested tracer, you can run the following from this
+project's source tree:
 
 ```sh
- $ ./bootstrap.py --jaeger
+ $ scripts/bootstrap.py --deps-only
 ```
 
-You can obtain an instance of this tracer using the `signalfx_tracing.utils.create_tracer()` helper.  By default
-it will enable tracing with constant sampling (100% chance of tracing) and report each span directly to SignalFx.
-Where applicable, context propagation will be done via [B3 headers](https://github.com/openzipkin/b3-propagation).
+It's also possible to install the supported instrumentors as package extras:
+
+```bash
+  # Supported extras are dbapi, django, flask, pymongo, pymysql, redis, requests, tornado
+  $ pip install --process-dependency-links 'signalfx-tracing[django,redis,requests]'
+```
+
+**Note: It's necessary to include `--process-dependency-links` to obtain the desired instrumentor versions.**
+
+### Tracer
+Not all stable versions of OpenTracing-compatible tracers support the 2.0 API, so we provide
+and recommend installing a modified [Jaeger Client](https://github.com/jaegertracing/jaeger-client-python)
+ready for reporting to SignalFx. You can obtain an instance of the suggested Jaeger tracer using a
+ `signalfx_tracing.utils.create_tracer()` helper, provided you've run:
+
+```sh
+  $ sfx-py-trace-bootstrap
+
+  # or as package extra (please note required --process-dependency-links)
+  $ pip install --process-dependency-links 'signalfx-tracing[jaeger]'
+
+  # or from project source tree, along with applicable instrumentors
+  $ scripts/bootstrap.py --jaeger
+
+  # or to avoid applicable instrumentors
+  $ scripts/bootstrap.py --jaeger-only
+```
+
+By default `create_tracer()` will enable tracing with constant sampling (100% chance of tracing) and report each span
+directly to SignalFx. Where applicable, context propagation will be done via
+[B3 headers](https://github.com/openzipkin/b3-propagation).
 
 ```python
 from signalfx_tracing import create_tracer
@@ -93,7 +123,7 @@ from signalfx_tracing import create_tracer
 # sets the global opentracing.tracer by default:
 tracer = create_tracer()  # uses 'SIGNALFX_ACCESS_TOKEN' environment variable if provided
 
-# or directly provide your organization access token if not using the Smart Agent or Smart Gateway to analyze spans:
+# or directly provide your organization access token if not using the Smart Agent or Gateway to analyze spans:
 tracer = create_tracer('<OrganizationAccessToken>', ...)
 
 # or to disable setting the global tracer:
@@ -135,7 +165,7 @@ variables are checked for before selecting a default value:
 The SignalFx-Tracing Library for Python's auto-instrumentation configuration can be performed while loading
 your framework-based and library-utilizing application as described in the corresponding
 [instrumentation instructions](#supported-frameworks-and-libraries).
-However, if you have installed the recommend Jaeger client (`./bootstrap.py --jaeger`) and would like to
+However, if you have installed the recommended [Jaeger client](#Tracer) (`sfx-py-trace-bootstrap`) and would like to
 automatically instrument your applicable program with the default settings, a helpful `sfx-py-trace` entry point
 is provided by the installer:
 
