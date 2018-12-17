@@ -15,13 +15,13 @@ def is_installed(library):
 jaeger_client = 'https://github.com/signalfx/jaeger-client-python/tarball/ot_20_http_sender#egg=jaeger-client'
 
 instrumentors = {
-    'flask': 'https://github.com/signalfx/python-flask/tarball/adopt_scope_manager#egg=flask_opentracing',
     'django': 'https://github.com/signalfx/python-django/tarball/django_2_ot_2_jaeger#egg=django-opentracing',
-    'pymongo': 'https://github.com/signalfx/python-pymongo/tarball/master#egg=pymongo-opentracing',
-    'pymysql': 'https://github.com/signalfx/python-dbapi/tarball/master#egg=dbapi-opentracing',
+    'flask': 'https://github.com/signalfx/python-flask/tarball/adopt_scope_manager#egg=flask_opentracing',
+    'pymongo': 'pymongo-opentracing',
+    'pymysql': 'dbapi-opentracing',
     'redis': 'https://github.com/opentracing-contrib/python-redis/tarball/v1.0.0#egg=redis-opentracing',
-    'requests': 'https://github.com/signalfx/python-requests/tarball/master#egg=requests-opentracing',
-    'tornado': 'tornado_opentracing==1.0.1',
+    'requests': 'requests-opentracing',
+    'tornado': 'tornado_opentracing==1.0.1'
 }
 
 
@@ -51,11 +51,14 @@ def console_script():
 def main():
     ap = ArgumentParser()
     ap.add_argument('--jaeger', action='store_true')
+    ap.add_argument('--jaeger-only', action='store_true')
     ap.add_argument('--deps-only', action='store_true')
     args = ap.parse_args()
 
-    if args.jaeger:
+    if args.jaeger or args.jaeger_only:
         install_jaeger()
+        if args.jaeger_only:
+            return
 
     install_deps()
 

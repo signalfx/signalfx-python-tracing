@@ -2,6 +2,7 @@
 import os
 
 from jaeger_client import Config, Tracer
+import opentracing.span
 import pytest
 import mock
 
@@ -36,6 +37,10 @@ class TestCreateTracer(object):
         os.environ[token_var] = 'AccessToken'
         tracer = utils.create_tracer()
         assert isinstance(tracer, Tracer)
+
+    def test_has_start_active_span(self):
+        tracer = utils.create_tracer()
+        assert isinstance(tracer.start_active_span('test_span').span, opentracing.span.Span)
 
     def test_defaults(self):
         with mock.patch('jaeger_client.Config') as cfg:
