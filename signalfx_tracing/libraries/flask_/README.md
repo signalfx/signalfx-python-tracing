@@ -3,7 +3,7 @@
 - [opentracing-contrib/python-flask](https://github.com/opentracing-contrib/python-flask)
 - [Official Site](http://flask.pocoo.org)
 
-The SignalFx Auto-instrumenter configures the OpenTracing Project's Flask instrumentation for your Flask 0.10+
+The SignalFx Auto-instrumentor configures the OpenTracing Project's Flask instrumentation for your Flask 0.10+
 applications.  You can enable instrumentation within your app and `Blueprint` routes by invoking the
 `signalfx_tracing.auto_instrument()` function before initializing your `Flask` application object.
 To configure tracing, some tunables are provided via `flask_config` to establish the desired tracer and
@@ -23,7 +23,7 @@ from signalfx_tracing.libraries import flask_config
 import flask
 
 # ***
-# The SignalFx Flask Auto-instrumenter works by monkey patching the Flask.__init__() method.
+# The SignalFx Flask Auto-instrumentor works by monkey patching the Flask.__init__() method.
 # You must invoke auto_instrument() or instrument() before instantiating your app and
 # decorating its routes:
 #

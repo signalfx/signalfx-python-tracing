@@ -3,7 +3,7 @@
 - [signalfx/python-dbapi](https://github.com/signalfx/python-dbapi)
 - [Official Site](https://pymysql.readthedocs.io)
 
-The SignalFx Auto-instrumenter configures the OpenTracing DB API instrumentation for your PyMySQL
+The SignalFx Auto-instrumentor configures the OpenTracing DB API instrumentation for your PyMySQL
 connections.  You can enable instrumentation within your connection and `Cursor` commands by invoking the
 `signalfx_tracing.auto_instrument()` function before initializing your `Connection` client object.
 To configure tracing, some tunables are provided via `pymysql_config` to establish the desired tracer and
@@ -23,7 +23,7 @@ from signalfx_tracing.libraries import pymysql_config
 import pymysql
 
 # ***
-# The SignalFx PyMySQL Auto-instrumenter works by monkey patching the pymysql.connect() method.
+# The SignalFx PyMySQL Auto-instrumentor works by monkey patching the pymysql.connect() method.
 # You must invoke auto_instrument() or instrument() before instantiating your client connection.
 #
 # from sfx_tracing import instrument

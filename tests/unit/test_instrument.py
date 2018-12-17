@@ -33,9 +33,9 @@ class TestInstrument(object):
         assert auto_instrumentable_libraries == expected_auto_instrumentable_libraries
 
     @pytest.fixture(autouse=True)
-    def stubbed_instrumenter(self):
+    def stubbed_instrumentor(self):
         """
-        Allows us to stub instrumenter interfaces and target library manipulation.
+        Allows us to stub instrumentor interfaces and target library manipulation.
         Without doing so, all instrumented libraries would need to be available
         in pytest context and this would effectively be a large e2e.
         """

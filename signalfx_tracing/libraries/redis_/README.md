@@ -3,7 +3,7 @@
 - [opentracing-contrib/python-redis](https://github.com/opentracing-contrib/python-redis)
 - [Official Site](https://redis.io/)
 
-The SignalFx Auto-instrumenter configures the OpenTracing Redis-Py instrumentation for your 2.10+ `StrictRedis`
+The SignalFx Auto-instrumentor configures the OpenTracing Redis-Py instrumentation for your 2.10+ `StrictRedis`
 client commands.  You can enable instrumentation within your client, pipeline, and PubSub commands by invoking
 the `signalfx_tracing.auto_instrument()` function before initializing your `StrictRedis` object.
 To configure tracing, a tunable is provided via `redis_config` to establish the desired tracer:
@@ -20,7 +20,7 @@ from signalfx_tracing.libraries import redis_config
 import redis
 
 # ***
-# The SignalFx Redis Auto-instrumenter works by monkey patching the StrictRedis.__init__() method.
+# The SignalFx Redis Auto-instrumentor works by monkey patching the StrictRedis.__init__() method.
 # You must invoke auto_instrument() or instrument() before instantiating your client. 
 #
 # from sfx_tracing import instrument

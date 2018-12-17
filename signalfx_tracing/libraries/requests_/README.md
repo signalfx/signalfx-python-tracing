@@ -3,7 +3,7 @@
 - [signalfx/python-requests](https://github.com/signalfx/python-requests)
 - [Official Site](http://docs.python-requests.org/en/master/)
 
-The SignalFx Auto-instrumenter configures the OpenTracing Requests instrumentation for your Session commands.
+The SignalFx Auto-instrumentor configures the OpenTracing Requests instrumentation for your Session commands.
 You can enable instrumentation within your http client by invoking the `signalfx_tracing.auto_instrument()`
 function before initializing your `Session` object or making api calls from the `requests` or `requests.api` modules. 
 To configure tracing, some tunables are provided via `requests_config` to establish the desired tracer,
@@ -22,7 +22,7 @@ from signalfx_tracing.libraries import requests_config
 import requests
 
 # ***
-# The SignalFx Requests Auto-instrumenter works by monkey patching the requests.sessions.Session.__init__() method.
+# The SignalFx Requests Auto-instrumentor works by monkey patching the requests.sessions.Session.__init__() method.
 # You must invoke auto_instrument() or instrument() before instantiating your client session or making requests
 # from the top-level requests package. 
 #

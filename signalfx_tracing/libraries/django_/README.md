@@ -3,8 +3,8 @@
 - [opentracing-contrib/python-django](https://github.com/opentracing-contrib/python-django)
 - [Official Site](https://www.djangoproject.com)
 
-The SignalFx Auto-instrumenter configures the OpenTracing Project's Django instrumentation for your Django 1.x or
-2.x project.  You can enable instrumentation within your project by adding the `signalfx_tracing` instrumenter
+The SignalFx Auto-instrumentor configures the OpenTracing Project's Django instrumentation for your Django 1.x or
+2.x project.  You can enable instrumentation within your project by adding the `signalfx_tracing` instrumentor
 app to your installed apps.  To configure Django tracing, some settings are provided to establish
 the desired tracer and request attributes for span tagging:
 

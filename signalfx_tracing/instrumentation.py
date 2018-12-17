@@ -30,21 +30,21 @@ def _importable_libraries(*libraries):
     return available, unavailable
 
 
-def imported_instrumenter(library):
+def imported_instrumentor(library):
     """
-    Convert a library name to that of the correlated auto-instrumenter
+    Convert a library name to that of the correlated auto-instrumentor
     in the libraries package.
     """
-    instrumenter_lib = 'signalfx_tracing.libraries.{}_'.format(library)
-    return get_module(instrumenter_lib)
+    instrumentor_lib = 'signalfx_tracing.libraries.{}_'.format(library)
+    return get_module(instrumentor_lib)
 
 
 def instrument(tracer=None, **libraries):
     """
     For each library/instrument_bool pair, invoke the associated
-    auto-instrumenter.instrument() or uninstrument().
+    auto-instrumentor.instrument() or uninstrument().
 
-    If tracer isn't provided, it's up to the individual instrumenters
+    If tracer isn't provided, it's up to the individual instrumentors
     to default to opentracing.tracer.  This is so individual library
     Config objects take precedence, which wouldn't happen if we used
     the global tracer by default here or in auto_instrument.
@@ -55,19 +55,19 @@ def instrument(tracer=None, **libraries):
         elif not inst:
             uninstrument(library)
         else:
-            imported_instrumenter(library).instrument(tracer)
+            imported_instrumentor(library).instrument(tracer)
 
 
 def uninstrument(*libraries):
-    """Invoke the associated auto-instrumenter.uninstrument() for each specified library"""
+    """Invoke the associated auto-instrumentor.uninstrument() for each specified library"""
     for library in libraries:
-        instrumenter = imported_instrumenter(library)
-        instrumenter.uninstrument()
+        instrumentor = imported_instrumentor(library)
+        instrumentor.uninstrument()
 
 
 def auto_instrument(tracer=None):
     """
-    Invoke an auto-instrumenter.instrument() for all auto_instrumentable_libraries
+    Invoke an auto-instrumentor.instrument() for all auto_instrumentable_libraries
     in current execution path.
     """
     available, unavailable = _importable_libraries(*auto_instrumentable_libraries)

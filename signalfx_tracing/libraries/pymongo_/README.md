@@ -3,7 +3,7 @@
 - [signalfx/python-pymongo](https://github.com/signalfx/python-pymongo)
 - [Official Site](http://api.mongodb.com/python/current/index.html)
 
-The SignalFx Auto-instrumenter configures the OpenTracing PyMongo instrumentation for your MongoClient
+The SignalFx Auto-instrumentor configures the OpenTracing PyMongo instrumentation for your MongoClient
 commands.  You can enable instrumentation within your client, database, and collection commands by invoking
 the `signalfx_tracing.auto_instrument()` function before initializing your `MongoClient` object.
 To configure tracing, some tunables are provided via `pymongo_config` to establish the desired tracer and
@@ -22,7 +22,7 @@ from signalfx_tracing.libraries import pymongo_config
 import pymongo
 
 # ***
-# The SignalFx PyMongo Auto-instrumenter works by monkey patching the MongoClient.__init__() method.
+# The SignalFx PyMongo Auto-instrumentor works by monkey patching the MongoClient.__init__() method.
 # You must invoke auto_instrument() or instrument() before instantiating your client. 
 #
 # from sfx_tracing import instrument

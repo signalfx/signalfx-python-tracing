@@ -3,7 +3,7 @@
 - [opentracing-contrib/python-tornado](https://github.com/opentracing-contrib/python-tornado)
 - [Official Site](http://www.tornadoweb.org)
 
-The SignalFx Auto-instrumenter configures the OpenTracing Project's Tornado instrumentation for your Tornado 4.x
+The SignalFx Auto-instrumentor configures the OpenTracing Project's Tornado instrumentation for your Tornado 4.x
 or 5.x applications.  You can enable instrumentation within your `RequestHandler` and `AsyncHTTPClient` by invoking the 
 `signalfx_tracing.auto_instrument()` function before initializing your application.  To configure Tornado tracing,
 some tunables are provided via `tornado_config` to establish the desired tracer and request attributes for
@@ -31,7 +31,7 @@ from opentracing.scope_managers.tornado import TornadoScopeManager
 import tornado.ioloop
 import tornado.web  
 # ***
-# The OpenTracing Project's Tornado instrumenter works by monkey patching some of the
+# The OpenTracing Project's Tornado instrumentor works by monkey patching some of the
 # Application, RequestHandler, and AsyncHTTPClient classes' methods.
 # If importing any of these class objects from tornado.web or tornado.http_client
 # directly, you must invoke auto_instrument() or instrument() before doing so.
