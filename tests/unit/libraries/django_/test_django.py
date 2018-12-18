@@ -1,4 +1,6 @@
 # Copyright (C) 2018 SignalFx, Inc. All rights reserved.
+from opentracing.mocktracer import MockTracer
+from django_opentracing import DjangoTracing
 from django.conf import settings
 import opentracing
 import pytest
@@ -28,14 +30,46 @@ class TestDjangoConfig(DjangoTestSuite):
                 assert middleware == expected_middleware
                 assert setting == expected_setting
 
-    def test_instrument_django_set_global_tracer_configures_desired_settings(self):
+    def test_instrument_django_set_global_tracer_with_provided_tracer_arg(self):
+        tracer = MockTracer()
         config.set_global_tracer = True
-        instrument(opentracing.tracer, django=True)
+        instrument(tracer, django=True)
 
         assert settings.OPENTRACING_SET_GLOBAL_TRACER is True
-        assert settings.OPENTRACING_TRACER_CALLABLE == config.tracer_callable
-        assert settings.OPENTRACING_TRACER_PARAMETERS == config.tracer_parameters
-        assert not hasattr(settings, 'OPENTRACING_TRACER')
+        assert not hasattr(settings, 'OPENTRACING_TRACER_CALLABLE')
+        assert not hasattr(settings, 'OPENTRACING_TRACER_PARAMETERS')
+        assert settings.OPENTRACING_TRACING.tracer is tracer
+
+        assert settings.OPENTRACING_TRACE_ALL == config.trace_all
+        assert settings.OPENTRACING_TRACED_ATTRIBUTES == config.traced_attributes
+        _, setting = get_middleware_and_setting_name()
+        assert config.middleware_class in getattr(settings, setting)
+
+    def test_instrument_django_set_global_tracer_with_provided_tracer_setting(self):
+        tracer = DjangoTracing(MockTracer())
+        config.set_global_tracer = True
+        settings.OPENTRACING_TRACING = tracer
+        instrument(django=True)
+
+        assert settings.OPENTRACING_SET_GLOBAL_TRACER is True
+        assert not hasattr(settings, 'OPENTRACING_TRACER_CALLABLE')
+        assert not hasattr(settings, 'OPENTRACING_TRACER_PARAMETERS')
+        assert settings.OPENTRACING_TRACING is tracer
+
+        assert settings.OPENTRACING_TRACE_ALL == config.trace_all
+        assert settings.OPENTRACING_TRACED_ATTRIBUTES == config.traced_attributes
+        _, setting = get_middleware_and_setting_name()
+        assert config.middleware_class in getattr(settings, setting)
+
+    def test_instrument_django_set_global_tracer_with_provided_callable(self):
+        config.set_global_tracer = True
+        config.tracer_callable = 'opentracing.mocktracer.MockTracer'
+        instrument(django=True)
+
+        assert settings.OPENTRACING_SET_GLOBAL_TRACER is True
+        assert settings.OPENTRACING_TRACER_CALLABLE == 'opentracing.mocktracer.MockTracer'
+        assert settings.OPENTRACING_TRACER_PARAMETERS == {}
+        assert not hasattr(settings, 'OPENTRACING_TRACING')
 
         assert settings.OPENTRACING_TRACE_ALL == config.trace_all
         assert settings.OPENTRACING_TRACED_ATTRIBUTES == config.traced_attributes
@@ -43,11 +77,12 @@ class TestDjangoConfig(DjangoTestSuite):
         assert config.middleware_class in getattr(settings, setting)
 
     def test_instrument_django_unset_global_tracer_configures_desired_settings(self):
+        tracer = MockTracer()
         config.set_global_tracer = False
-        instrument(opentracing.tracer, django=True)
+        instrument(tracer, django=True)
 
         assert settings.OPENTRACING_SET_GLOBAL_TRACER is False
-        assert isinstance(settings.OPENTRACING_TRACER._tracer, opentracing.Tracer)
+        assert isinstance(settings.OPENTRACING_TRACING._tracer, opentracing.Tracer)
         assert not hasattr(settings, 'OPENTRACING_TRACER_CALLABLE')
         assert not hasattr(settings, 'OPENTRACING_TRACER_PARAMETERS')
 
@@ -64,7 +99,7 @@ class TestDjangoConfig(DjangoTestSuite):
         assert not hasattr(settings, 'OPENTRACING_TRACER_PARAMETERS')
         assert not hasattr(settings, 'OPENTRACING_TRACE_ALL')
         assert not hasattr(settings, 'OPENTRACING_SET_GLOBAL_TRACER')
-        assert not hasattr(settings, 'OPENTRACING_TRACER')
+        assert not hasattr(settings, 'OPENTRACING_TRACING')
         _, setting = get_middleware_and_setting_name()
         assert config.middleware_class not in getattr(settings, setting)
 
@@ -103,7 +138,7 @@ class TestDjangoConfig(DjangoTestSuite):
 
         tracer = 'SomeTracer'
         instrument(tracer, django=True)
-        assert settings.OPENTRACING_TRACER._tracer is tracer
+        assert settings.OPENTRACING_TRACING._tracer is tracer
         assert settings.OPENTRACING_TRACED_ATTRIBUTES == desired_attributes
         assert settings.OPENTRACING_TRACE_ALL == desired_trace_all
         _, setting = get_middleware_and_setting_name()

@@ -10,8 +10,9 @@ SECRET_KEY = 'antiquing'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-SIGNALFX_SET_GLOBAL_TRACER = True
+SIGNALFX_SET_GLOBAL_TRACER = False
 SIGNALFX_TRACER_CALLABLE = 'opentracing.mocktracer.MockTracer'
+SIGNALFX_TRACER_PARAMETERS = dict(scope_manager=None)
 
 # Application definition
 

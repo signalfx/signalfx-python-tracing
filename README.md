@@ -5,11 +5,9 @@ OpenTracing 2.0-compatible community-contributed [instrumentation libraries](htt
 for their Python 2.7 and 3.4+ applications via a single function.
 
 ```python
-from signalfx_tracing import auto_instrument
+from signalfx_tracing import auto_instrument, create_tracer
 
-from my_opentracing_2_dot_0_compatible_tracer_lib import Tracer
-
-tracer = Tracer()
+tracer = create_tracer(service_name='MyService')
 auto_instrument(tracer)
 ```
 

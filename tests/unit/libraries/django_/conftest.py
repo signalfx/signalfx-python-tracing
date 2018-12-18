@@ -2,7 +2,9 @@
 import os.path
 import os
 
+from django_opentracing import tracing
 from django.conf import settings
+import opentracing
 import pytest
 
 from signalfx_tracing.libraries.django_.instrument import config
@@ -31,3 +33,8 @@ class DjangoTestSuite(object):
     def uninstrument_django(self):
         yield
         uninstrument('django')
+
+    @pytest.fixture(autouse=True)
+    def reset_opentracing(self):
+        tracing.initialize_global_tracer.complete = False
+        opentracing.tracer = None
