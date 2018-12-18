@@ -68,6 +68,22 @@ class TestCreateTracer(object):
         assert created['jaeger_endpoint'] == 'SomeEndpoint'
         assert created['propagation'] == 'SomePropagation'
 
+    def test_defaults_overridden_by_kwargs(self):
+        config = dict(jaeger_user='SomeUser',
+                      jaeger_password='SomePassword',
+                      jaeger_endpoint='SomeEndpoint',
+                      propagation='SomePropagation')
+
+        with mock.patch('jaeger_client.Config') as cfg:
+            utils.create_tracer('auth_token', config=config, service_name='SomeService')
+        created = cfg.call_args[0][0]
+        assert created['jaeger_user'] == 'SomeUser'
+        assert created['jaeger_password'] == 'SomePassword'
+        assert created['jaeger_endpoint'] == 'SomeEndpoint'
+        assert created['propagation'] == 'SomePropagation'
+        kwargs = cfg.call_args[1]
+        assert kwargs['service_name'] == 'SomeService'
+
     def test_defaults_overridden_by_env_vars(self):
         env = os.environ
         env['SIGNALFX_SERVICE_NAME'] = 'SomeService'

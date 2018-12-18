@@ -66,7 +66,7 @@ def create_tracer(access_token=None, set_global=True, config=None, *args, **kwar
         raise RuntimeError('create_tracer() is only for environments with jaeger-client installed.')
 
     config = config or {}
-    if 'service_name' not in config:
+    if 'service_name' not in config and 'service_name' not in kwargs:
         config['service_name'] = _get_env_var('SIGNALFX_SERVICE_NAME', 'SignalFx-Tracing')
 
     if 'jaeger_endpoint' not in config:
