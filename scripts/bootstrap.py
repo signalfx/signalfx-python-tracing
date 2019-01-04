@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Copyright (C) 2018-2019 SignalFx, Inc. All rights reserved.
 from __future__ import print_function
 
 from argparse import ArgumentParser
@@ -17,6 +18,7 @@ jaeger_client = 'https://github.com/signalfx/jaeger-client-python/tarball/ot_20_
 instrumentors = {
     'django': 'https://github.com/signalfx/python-django/tarball/django_2_ot_2_jaeger#egg=django-opentracing',
     'flask': 'https://github.com/signalfx/python-flask/tarball/adopt_scope_manager#egg=flask_opentracing',
+    'psycopg2': 'dbapi-opentracing',
     'pymongo': 'pymongo-opentracing',
     'pymysql': 'dbapi-opentracing',
     'redis': 'https://github.com/opentracing-contrib/python-redis/tarball/v1.0.0#egg=redis-opentracing',
