@@ -1,4 +1,4 @@
-# Copyright (C) 2018-2019 SignalFx, Inc. All rights reserved.
+# Copyright (C) 2019 SignalFx, Inc. All rights reserved.
 import logging
 
 from wrapt import wrap_function_wrapper
@@ -9,7 +9,7 @@ from signalfx_tracing import utils
 
 log = logging.getLogger(__name__)
 
-# Configures PyMySQL tracing as described by
+# Configures Psycopg tracing as described by
 # https://github.com/signalfx/python-dbapi/blob/master/README.rst
 config = utils.Config(
     traced_commands=['execute', 'executemany', 'callproc', 'commit', 'rollback'],
@@ -19,15 +19,15 @@ config = utils.Config(
 
 
 def instrument(tracer=None):
-    pymysql = utils.get_module('pymysql')
-    if utils.is_instrumented(pymysql):
+    psycopg2 = utils.get_module('psycopg2')
+    if utils.is_instrumented(psycopg2):
         return
 
     dbapi_opentracing = utils.get_module('dbapi_opentracing')
 
-    def pymysql_tracer(connect, _, args, kwargs):
+    def psycopg2_tracer(connect, _, args, kwargs):
         """
-        A function wrapper of pymysql.connect() to create a corresponding
+        A function wrapper of psycopg2.connect() to create a corresponding
         dbapi_opentracing.ConnectionTracing upon database connection.
         """
 
@@ -40,19 +40,19 @@ def instrument(tracer=None):
         for command in traced_commands:
             flag = 'trace_{}'.format(command.lower())
             if flag not in traced_commands_kwargs:
-                log.warn('Unable to trace PyMySQL command "{}".  Ignoring.'.format(command))
+                log.warn('Unable to trace Psycopg command "{}".  Ignoring.'.format(command))
                 continue
             traced_commands_kwargs[flag] = True
 
-        span_tags = {tags.DATABASE_TYPE: 'MySQL'}
+        span_tags = {tags.DATABASE_TYPE: 'PostgreSQL'}
         if config.span_tags is not None:
             span_tags.update(config.span_tags)
 
         return dbapi_opentracing.ConnectionTracing(connection, _tracer, span_tags=span_tags,
                                                    **traced_commands_kwargs)
 
-    wrap_function_wrapper('pymysql', 'connect', pymysql_tracer)
-    utils.mark_instrumented(pymysql)
+    wrap_function_wrapper('psycopg2', 'connect', psycopg2_tracer)
+    utils.mark_instrumented(psycopg2)
 
 
 def uninstrument():
@@ -60,9 +60,9 @@ def uninstrument():
     Will only prevent new Connections from registering tracers.
     It's not reasonably feasible to unwrap existing ConnectionTracing instances
     """
-    pymysql = utils.get_module('pymysql')
-    if not utils.is_instrumented(pymysql):
+    psycopg2 = utils.get_module('psycopg2')
+    if not utils.is_instrumented(psycopg2):
         return
 
-    utils.revert_wrapper(pymysql, 'connect')
-    utils.mark_uninstrumented(pymysql)
+    utils.revert_wrapper(psycopg2, 'connect')
+    utils.mark_uninstrumented(psycopg2)

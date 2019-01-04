@@ -5,9 +5,9 @@
 
 The SignalFx Auto-instrumentor configures the OpenTracing DB API instrumentation for your PyMySQL
 connections.  You can enable instrumentation within your connection and `Cursor` commands by invoking the
-`signalfx_tracing.auto_instrument()` function before initializing your `Connection` client object.
-To configure tracing, some tunables are provided via `pymysql_config` to establish the desired tracer and
-database commands for span tagging:
+`signalfx_tracing.auto_instrument()` function before initializing your `Connection` client object with
+`pymysql.connect()`.  To configure tracing, some tunables are provided via `pymysql_config` to establish
+the desired tracer and database commands for span tagging:
 
 | Setting name | Definition | Default value |
 | -------------|------------|---------------|
@@ -52,7 +52,7 @@ traced_connection = pymysql.connect(...)
 
 # In this example, any failing command/query will lead to a traced rollback().
 # Successful commands will exit the context with an untraced commit().
-with traced_connection as cursor():
+with traced_connection as cursor:
     cursor.executemany('insert into table values (%s, %s)',
                        [('my', 'value'), ('another', 'value')])
     cursor.callproc('StoredProcedure')  # untraced per pymysql_config.traced_commands

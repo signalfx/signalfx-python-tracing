@@ -1,4 +1,4 @@
-# Copyright (C) 2018-2019 SignalFx, Inc. All rights reserved.
+# Copyright (C) 2019 SignalFx, Inc. All rights reserved.
 from random import choice, random, randint
 from datetime import datetime
 from time import sleep
@@ -6,32 +6,29 @@ import os.path
 import string
 
 from opentracing.mocktracer import MockTracer
-from pymysql.cursors import DictCursor
+from psycopg2.extras import DictCursor
 from opentracing.ext import tags
-import pymysql
+import psycopg2
 import docker
 import pytest
 
-from signalfx_tracing.libraries import pymysql_config
+from signalfx_tracing.libraries import psycopg2_config
 from signalfx_tracing import instrument
 
 
 @pytest.fixture(scope='session')
-def mysql_container():
+def postgres_container():
     client = docker.from_env()
-    env = dict(MYSQL_ROOT_PASSWORD='pass',
-               MYSQL_ROOT_HOST='%')
+    env = dict(POSTGRES_USER='postgres', POSTGRES_PASSWORD='pass', POSTGRES_DB='test_db')
     cwd = os.path.dirname(os.path.abspath(__file__))
-    conf_d = os.path.join(cwd, 'conf.d')
     initdb_d = os.path.join(cwd, 'initdb.d')
-    volumes = ['{}:/etc/mysql/conf.d'.format(conf_d),
-               '{}:/docker-entrypoint-initdb.d'.format(initdb_d)]
-    mysql = client.containers.run('mysql:latest', environment=env, ports={'3306/tcp': 3306},
-                                  volumes=volumes, detach=True)
+    volumes = ['{}:/docker-entrypoint-initdb.d'.format(initdb_d)]
+    postgres = client.containers.run('postgres:latest', environment=env, ports={'5432/tcp': 5432},
+                                     volumes=volumes, detach=True)
     try:
-        yield mysql
+        yield postgres
     finally:
-        mysql.remove(v=True, force=True)
+        postgres.remove(v=True, force=True)
 
 
 class TestInstrumentedConnection(object):
@@ -65,26 +62,26 @@ class TestInstrumentedConnection(object):
                 return i
 
     @pytest.fixture
-    def connection_tracing(self, mysql_container):
+    def connection_tracing(self, postgres_container):
         tracer = MockTracer()
-        pymysql_config.tracer = tracer
-        pymysql_config.span_tags = dict(some='tag')
-        instrument(pymysql=True)
+        psycopg2_config.tracer = tracer
+        psycopg2_config.span_tags = dict(some='tag')
+        instrument(psycopg2=True)
         for i in range(480):
             try:
-                conn = pymysql.connect(host='127.0.0.1', user='test_user', password='test_password',
-                                       db='test_db', port=3306, cursorclass=DictCursor)
+                conn = psycopg2.connect(host='127.0.0.1', user='test_user', password='test_password',
+                                        dbname='test_db', port=5432, options='-c search_path=test_schema')
                 break
-            except pymysql.OperationalError:
+            except psycopg2.OperationalError:
                 sleep(.25)
             if i == 479:
-                raise Exception('Failed to connect to MySQL: {}'.format(mysql_container.logs()))
+                raise Exception('Failed to connect to Postgres: {}'.format(postgres_container.logs()))
         return tracer, conn
 
     def test_instrumented_sanity(self, connection_tracing):
         tracer, conn = connection_tracing
         with tracer.start_active_span('Parent'):
-            with conn.cursor() as cursor:
+            with conn.cursor(cursor_factory=DictCursor) as cursor:
                 cursor.execute('insert into table_one values (%s, %s, %s, %s)',
                                (self.random_string(), self.random_string(),
                                 datetime.now(), datetime.now()))
@@ -98,11 +95,11 @@ class TestInstrumentedConnection(object):
         for span in (first, second):
             assert span.operation_name == 'DictCursor.execute(insert)'
             assert span.tags['some'] == 'tag'
-            assert span.tags[tags.DATABASE_TYPE] == 'MySQL'
+            assert span.tags[tags.DATABASE_TYPE] == 'PostgreSQL'
             assert span.tags['db.rows_produced'] == 1
             assert span.parent_id == parent.context.span_id
             assert tags.ERROR not in span.tags
         assert first.tags[tags.DATABASE_STATEMENT] == 'insert into table_one values (%s, %s, %s, %s)'
         assert second.tags[tags.DATABASE_STATEMENT] == 'insert into table_two values (%s, %s, %s, %s)'
-        assert commit.operation_name == 'Connection.commit()'
+        assert commit.operation_name == 'connection.commit()'
         assert parent.operation_name == 'Parent'
