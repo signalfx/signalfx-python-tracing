@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2018 SignalFx, Inc. All rights reserved.
+# Copyright (C) 2018-2019 SignalFx, Inc. All rights reserved.
 from setuptools.command.test import test as TestCommand
 from setuptools import setup, find_packages
 import sys
@@ -89,6 +89,7 @@ setup(name='signalfx-tracing',
           django='django-opentracing',
           flask='flask_opentracing',
           jaeger='jaeger-client',
+          psycopg2='dbapi-opentracing',
           pymongo='pymongo-opentracing',
           pymysql='dbapi-opentracing',
           redis='redis-opentracing',

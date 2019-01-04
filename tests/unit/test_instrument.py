@@ -1,4 +1,4 @@
-# Copyright (C) 2018 SignalFx, Inc. All rights reserved.
+# Copyright (C) 2018-2019 SignalFx, Inc. All rights reserved.
 import sys
 
 import pytest
@@ -22,8 +22,8 @@ else:
             yield
 
 
-expected_traceable_libraries = ('django', 'flask', 'pymongo', 'pymysql', 'redis', 'requests', 'tornado')
-expected_auto_instrumentable_libraries = ('flask', 'pymongo', 'pymysql', 'redis', 'requests', 'tornado')
+expected_traceable_libraries = ('django', 'flask', 'psycopg2', 'pymongo', 'pymysql', 'redis', 'requests', 'tornado')
+expected_auto_instrumentable_libraries = ('flask', 'psycopg2', 'pymongo', 'pymysql', 'redis', 'requests', 'tornado')
 
 
 class TestInstrument(object):

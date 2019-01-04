@@ -1,17 +1,16 @@
-# Copyright (C) 2018-2019 SignalFx, Inc. All rights reserved.
+# Copyright (C) 2019 SignalFx, Inc. All rights reserved.
 import types
 
 from opentracing.mocktracer import MockTracer
 from mock import Mock, MagicMock
 from opentracing.ext import tags
-import pymysql.connections
-import pymysql.cursors
+import psycopg2.extensions
 import opentracing
-import pymysql
+import psycopg2
 import mock
 
-from signalfx_tracing.libraries.pymysql_.instrument import config, instrument, uninstrument
-from .conftest import PyMySQLTestSuite
+from signalfx_tracing.libraries.psycopg2_.instrument import config, instrument, uninstrument
+from .conftest import Psycopg2TestSuite
 
 
 class MockDBAPICursor(Mock):
@@ -51,16 +50,16 @@ class MockDBAPIConnection(Mock):
         return self.commit()
 
 
-class TestPyMySQL(PyMySQLTestSuite):
+class TestPsycopg2(Psycopg2TestSuite):
 
     def test_noninstrumented_connection_does_not_trace(self):
         tracer = MockTracer()
         opentracing.tracer = tracer
         config.tracer = tracer
 
-        with mock.patch.object(pymysql.connections, 'Connection', MockDBAPIConnection):
-            with mock.patch.object(pymysql.cursors, 'Cursor', MockDBAPICursor):
-                connection = pymysql.connect()
+        with mock.patch.object(psycopg2.extensions, 'connection', MockDBAPIConnection):
+            with mock.patch.object(psycopg2.extensions, 'cursor', MockDBAPICursor):
+                connection = psycopg2.connect("dbname=test", connection_factory=MockDBAPIConnection())
                 with connection.cursor() as cursor:
                     cursor.execute('traced')
                     cursor.executemany('traced')
@@ -73,10 +72,10 @@ class TestPyMySQL(PyMySQLTestSuite):
         opentracing.tracer = tracer
         config.tracer = tracer
 
-        with mock.patch.object(pymysql.connections, 'Connection', MockDBAPIConnection):
-            with mock.patch.object(pymysql.cursors, 'Cursor', MockDBAPICursor):
+        with mock.patch.object(psycopg2.extensions, 'connection', MockDBAPIConnection):
+            with mock.patch.object(psycopg2.extensions, 'cursor', MockDBAPICursor):
                 instrument(tracer)
-                connection = pymysql.connect()
+                connection = psycopg2.connect("dbname=test", connection_factory=MockDBAPIConnection())
                 with connection.cursor() as cursor:
                     cursor.execute('traced')
                     cursor.executemany('traced')
@@ -85,7 +84,7 @@ class TestPyMySQL(PyMySQLTestSuite):
                 spans = tracer.finished_spans()
                 assert len(spans) == 3
                 for span in spans:
-                    assert span.tags[tags.DATABASE_TYPE] == 'MySQL'
+                    assert span.tags[tags.DATABASE_TYPE] == 'PostgreSQL'
                 assert spans[0].operation_name == 'MockDBAPICursor.execute(traced)'
                 assert spans[1].operation_name == 'MockDBAPICursor.executemany(traced)'
                 assert spans[2].operation_name == 'MockDBAPICursor.callproc(traced)'
@@ -93,7 +92,7 @@ class TestPyMySQL(PyMySQLTestSuite):
                 uninstrument()
                 tracer.reset()
 
-                connection = pymysql.connect()
+                connection = psycopg2.connect("dbname=test", connection_factory=MockDBAPIConnection())
                 with connection.cursor() as cursor:
                     cursor.execute('traced')
                     cursor.executemany('traced')
@@ -102,16 +101,16 @@ class TestPyMySQL(PyMySQLTestSuite):
                 assert not tracer.finished_spans()
 
 
-class TestPyMySQLConfig(PyMySQLTestSuite):
+class TestPsycopg2Config(Psycopg2TestSuite):
 
     def test_global_tracer_used_by_default(self):
         tracer = MockTracer()
         opentracing.tracer = tracer
 
-        with mock.patch.object(pymysql.connections, 'Connection', MockDBAPIConnection):
-            with mock.patch.object(pymysql.cursors, 'Cursor', MockDBAPICursor):
+        with mock.patch.object(psycopg2.extensions, 'connection', MockDBAPIConnection):
+            with mock.patch.object(psycopg2.extensions, 'cursor', MockDBAPICursor):
                 instrument()
-                connection = pymysql.connect()
+                connection = psycopg2.connect("dbname=test", connection_factory=MockDBAPIConnection())
                 with connection.cursor() as cursor:
                     cursor.execute('traced')
                     cursor.executemany('traced')
@@ -127,10 +126,10 @@ class TestPyMySQLConfig(PyMySQLTestSuite):
         tracer = MockTracer()
         config.tracer = tracer
 
-        with mock.patch.object(pymysql.connections, 'Connection', MockDBAPIConnection):
-            with mock.patch.object(pymysql.cursors, 'Cursor', MockDBAPICursor):
+        with mock.patch.object(psycopg2.extensions, 'connection', MockDBAPIConnection):
+            with mock.patch.object(psycopg2.extensions, 'cursor', MockDBAPICursor):
                 instrument()
-                connection = pymysql.connect()
+                connection = psycopg2.connect("dbname=test", connection_factory=MockDBAPIConnection())
                 with connection.cursor() as cursor:
                     cursor.execute('traced')
                     cursor.executemany('traced')
@@ -147,10 +146,10 @@ class TestPyMySQLConfig(PyMySQLTestSuite):
         tracer = MockTracer()
         config.tracer = tracer
 
-        with mock.patch.object(pymysql.connections, 'Connection', MockDBAPIConnection):
-            with mock.patch.object(pymysql.cursors, 'Cursor', MockDBAPICursor):
+        with mock.patch.object(psycopg2.extensions, 'connection', MockDBAPIConnection):
+            with mock.patch.object(psycopg2.extensions, 'cursor', MockDBAPICursor):
                 instrument()
-                connection = pymysql.connect()
+                connection = psycopg2.connect("dbname=test", connection_factory=MockDBAPIConnection())
                 with connection.cursor() as cursor:
                     cursor.executemany('untraced')
                     cursor.callproc('untraced')
@@ -164,14 +163,14 @@ class TestPyMySQLConfig(PyMySQLTestSuite):
         tracer = MockTracer()
         config.tracer = tracer
 
-        with mock.patch.object(pymysql.connections, 'Connection', MockDBAPIConnection):
-            with mock.patch.object(pymysql.cursors, 'Cursor', MockDBAPICursor):
-                with mock.patch.object(pymysql.cursors.Cursor, 'callproc',
+        with mock.patch.object(psycopg2.extensions, 'connection', MockDBAPIConnection):
+            with mock.patch.object(psycopg2.extensions, 'cursor', MockDBAPICursor):
+                with mock.patch.object(psycopg2.extensions.cursor, 'callproc',
                                        side_effect=Exception) as callproc:
                     callproc.__name__ = 'callproc'
 
                     instrument()
-                    connection = pymysql.connect()
+                    connection = psycopg2.connect("dbname=test", connection_factory=MockDBAPIConnection())
                     with connection as cursor:
                         cursor.execute('traced')
 
@@ -194,14 +193,14 @@ class TestPyMySQLConfig(PyMySQLTestSuite):
         tracer = MockTracer()
         config.tracer = tracer
 
-        with mock.patch.object(pymysql.connections, 'Connection', MockDBAPIConnection):
-            with mock.patch.object(pymysql.cursors, 'Cursor', MockDBAPICursor):
-                with mock.patch.object(pymysql.cursors.Cursor, 'callproc',
+        with mock.patch.object(psycopg2.extensions, 'connection', MockDBAPIConnection):
+            with mock.patch.object(psycopg2.extensions, 'cursor', MockDBAPICursor):
+                with mock.patch.object(psycopg2.extensions.cursor, 'callproc',
                                        side_effect=Exception) as callproc:
                     callproc.__name__ = 'callproc'
 
                     instrument()
-                    connection = pymysql.connect()
+                    connection = psycopg2.connect("dbname=test", connection_factory=MockDBAPIConnection())
                     with connection as cursor:
                         cursor.executemany('untraced')
                         cursor.execute('traced')
@@ -220,10 +219,10 @@ class TestPyMySQLConfig(PyMySQLTestSuite):
         config.tracer = tracer
         config.span_tags = dict(custom='tag')
 
-        with mock.patch.object(pymysql.connections, 'Connection', MockDBAPIConnection):
-            with mock.patch.object(pymysql.cursors, 'Cursor', MockDBAPICursor):
+        with mock.patch.object(psycopg2.extensions, 'connection', MockDBAPIConnection):
+            with mock.patch.object(psycopg2.extensions, 'cursor', MockDBAPICursor):
                 instrument()
-                connection = pymysql.connect()
+                connection = psycopg2.connect("dbname=test", connection_factory=MockDBAPIConnection())
                 with connection as cursor:
                     cursor.executemany('traced')
                     cursor.execute('traced')

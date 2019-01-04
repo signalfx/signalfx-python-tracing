@@ -3,6 +3,7 @@ docker
 flake8
 mock
 mockupdb
+psycopg2
 pymongo
 pymysql
 pytest

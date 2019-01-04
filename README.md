@@ -49,6 +49,7 @@ def untraced_route():
 
 * [Django 1.8+](./signalfx_tracing/libraries/django_/README.md) - `instrument(django=True)`
 * [Flask 0.10+](./signalfx_tracing/libraries/flask_/README.md) - `instrument(flask=True)`
+* [Psycopg 2.7+](./signalfx_tracing/libraries/psycopg2_/README.md) - `instrument(psycopg2=True)`
 * [PyMongo 3.1+](./signalfx_tracing/libraries/pymongo_/README.md) - `instrument(pymongo=True)`
 * [PyMySQL 0.8+](./signalfx_tracing/libraries/pymysql_/README.md) - `instrument(pymysql=True)`
 * [Redis-Py 2.10](./signalfx_tracing/libraries/redis_/README.md) - `instrument(redis=True)`
