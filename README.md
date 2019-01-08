@@ -63,8 +63,8 @@ The SignalFx-Tracing Library for Python works by detecting your libraries and fr
 instrumentors for distributed tracing via the Python [OpenTracing API 2.0](https://pypi.org/project/opentracing/2.0.0/). 
 By default, its footprint is small and doesn't declare any instrumentors as dependencies. That is, it operates on the
 assumption that you have 2.0-compatible instrumentors installed as needed. As adoption of this API is done on a
-per-instrumentor basis, it's highly recommended you use the helpful bootstrap utility for obtaining and installing any
-applicable, feature-ready instrumentors along with a compatible tracer:
+per-instrumentor basis, it's highly recommended you use the helpful [bootstrap utility](./scripts/README.md) for
+obtaining and installing any applicable, feature-ready instrumentors along with a compatible tracer:
 
 ```sh
  $ pip install signalfx-tracing
