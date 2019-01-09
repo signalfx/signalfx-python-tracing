@@ -17,14 +17,17 @@ class TestCreateTracer(object):
     @pytest.fixture(autouse=True)
     def reset_jaeger_environment(self):
         Config._initialized = False
-        prev = None
-        try:
-            prev = os.environ.pop(token_var)
-        except KeyError:
-            pass
+        prev = {}
+        for env_var in ('SIGNALFX_SERVICE_NAME', token_var, 'SIGNALFX_INGEST_URL', 'SIGNALFX_SAMPLER_TYPE',
+                        'SIGNALFX_SAMPLER_PARAM', 'SIGNALFX_PROPAGATION'):
+            try:
+                prev[env_var] = os.environ.pop(env_var)
+            except KeyError:
+                pass
         yield
-        if prev is not None:
-            os.environ[token_var] = prev
+        for env_var in prev:
+            if prev[env_var] is not None:
+                os.environ[env_var] = prev[env_var]
 
     def test_access_token_optional(self):
         utils.create_tracer()
@@ -137,3 +140,7 @@ class TestCreateTracer(object):
         created = cfg.call_args[0][0]
         assert created['sampler']['type'] == sampler
         assert created['sampler']['param'] == expected
+
+    def test_create_tracer_sanity(self):
+        tracer = utils.create_tracer()
+        tracer.close()
