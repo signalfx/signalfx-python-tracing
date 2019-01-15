@@ -1,5 +1,6 @@
 django
 docker
+elasticsearch
 flake8
 mock
 mockupdb
