@@ -48,6 +48,7 @@ def untraced_route():
 ## Supported Frameworks and Libraries
 
 * [Django 1.8+](./signalfx_tracing/libraries/django_/README.md) - `instrument(django=True)`
+* [Elasticsearch 2.0+](./signalfx_tracing/libraries/elasticsearch_/README.md) - `instrument(elasticsearch=True)`
 * [Flask 0.10+](./signalfx_tracing/libraries/flask_/README.md) - `instrument(flask=True)`
 * [Psycopg 2.7+](./signalfx_tracing/libraries/psycopg2_/README.md) - `instrument(psycopg2=True)`
 * [PyMongo 3.1+](./signalfx_tracing/libraries/pymongo_/README.md) - `instrument(pymongo=True)`

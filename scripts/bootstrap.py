@@ -17,6 +17,8 @@ jaeger_client = 'https://github.com/signalfx/jaeger-client-python/tarball/ot_20_
 
 instrumentors = {
     'django': 'https://github.com/signalfx/python-django/tarball/django_2_ot_2_jaeger#egg=django-opentracing',
+    'elasticsearch': ('https://github.com/signalfx/python-elasticsearch/tarball/2.0_support_multiple_versions'
+                      '#egg=elasticsearch-opentracing'),
     'flask': 'https://github.com/signalfx/python-flask/tarball/adopt_scope_manager#egg=flask_opentracing',
     'psycopg2': 'dbapi-opentracing',
     'pymongo': 'pymongo-opentracing',
@@ -28,6 +30,7 @@ instrumentors = {
 
 packages = {
     'django': 'django-opentracing',
+    'elasticsearch': 'elasticsearch-opentracing',
     'flask': 'Flask-OpenTracing',
     'jaeger': 'jaeger-client',
     'psycopg2': 'dbapi-opentracing',

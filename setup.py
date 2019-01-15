@@ -87,6 +87,7 @@ setup(name='signalfx-tracing',
           # track with extras list in README
           dbapi='dbapi-opentracing',
           django='django-opentracing',
+          elasticsearch='elasticsearch-opentracing',
           flask='flask_opentracing',
           jaeger='jaeger-client',
           psycopg2='dbapi-opentracing',

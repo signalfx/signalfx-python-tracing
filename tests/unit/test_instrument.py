@@ -21,9 +21,10 @@ else:
                 stack.enter_context(context)
             yield
 
-
-expected_traceable_libraries = ('django', 'flask', 'psycopg2', 'pymongo', 'pymysql', 'redis', 'requests', 'tornado')
-expected_auto_instrumentable_libraries = ('flask', 'psycopg2', 'pymongo', 'pymysql', 'redis', 'requests', 'tornado')
+expected_traceable_libraries = ('django', 'elasticsearch', 'flask', 'psycopg2', 'pymongo', 'pymysql', 'redis',
+                                'requests', 'tornado')
+expected_auto_instrumentable_libraries = ('elasticsearch', 'flask', 'psycopg2', 'pymongo', 'pymysql', 'redis',
+                                          'requests', 'tornado')
 
 
 class TestInstrument(object):
@@ -39,6 +40,7 @@ class TestInstrument(object):
         Without doing so, all instrumented libraries would need to be available
         in pytest context and this would effectively be a large e2e.
         """
+
         class Stub(object):  # Use a generic object for attribute loading
             pass
 
@@ -62,7 +64,6 @@ class TestInstrument(object):
 
             # Ensure stubbed module references are immutable in closure patches
             def wrap_env(module_stub):
-
                 def _instrument(tracer=None):
                     utils.mark_instrumented(module_stub)
 
