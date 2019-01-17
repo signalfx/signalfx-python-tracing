@@ -57,6 +57,7 @@ class TestSessionTracing(object):
     def test_successful_top_level_session_requests(self, tracer, top_level_session, method):
         with tracer.start_active_span('root'):
             response = getattr(top_level_session, method)(server)
+        assert response.content.decode() == ('hello world\n' if method != 'head' else '')
         request = response.request
         spans = tracer.finished_spans()
         assert len(spans) == 2
@@ -79,7 +80,8 @@ class TestSessionTracing(object):
                                         'head', 'delete', 'options'))
     def test_successful_session_requests(self, tracer, session, method):
         with tracer.start_active_span('root'):
-            getattr(session, method)(server)
+            response = getattr(session, method)(server)
+        assert response.content.decode() == ('hello world\n' if method != 'head' else '')
         spans = tracer.finished_spans()
         assert len(spans) == 2
 
@@ -87,6 +89,15 @@ class TestSessionTracing(object):
                                         'head', 'delete', 'options'))
     def test_successful_requests(self, tracer, method):
         with tracer.start_active_span('root'):
-            getattr(requests, method)(server)
+            response = getattr(requests, method)(server)
+        assert response.content.decode() == ('hello world\n' if method != 'head' else '')
         spans = tracer.finished_spans()
         assert len(spans) == 2
+
+    def test_uninstrumented_clients_no_longer_trace(self, tracer):
+        uninstrument('requests')
+        for session in (requests, requests.Session()):
+            response = session.get(server)
+
+        assert response.content.decode() == 'hello world\n'
+        assert not tracer.finished_spans()

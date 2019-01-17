@@ -21,13 +21,13 @@ _session_tracing_new = [None]
 def session_new(_, __, *args, **kwargs):
     """Monkey patch Session.__new__() to create a SessionTracing object"""
     from requests_opentracing import SessionTracing
-    return SessionTracing.__new__(SessionTracing, *args, **kwargs)
+    return SessionTracing.__new__(SessionTracing)
 
 
 def session_tracing_new(_, __, *args, **kwargs):
     """Monkey patch a valid SessionTracing.__new__() to avoid recursion on patched base class"""
     from requests_opentracing import SessionTracing
-    return object.__new__(SessionTracing, *args, **kwargs)
+    return object.__new__(SessionTracing)
 
 
 def instrument(tracer=None):
@@ -75,5 +75,5 @@ def uninstrument():
         else:
             requests.Session.__new__ = _session_new[0]
 
-    utils.revert_wrapper('requests_opentracing.tracing', 'SessionTracing.__init__')
+    utils.revert_wrapper(SessionTracing, '__init__')
     utils.mark_uninstrumented(requests)
