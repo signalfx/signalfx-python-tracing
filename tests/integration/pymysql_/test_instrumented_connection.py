@@ -1,9 +1,7 @@
 # Copyright (C) 2018-2019 SignalFx, Inc. All rights reserved.
-from random import choice, random, randint
 from datetime import datetime
 from time import sleep
 import os.path
-import string
 
 from opentracing.mocktracer import MockTracer
 from pymysql.cursors import DictCursor
@@ -14,6 +12,7 @@ import pytest
 
 from signalfx_tracing.libraries import pymysql_config
 from signalfx_tracing import instrument
+from tests.utils import random_int, random_float, random_string
 
 
 @pytest.fixture(scope='session')
@@ -39,31 +38,6 @@ class TestInstrumentedConnection(object):
     def fmt_time(self, ts):
         return ts.strftime('%Y-%m-%d %H:%M:%S')
 
-    _strings = set()
-    _ints = set()
-    _floats = set()
-
-    def random_string(self):
-        while True:
-            s = ''.join(choice(string.ascii_lowercase) for _ in range(10))
-            if s not in self._strings:
-                self._strings.add(s)
-                return s
-
-    def random_int(self):
-        while True:
-            i = randint(0, 100000)
-            if i not in self._ints:
-                self._ints.add(i)
-                return i
-
-    def random_float(self):
-        while True:
-            i = random() * 100000
-            if i not in self._floats:
-                self._floats.add(i)
-                return i
-
     @pytest.fixture
     def connection_tracing(self, mysql_container):
         tracer = MockTracer()
@@ -86,11 +60,11 @@ class TestInstrumentedConnection(object):
         with tracer.start_active_span('Parent'):
             with conn.cursor() as cursor:
                 cursor.execute('insert into table_one values (%s, %s, %s, %s)',
-                               (self.random_string(), self.random_string(),
+                               (random_string(), random_string(),
                                 datetime.now(), datetime.now()))
                 cursor.execute('insert into table_two values (%s, %s, %s, %s)',
-                               (self.random_int(), self.random_int(),
-                                self.random_float(), self.random_float()))
+                               (random_int(0, 100000), random_int(0, 100000),
+                                random_float(), random_float()))
             conn.commit()
         spans = tracer.finished_spans()
         assert len(spans) == 4
