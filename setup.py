@@ -31,8 +31,8 @@ def isolated_dependencies(deps):
     # https://github.com/pypa/pip/issues/3610#issuecomment-356687173
     isolated = []
     for dep in deps:
-        if 'https' in dep:
-            isolated.append('git+{}-999999999'.format(dep))
+        if dep[:9] == 'git+https':
+            isolated.append('{}-999999999'.format(dep))
     return isolated
 
 
