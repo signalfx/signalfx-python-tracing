@@ -25,14 +25,30 @@ def stripped_dependencies(deps):
 
 
 def isolated_dependencies(deps):
-    """Ensures `pip install --process-dependency-links signalfx-tracing[django,jaeger,redis]` installs desired extras"""
-    # Takes advantage of limitation of pip and setuptools dependency links.
-    # Should guarantee supported instrumentor version is installed.
-    # https://github.com/pypa/pip/issues/3610#issuecomment-356687173
-    isolated = []
+    """
+    Ensures `pip install signalfx-tracing[django,jaeger,redis]` installs desired extras.
+    Returns a dictionary of top level package name to amended PEP 508 url with exceedingly high version.
+    Should guarantee supported instrumentor versions are installed in
+    absence of dependency links: https://github.com/pypa/pip/issues/4187
+    """
+    isolated = {}
+    version_operators = ('>=', '==', '<=', '<', '>')
     for dep in deps:
-        if dep[:9] == 'git+https':
-            isolated.append('{}-999999999'.format(dep))
+        dep_name = dep
+        set_versioned_dep_name = False
+        path_to_split = dep if ',' not in dep else dep.split(',')[0]
+        operator_hits = [op in path_to_split for op in version_operators]
+        if any(operator_hits):
+            dep_name = path_to_split.split(version_operators[operator_hits.index(True)])[0]
+            set_versioned_dep_name = True
+
+        dep_pep508 = dep
+        if '@' in dep:
+            if not set_versioned_dep_name:
+                dep_name = dep.split('@')[0].strip()
+            dep_pep508 = '{}-999999999'.format(dep)
+
+        isolated[dep_name] = dep_pep508
     return isolated
 
 
@@ -46,8 +62,7 @@ with open(os.path.join(cwd, 'requirements-test.txt')) as test_requirements_file:
 
 with open(os.path.join(cwd, 'requirements-inst.txt')) as inst_requirements_file:
     instrumentors = inst_requirements_file.read().splitlines()
-    instrumentation_requirements = stripped_dependencies(instrumentors)
-    dependency_links = isolated_dependencies(instrumentors)
+    instrumentor_map = isolated_dependencies(instrumentors)
 
 with open(os.path.join(cwd, 'README.md')) as readme_file:
     long_description = readme_file.read()
@@ -80,22 +95,21 @@ setup(name='signalfx-tracing',
       packages=find_packages(),
       install_requires=requirements,
       tests_require=unit_test_requirements,
-      dependency_links=dependency_links,
       extras_require=dict(
           unit_tests=unit_test_requirements,
-          instrumentation_tests=integration_test_requirements + instrumentation_requirements,
+          instrumentation_tests=integration_test_requirements + list(instrumentor_map.values()),
           # track with extras list in README
-          dbapi='dbapi-opentracing',
-          django='django-opentracing',
-          elasticsearch='elasticsearch-opentracing',
-          flask='flask_opentracing',
-          jaeger='jaeger-client',
-          psycopg2='dbapi-opentracing',
-          pymongo='pymongo-opentracing',
-          pymysql='dbapi-opentracing',
-          redis='redis-opentracing',
-          requests='requests-opentracing',
-          tornado='tornado-opentracing>=1.0.1',
+          dbapi=instrumentor_map['dbapi-opentracing'],
+          django=instrumentor_map['django-opentracing'],
+          elasticsearch=instrumentor_map['elasticsearch-opentracing'],
+          flask=instrumentor_map['flask_opentracing'],
+          jaeger=instrumentor_map['jaeger-client'],
+          psycopg2=instrumentor_map['dbapi-opentracing'],
+          pymongo=instrumentor_map['pymongo-opentracing'],
+          pymysql=instrumentor_map['dbapi-opentracing'],
+          redis=instrumentor_map['redis-opentracing'],
+          requests=instrumentor_map['requests-opentracing'],
+          tornado=instrumentor_map['tornado_opentracing']
       ),
       entry_points=dict(
           console_scripts=[

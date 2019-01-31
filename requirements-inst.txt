@@ -1,9 +1,9 @@
 dbapi-opentracing
-git+https://github.com/signalfx/python-django.git@django_2_ot_2_jaeger#egg=django-opentracing
-git+https://github.com/signalfx/python-elasticsearch.git@2.0_support_multiple_versions#egg=elasticsearch-opentracing
-git+https://github.com/signalfx/python-flask.git@adopt_scope_manager#egg=flask_opentracing
-git+https://github.com/signalfx/jaeger-client-python.git@ot_20_http_sender#egg=jaeger-client
+django-opentracing @ git+https://github.com/signalfx/python-django.git@django_2_ot_2_jaeger#egg=django-opentracing
+elasticsearch-opentracing @ git+https://github.com/signalfx/python-elasticsearch.git@2.0_support_multiple_versions#egg=elasticsearch-opentracing
+flask_opentracing @ git+https://github.com/signalfx/python-flask.git@adopt_scope_manager#egg=flask_opentracing
+jaeger-client @ git+https://github.com/signalfx/jaeger-client-python.git@ot_20_http_sender#egg=jaeger-client
 pymongo-opentracing
-git+https://github.com/opentracing-contrib/python-redis.git@v1.0.0#egg=redis-opentracing
+redis-opentracing @ git+https://github.com/opentracing-contrib/python-redis.git@v1.0.0#egg=redis-opentracing
 requests-opentracing
 tornado_opentracing>=1.0.1
