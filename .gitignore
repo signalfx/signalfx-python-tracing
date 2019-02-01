@@ -5,6 +5,7 @@
 *.pytest_cache
 .coverage
 .python-version
+.nox
 .tox
 build/
 dist/
