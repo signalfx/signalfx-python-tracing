@@ -89,10 +89,16 @@ It's also possible to install the supported instrumentors as package extras:
 
 ```bash
   # Supported extras are dbapi, django, flask, pymongo, pymysql, redis, requests, tornado
-  $ pip install --process-dependency-links 'signalfx-tracing[django,redis,requests]'
+  $ pip install 'signalfx-tracing[django,redis,requests]'
 ```
 
-**Note: It's necessary to include `--process-dependency-links` to obtain the desired instrumentor versions.**
+**Note: For pip versions earlier than 18.0, it's necessary to include `--process-dependency-links` to
+obtain the desired instrumentor versions.**
+
+```bash
+   # pip versions <18.0
+   $ pip install --process-dependency-links 'signalfx-tracing[jaeger,tornado]'
+```
 
 ### Tracer
 Not all stable versions of OpenTracing-compatible tracers support the 2.0 API, so we provide
@@ -103,7 +109,9 @@ ready for reporting to SignalFx. You can obtain an instance of the suggested Jae
 ```sh
   $ sfx-py-trace-bootstrap
 
-  # or as package extra (please note required --process-dependency-links)
+  # or as package extra
+  $ pip install 'signalfx-tracing[jaeger]'
+  # please use required --process-dependency-links for pip versions <18.0 
   $ pip install --process-dependency-links 'signalfx-tracing[jaeger]'
 
   # or from project source tree, along with applicable instrumentors
