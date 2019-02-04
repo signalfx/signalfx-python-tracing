@@ -21,7 +21,7 @@ def pip_freeze(session):
 def flake8(session):
     session.install('flake8')
     pip_freeze(session)
-    session.run('flake8', 'setup.py' 'bootstrap.py', 'signalfx_tracing', 'tests', 'noxfile.py')
+    session.run('flake8', 'setup.py', 'scripts', 'signalfx_tracing', 'tests', 'noxfile.py')
 
 
 @nox.session(python=('2.7', '3.4', '3.5', '3.6'), reuse_venv=True)
