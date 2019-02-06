@@ -1,11 +1,10 @@
-# Copyright (C) 2018 SignalFx, Inc. All rights reserved.
+# Copyright (C) 2018-2019 SignalFx, Inc. All rights reserved.
 from subprocess import check_output, CalledProcessError, STDOUT
 import os.path
 import os
 
-from six import PY2, text_type as tt
+from six import text_type as tt
 import pytest
-
 
 target = os.path.join(os.path.dirname(__file__), 'lib/runner_target_script.py')
 target_args = ['--one', '123', '--two', '123.456', '--three', 'This Is A String',
@@ -23,6 +22,12 @@ class TestRunner(object):
         if token:
             os.environ['SIGNALFX_ACCESS_TOKEN'] = token
 
+    @pytest.fixture(scope='class', autouse=True)
+    def add_existing_sitecustomize(self):
+        py_path = os.environ.get('PYTHONPATH', '')
+        cwd = os.path.abspath(os.path.dirname(__file__))
+        os.environ['PYTHONPATH'] = cwd + os.pathsep + py_path if py_path else cwd
+
     def check_output(self, arg_ls, **kwargs):
         return check_output(arg_ls, stderr=STDOUT, **kwargs)
 
@@ -30,7 +35,7 @@ class TestRunner(object):
         with pytest.raises(Exception) as e:
             self.check_output(['sfx-py-trace', 'file.py'])
         # check that target run attempted after instrumentation
-        expected = "No such file or directory: {0}file.py{0}".format("\'" if PY2 else "\\'")
+        expected = "can't open file 'file.py': [Errno 2] No such file or directory"
         assert expected in tt(e.value.output)
 
     def test_env_var_missing_target(self):

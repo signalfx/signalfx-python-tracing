@@ -42,7 +42,8 @@ run `sfx-py-trace-bootstrap` or installed the required dependencies as package e
  $ SIGNALFX_INGEST_URL='http://localhost:9080/v1/trace' sfx-py-trace my_application.py --app_arg_one --app_arg_two
 ```
 
-Because of our modified Jaeger tracer's Tornado dependency and its known limitations, the `sfx-py-trace` utility is not
-currently a substitute for a system Python executable and must be provided a target Python script or path with a
-`__main__` module. There are plans to remove the Tornado dependency that will allow us to enhance the script runner's
-functionality in other environments and use cases.
+`sfx-py-trace` works by sourcing your organization access token (if provided) and registering an auto-instrumenting
+[`sitecustomize`](https://docs.python.org/3.6/library/site.html) module to your `PYTHONPATH` before invoking your
+target file/module and arguments with the current Python executable.  The `sitecustomize` module will create an instance
+of a Jaeger tracer and set it as the OpenTracing global tracer for all instrumentations to use.  Running this should not
+prevent any existing `sitecustomize` module on your `PYTHONPATH` from also running.

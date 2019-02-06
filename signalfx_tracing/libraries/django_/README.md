@@ -10,14 +10,13 @@ app to your installed apps and specifying your tracer callable:
 ```python
 # settings.py
 INSTALLED_APPS = ['signalfx_tracing']
-SIGNALFX_TRACER_CALLABLE = 'signalfx_tracing.create_tracer'
-SIGNALFX_TRACER_PARAMETERS = dict(service_name='MyApp')
 ```
 
 Your Django app will then be able to report spans to SignalFx:
 
 ```bash
- $ SIGNALFX_INGEST_URL='http://MySmartAgentOrGateway:9080/v1/trace' ./manage.py runserver 0.0.0.0:8001
+ $ SIGNALFX_INGEST_URL='http://MySmartAgentOrGateway:9080/v1/trace' \
+   SIGNALFX_SERVICE_NAME='MyApp' sfx-py-trace manage.py runserver 0.0.0.0:8001
 ```
 
 To configure Django tracing, some settings are provided to establish
@@ -48,30 +47,26 @@ SIGNALFX_SET_GLOBAL_TRACER = True
 SIGNALFX_TRACER_CALLABLE = 'my_opentracing_compatible_tracer.Tracer'
 SIGNALFX_TRACER_PARAMETERS = dict(my_tracer_parameter='arg_one', another_parameter='arg_two')
 
+SIGNALFX_TRACER = MyTracer()  # Ignored if SIGNALFX_TRACER_CALLABLE is not None
 # ******************************************************************
-# If using the Jaeger Python client, there is a known issue with
-# tracer initialization before forking:
-# https://github.com/jaegertracing/jaeger-client-python/issues/60
-# As a workaround in Django, this pattern is suggested:
-#
-# SIGNALFX_TRACER_CALLABLE = 'signalfx_tracing.utils.create_tracer'
-# SIGNALFX_TRACER_PARAMETERS = dict(access_token='<MyAccessToken>',
-#                                   service_name='MyDjangoApp', ...)
+# Please note that instantiating your tracer within your settings.py file can be problematic
+# for some tracers (e.g. https://github.com/jaegertracing/jaeger-client-python/issues/60).
+# If this is the case, using deferred initialization via SIGNALFX_SET_GLOBAL_TRACER or
+# setting to opentracing.tracer with global initialization occurring in a custom configuration
+# view is recommended.
 #
 # Please note that you must use a version of django_opentracing
 # that supports lazy tracer initialization, such as that provided
 # by the bootstrap utility:
+#
 # sfx-py-trace-bootstrap
 # or
-# pip install --process-dependency-links 'signalfx[django]'
+# pip install 'signalfx[django]'
+#
+# The modified Jaeger tracer available as a package extra is able to be instantiated,
+# but not actively used in your settings.py file.  It is important to wait until the app is
+# fully loaded before creating any spans.
 # ******************************************************************
-
-SIGNALFX_TRACER = MyTracer()  # Ignored if SIGNALFX_TRACER_CALLABLE is not None
-# Please note that instantiating your tracer within your settings.py file can be problematic
-# for some tracers (e.g. https://github.com/jaegertracing/jaeger-client-python#wsgi).
-# If this is the case, using deferred initialization via SIGNALFX_SET_GLOBAL_TRACER or
-# setting to opentracing.tracer with global initialization occurring in a custom configuration
-# view is recommended.
 
 SIGNALFX_MIDDLEWARE_CLASS = 'my_custom_project.MyTracingMiddleware'
 ```

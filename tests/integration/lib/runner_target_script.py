@@ -1,4 +1,4 @@
-# Copyright (C) 2018 SignalFx, Inc. All rights reserved.
+# Copyright (C) 2018-2019 SignalFx, Inc. All rights reserved.
 from argparse import ArgumentParser
 import sys
 import os
@@ -39,3 +39,5 @@ else:
                         '--three', 'This Is A String', '-i', '1', '2', '3', '4', '5',
                         '-j', '1', '2', '3', '4', '5', '-t', 'collision1', '--token', 'collision2',
                         '--unknown=asdf', '-u' 'file.py', 'file.txt']
+
+    assert sys.modules['my_altered_site'] is True
