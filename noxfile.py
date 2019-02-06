@@ -37,7 +37,7 @@ def test_django(session):
 
 
 @nox.session(python=('2.7', '3.4', '3.5', '3.6'), reuse_venv=True)
-def django18_via_bootrap(session):
+def django18_via_bootstrap(session):
     # provides coverage for desired version installation via bootstrap
     install_unit_tests(session, 'django>=1.8,<1.9', 'pytest-django', 'django-opentracing')
     session.run('sfx-py-trace-bootstrap')
@@ -124,7 +124,7 @@ def test_flask(session):
 
 
 @nox.session(python=('2.7', '3.4', '3.5', '3.6'), reuse_venv=True)
-def flask010_via_bootrap(session):
+def flask010_via_bootstrap(session):
     # provides coverage for desired version installation via bootstrap
     install_unit_tests(session, 'flask>=0.10,<0.11', 'requests', 'flask-opentracing')
     session.run('sfx-py-trace-bootstrap')
