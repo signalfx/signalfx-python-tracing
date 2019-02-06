@@ -1,11 +1,10 @@
 #!/usr/bin/env python
-# Copyright (C) 2018 SignalFx, Inc. All rights reserved.
+# Copyright (C) 2018-2019 SignalFx, Inc. All rights reserved.
 from argparse import ArgumentParser, REMAINDER
-import runpy
+import os.path
 import sys
 import os
 
-from signalfx_tracing import auto_instrument, create_tracer
 
 ap = ArgumentParser()
 ap.add_argument('--token', '-t', required=False, type=str, dest='token',
@@ -16,12 +15,16 @@ ap.add_argument('target_args', help='Arguments for your application.', nargs=REM
 
 def main():
     args = ap.parse_args()
-    access_token = args.token or os.environ.get('SIGNALFX_ACCESS_TOKEN')
+    if args.token:
+        os.environ['SIGNALFX_ACCESS_TOKEN'] = args.token
 
-    auto_instrument(create_tracer(access_token=access_token, set_global=True))
+    site_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'site_')
+    py_path = os.environ.get('PYTHONPATH', '')
+    os.environ['PYTHONPATH'] = site_dir + os.pathsep + py_path if py_path else site_dir
 
-    sys.argv = [args.target] + args.target_args
-    runpy.run_path(args.target, run_name='__main__')
+    # provide the target file as well as follow posix convention
+    # that first argv item should be the executable filename
+    os.execv(sys.executable, [sys.executable, args.target] + args.target_args)
 
 
 if __name__ == '__main__':

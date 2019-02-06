@@ -186,7 +186,7 @@ is provided by the installer:
 ```
 
 **Note: `sfx-py-trace` cannot, at this time, enable auto-instrumentation of Django projects, as the instrumentor
-application must be added to the project settings' installed apps for lazy tracer creation.**
+application must be added to the project settings' installed apps.**
 
 This command line script loader will create a Jaeger tracer instance using the access token specified via
 environment variable or argument to report your spans to SignalFx.  It will then call `auto_instrument()` before

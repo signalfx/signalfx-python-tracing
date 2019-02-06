@@ -162,7 +162,7 @@ def test_jaeger(session):
 
 
 @nox.session(python=('2.7', '3.4', '3.5', '3.6'), reuse_venv=True)
-def jaeger_via_bootrap(session):
+def jaeger_via_bootstrap(session):
     # provides coverage for desired version installation via bootstrap
     install_unit_tests(session, 'jaeger-client')
     session.run('sfx-py-trace-bootstrap')
@@ -176,7 +176,7 @@ def jaeger_via_bootrap(session):
 def jaeger_via_extras(session, pip):
     install_unit_tests(session, f'pip{pip}')
 
-    jaeger_extra_args = ['.[jaeger,tornado]']
+    jaeger_extra_args = ['.[jaeger,requests]']
     if pip == '<11':
         jaeger_extra_args.insert(0, '--process-dependency-links')
     session.install(*jaeger_extra_args)
