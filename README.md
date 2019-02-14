@@ -15,11 +15,9 @@ If auto-instrumentation of all applicable libraries and frameworks isn't desired
 enabling instrumentation individually can be done by specifying your target module:
 
 ```python
-from signalfx_tracing import instrument, uninstrument
+from signalfx_tracing import create_tracer, instrument, uninstrument
 
-from my_opentracing_2_dot_0_compatible_tracer import Tracer
-
-tracer = Tracer()
+tracer = create_tracer()
 instrument(tracer, flask=True)
 # or
 instrument(flask=True)  # uses the global Tracer from opentracing.tracer by default
