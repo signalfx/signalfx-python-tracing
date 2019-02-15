@@ -142,12 +142,9 @@ from opentracing.scope_managers.tornado import TornadoScopeManager
 from signalfx_tracing import create_tracer
 
 tracer = create_tracer(
-    '<OrganizationAccessToken>',
-    config={'sampler': {'type': 'probabilistic', 'param': .05 }, 
-    # 5% chance of tracing: 'sampler': {'type': 'const', 'param': 1} by default
-            'logging': True},
+    '<OptionalOrganizationAccessToken>',
+    config=dict(jaeger_endpoint='http://localhost:9080/v1/trace'),
     service_name='MyTracedApplication',
-    jaeger_endpoint='http://localhost:9080/v1/trace',
     scope_manager=TornadoScopeManager  # Necessary for span scope in Tornado applications
 )
 ```
