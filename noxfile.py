@@ -1,4 +1,8 @@
 # Copyright (C) 2019 SignalFx, Inc. All rights reserved.
+import subprocess
+import tempfile
+import shutil
+
 import nox
 
 # pytest-django incompatible w/ pytest 4.2
@@ -29,6 +33,17 @@ def unit(session):
     install_unit_tests(session)
     pip_freeze(session)
     session.run('pytest', 'tests/unit', '--ignore', 'tests/unit/libraries', '-p', 'no:django')
+
+
+@nox.session(python=('2.7', '3.4', '3.5', '3.6'), reuse_venv=True)
+def bootstrap_with_target(session):
+    session.install('.')
+    dir = tempfile.mkdtemp()
+    session.run('sfx-py-trace-bootstrap', '-t', dir)
+    target_dir = subprocess.run(['ls', dir], stdout=subprocess.PIPE).stdout.decode()
+    assert 'signalfx_tracing' in target_dir
+    assert 'jaeger_client' in target_dir
+    shutil.rmtree(dir)
 
 
 def test_django(session):

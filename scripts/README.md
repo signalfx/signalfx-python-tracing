@@ -27,7 +27,7 @@ except ImportError:
 
 Other package installers are expected to be supported in the future, and if you have one you'd like us to support,
 please feel free to open a GitHub issue.  `sfx-py-trace-bootstrap` is our preferred installation utility, but if you'd
-rather manage your instrumentations manually, we also suggest using the provided
+rather manage your instrumentations manually, we also suggest cloning this repo and using the provided
 [package extras](../README.md#library-and-instrumentors).
 
 

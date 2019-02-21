@@ -66,8 +66,8 @@ per-instrumentor basis, it's highly recommended you use the helpful [bootstrap u
 obtaining and installing any applicable, feature-ready instrumentors along with a compatible tracer:
 
 ```sh
- $ pip install signalfx-tracing
- $ sfx-py-trace-bootstrap
+  $ pip install signalfx-tracing
+  $ sfx-py-trace-bootstrap
 ```
 
 For example, if your environment has Requests and Flask in its Python path, the corresponding OpenTracing
@@ -80,22 +80,31 @@ To run the instrumentor bootstrap process without installing the suggested trace
 project's source tree:
 
 ```sh
- $ scripts/bootstrap.py --deps-only
+  $ scripts/bootstrap.py --deps-only
 ```
 
-It's also possible to install the supported instrumentors as package extras:
+You can also specify a target installation directory, which will include the most recent `signalfx-tracing` as provided
+by PyPI:
+
+```sh
+  $ sfx-py-trace-bootstrap -t /my/site/packages/directory
+```
+
+It's also possible to install the supported instrumentors as package extras from a cloned repository:
 
 ```bash
+  $ git clone https://github.com/signalfx/signalfx-python-tracing.git
   # Supported extras are dbapi, django, flask, pymongo, pymysql, redis, requests, tornado
-  $ pip install 'signalfx-tracing[django,redis,requests]'
+  $ pip install './signalfx-python-tracing[django,redis,requests]'
 ```
 
 **Note: For pip versions earlier than 18.0, it's necessary to include `--process-dependency-links` to
 obtain the desired instrumentor versions.**
 
 ```bash
-   # pip versions <18.0
-   $ pip install --process-dependency-links 'signalfx-tracing[jaeger,tornado]'
+  $ git clone https://github.com/signalfx/signalfx-python-tracing.git
+  # pip versions <18.0
+  $ pip install --process-dependency-links './signalfx-python-tracing[jaeger,tornado]'
 ```
 
 ### Tracer
@@ -108,9 +117,9 @@ ready for reporting to SignalFx. You can obtain an instance of the suggested Jae
   $ sfx-py-trace-bootstrap
 
   # or as package extra
-  $ pip install 'signalfx-tracing[jaeger]'
+  $ pip install './signalfx-python-tracing[jaeger]'
   # please use required --process-dependency-links for pip versions <18.0 
-  $ pip install --process-dependency-links 'signalfx-tracing[jaeger]'
+  $ pip install --process-dependency-links './signalfx-python-tracing[jaeger]'
 
   # or from project source tree, along with applicable instrumentors
   $ scripts/bootstrap.py --jaeger
@@ -173,11 +182,11 @@ automatically instrument your applicable program with the default settings, a he
 is provided by the installer:
 
 ```sh
- $ SIGNALFX_INGEST_URL='http://localhost:9080/v1/trace' sfx-py-trace my_application.py --app_arg_one --app_arg_two
- # not providing an access token assumes usage of the Smart Agent and/or Smart Gateway
- $ SIGNALFX_ACCESS_TOKEN=<OrganizationAccessToken> sfx-py-trace my_application.py --app_arg_one --app_arg_two
- # or
- $ sfx-py-trace --token <OrganizationAccessToken> my_application.py --app_arg_one --app_arg_two
+  $ SIGNALFX_INGEST_URL='http://localhost:9080/v1/trace' sfx-py-trace my_application.py --app_arg_one --app_arg_two
+  # not providing an access token assumes usage of the Smart Agent and/or Smart Gateway
+  $ SIGNALFX_ACCESS_TOKEN=<OrganizationAccessToken> sfx-py-trace my_application.py --app_arg_one --app_arg_two
+  # or
+  $ sfx-py-trace --token <OrganizationAccessToken> my_application.py --app_arg_one --app_arg_two
 ```
 
 **Note: `sfx-py-trace` cannot, at this time, enable auto-instrumentation of Django projects, as the instrumentor
