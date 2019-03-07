@@ -2,9 +2,10 @@
 import logging
 import pkgutil
 import sys
+import os
 
 from .constants import traceable_libraries, auto_instrumentable_libraries
-from .utils import get_module
+from .utils import is_truthy, get_module
 
 
 log = logging.getLogger(__name__)
@@ -13,6 +14,9 @@ log = logging.getLogger(__name__)
 # This set of helpers operates under the assumption that a library
 # is a string representation of a python package/module name
 # and a module is the item in sys.modules after import, keyed by library name.
+
+def _tracing_enabled():
+    return is_truthy(os.environ.get('SIGNALFX_TRACING_ENABLED', True))
 
 
 def _importable_libraries(*libraries):
@@ -49,6 +53,9 @@ def instrument(tracer=None, **libraries):
     Config objects take precedence, which wouldn't happen if we used
     the global tracer by default here or in auto_instrument.
     """
+    if not _tracing_enabled():
+        return
+
     for library, inst in libraries.items():
         if library not in traceable_libraries:
             log.warn('Unable to trace {}'.format(library))
@@ -70,6 +77,9 @@ def auto_instrument(tracer=None):
     Invoke an auto-instrumentor.instrument() for all auto_instrumentable_libraries
     in current execution path.
     """
+    if not _tracing_enabled():
+        return
+
     available, unavailable = _importable_libraries(*auto_instrumentable_libraries)
     for library in unavailable:
         log.debug('Unable to auto-instrument {} as it is unavailable.'.format(library))

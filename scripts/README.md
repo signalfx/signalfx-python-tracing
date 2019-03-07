@@ -47,3 +47,6 @@ run `sfx-py-trace-bootstrap` or installed the required dependencies as package e
 target file/module and arguments with the current Python executable.  The `sitecustomize` module will create an instance
 of a Jaeger tracer and set it as the OpenTracing global tracer for all instrumentations to use.  Running this should not
 prevent any existing `sitecustomize` module on your `PYTHONPATH` from also running.
+
+**Node: `sfx-py-trace` functionality will be disabled if the `SIGNALFX_TRACING_ENABLED` environment variable is `False`
+or `0`.  It can still be used as an application runner, but its `site` module usage will be bypassed.**
