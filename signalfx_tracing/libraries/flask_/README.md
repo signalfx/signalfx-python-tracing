@@ -17,7 +17,7 @@ request attributes for span tagging:
 
 ```python
 # my_app.py
-from signalfx_tracing import auto_instrument, instrument
+from signalfx_tracing import auto_instrument, create_tracer, instrument
 from signalfx_tracing.libraries import flask_config
 
 import flask
@@ -50,7 +50,7 @@ flask_config.trace_all = True  # If False, will only trace those manually decora
 flask_config.traced_attributes = ['my_attr', 'another_attr']  # Ignored if flask_config.trace_all is False.
 
 # Ignored if tracer argument provided to instrument() or auto_instrument()
-flask_config.tracer = MyTracer()
+flask_config.tracer = create_tracer()
 
 auto_instrument()  # or instrument(flask=True)
 
@@ -60,12 +60,12 @@ bp = flask.Blueprint('form_letter', __name__)
 
 @app.route('/healthcheck')
 def healthcheck()
-    self.write('In Good Spirits!')
+    return('In Good Spirits!')
 
 
 @bp.route('/<letter>', methods=['GET', 'POST'])
 def collate(letter)
-    self.write('Thank You!')
+    return('Thank You!')
 
 
 app.register_blueprint(bp, url_prefix='/letters')
