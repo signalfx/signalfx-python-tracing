@@ -72,3 +72,11 @@ def test_revert_wrapper():
 
     utils.revert_wrapper(Namespace, 'wrappee')
     assert Namespace().wrappee() == 'wrappee'
+
+
+def test_is_truthy():
+    for val in (False, None, 0, [], (), {}, set(), 'FaLsE', 'f', 'F', 'No', 'n', 'N', '', b''):
+        assert utils.is_truthy(val) is False
+
+    for val in (True, 'y', 1, 'asdf', [1], (1,), {'one': 1}, set([1])):
+        assert utils.is_truthy(val) is True

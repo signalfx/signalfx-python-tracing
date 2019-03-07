@@ -1,5 +1,6 @@
 # Copyright (C) 2018-2019 SignalFx, Inc. All rights reserved.
 import sys
+import os
 
 import pytest
 import mock
@@ -85,6 +86,9 @@ class TestInstrument(object):
                 else:
                     del sys.modules[library]
 
+    def all_are_uninstrumented(self, modules):
+        return all([not hasattr(module, instrumented_attr) for module in modules])
+
     def test_instrument_with_true_instruments_specified_libraries(self):
         tornado = utils.get_module('tornado')
         assert not hasattr(tornado, instrumented_attr)
@@ -107,8 +111,7 @@ class TestInstrument(object):
 
     def test_auto_instrument_instruments_all_available_libraries(self):
         modules = [(utils.get_module(l), l) for l in expected_traceable_libraries]
-        for module, _ in modules:
-            assert not hasattr(module, instrumented_attr)
+        assert self.all_are_uninstrumented(modules)
 
         auto_instrument()
 
@@ -117,3 +120,24 @@ class TestInstrument(object):
                 assert getattr(module, instrumented_attr) is True
             else:
                 assert not hasattr(module, instrumented_attr)
+
+    @pytest.mark.parametrize('env_var, are_uninstrumented', [('False', True), ('0', True), ('True', False)])
+    def test_env_var_disables_instrument(self, env_var, are_uninstrumented):
+        os.environ['SIGNALFX_TRACING_ENABLED'] = env_var
+        modules = [utils.get_module(l) for l in expected_traceable_libraries]
+        assert self.all_are_uninstrumented(modules)
+
+        for m in expected_traceable_libraries:
+            instrument(**{m: True})
+
+        assert self.all_are_uninstrumented(modules) is are_uninstrumented
+
+    @pytest.mark.parametrize('env_var, are_uninstrumented', [('False', True), ('0', True), ('True', False)])
+    def test_env_var_disables_prevents_auto_instrument(self, env_var, are_uninstrumented):
+        os.environ['SIGNALFX_TRACING_ENABLED'] = env_var
+        modules = [utils.get_module(l) for l in expected_auto_instrumentable_libraries]
+        assert self.all_are_uninstrumented(modules)
+
+        auto_instrument()
+
+        assert self.all_are_uninstrumented(modules) is are_uninstrumented

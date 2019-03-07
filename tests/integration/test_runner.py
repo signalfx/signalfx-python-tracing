@@ -23,6 +23,13 @@ class TestRunner(object):
             os.environ['SIGNALFX_ACCESS_TOKEN'] = token
 
     @pytest.fixture(scope='class', autouse=True)
+    def clear_tracing_enabled_env_var(self):
+        val = os.environ.pop('SIGNALFX_TRACING_ENABLED', None)
+        yield
+        if val:
+            os.environ['SIGNALFX_TRACING_ENABLED'] = val
+
+    @pytest.fixture(scope='class', autouse=True)
     def add_existing_sitecustomize(self):
         py_path = os.environ.get('PYTHONPATH', '')
         cwd = os.path.abspath(os.path.dirname(__file__))
@@ -82,4 +89,15 @@ class TestRunner(object):
         self.check_output(['sfx-py-trace', target] + target_args, env=env)
 
     def test_named_without_token_and_target_args(self):
+        self.check_output(['sfx-py-trace', target] + target_args)
+
+    def test_disabled_env_var_prevents_site_addition(self):
+        os.environ['SIGNALFX_TRACING_ENABLED'] = 'False'
+        with pytest.raises(CalledProcessError) as e:
+            self.check_output(['sfx-py-trace', target] + target_args)
+        output = tt(e.value.output)
+        assert 'assert isinstance(opentracing.tracer, Tracer)' in output
+
+    def test_enabled_env_var_doesnt_prevents_site_addition(self):
+        os.environ['SIGNALFX_TRACING_ENABLED'] = 'True'
         self.check_output(['sfx-py-trace', target] + target_args)

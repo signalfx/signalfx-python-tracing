@@ -12,6 +12,14 @@ import opentracing
 from .constants import instrumented_attr
 
 
+# Accepted case-insensitive disabling environment variable values
+_falsy = ('0', '0.0', 'f', 'false', 'n', 'no')
+
+
+def is_truthy(value):
+    return bool(value) and str(value).lower() not in _falsy
+
+
 def get_module(library):
     if library not in sys.modules:
         importlib.import_module(library)

@@ -43,6 +43,10 @@ def untraced_route():
     return 'Goodbye!'
 ```
 
+**Note: Both `instrument()` and `auto_instrument()` invocations can be converted to no-ops if the
+`SIGNALFX_TRACING_ENABLED` environment variable is set to `False` or `0`.  This can be helpful when developing your
+auto-instrumented application locally or in test environments.**
+
 ## Supported Frameworks and Libraries
 
 * [Django 1.8+](./signalfx_tracing/libraries/django_/README.md) - `instrument(django=True)`
