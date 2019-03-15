@@ -142,7 +142,7 @@ from signalfx_tracing import create_tracer
 # sets the global opentracing.tracer by default:
 tracer = create_tracer()  # uses 'SIGNALFX_ACCESS_TOKEN' environment variable if provided
 
-# or directly provide your organization access token if not using the Smart Agent or Gateway to analyze spans:
+# or directly provide your organization access token if not using the Smart Agent to analyze spans:
 tracer = create_tracer('<OrganizationAccessToken>', ...)
 
 # or to disable setting the global tracer:
@@ -168,12 +168,16 @@ variables are checked for before selecting a default value:
 | Config kwarg | environment variable | default value |
 |--------------|----------------------|---------------|
 | `service_name` | `SIGNALFX_SERVICE_NAME` | `'SignalFx-Tracing'` |
-| `jaeger_endpoint` | `SIGNALFX_INGEST_URL` | `'https://ingest.signalfx.com/v1/trace'` |
+| `jaeger_endpoint` | `SIGNALFX_ENDPOINT_URL` | `'http://localhost:9080/v1/trace'` |
 | `jaeger_password` | `SIGNALFX_ACCESS_TOKEN` | `None` |
 | `['sampler']['type']` | `SIGNALFX_SAMPLER_TYPE` | `'const'` |
 | `['sampler']['param']` | `SIGNALFX_SAMPLER_PARAM` | `1` |
 | `propagation` | `SIGNALFX_PROPAGATION` | `'b3'` |
 
+
+**Note: By default `create_tracer()` will store the initial tracer created upon first invocation and return
+that instance for subsequent invocations.  If for some reason multiple tracers are needed, you can provide
+`create_tracer(allow_multiple=True)` as a named argument.**
 
 ## Usage
 
@@ -186,15 +190,13 @@ automatically instrument your applicable program with the default settings, a he
 is provided by the installer:
 
 ```sh
-  $ SIGNALFX_INGEST_URL='http://localhost:9080/v1/trace' sfx-py-trace my_application.py --app_arg_one --app_arg_two
-  # not providing an access token assumes usage of the Smart Agent and/or Smart Gateway
-  $ SIGNALFX_ACCESS_TOKEN=<OrganizationAccessToken> sfx-py-trace my_application.py --app_arg_one --app_arg_two
-  # or
-  $ sfx-py-trace --token <OrganizationAccessToken> my_application.py --app_arg_one --app_arg_two
+  $ sfx-py-trace my_application.py --app_arg_one --app_arg_two
+  # Or if your Smart Agent is not available at the default endpoint url:
+  $ SIGNALFX_ENDPOINT_URL='http://MySmartAgent:9080/v1/trace' sfx-py-trace my_application.py
 ```
 
-**Note: `sfx-py-trace` cannot, at this time, enable auto-instrumentation of Django projects, as the instrumentor
-application must be added to the project settings' installed apps.**
+**Note: `sfx-py-trace` cannot, at this time, enable auto-instrumentation of Django projects, as the `signalfx_tracing` 
+instrumentor application must still be added to the project settings' installed apps.**
 
 This command line script loader will create a Jaeger tracer instance using the access token specified via
 environment variable or argument to report your spans to SignalFx.  It will then call `auto_instrument()` before
