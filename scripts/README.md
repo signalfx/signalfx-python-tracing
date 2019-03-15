@@ -38,8 +38,8 @@ available instrumentations and Jaeger tracer for their Python applications via a
 run `sfx-py-trace-bootstrap` or installed the required dependencies as package extras:
 
 ```sh
- $ # SIGNALFX_INGEST_URL should be a deployed Smart Gateway trace endpoint
- $ SIGNALFX_INGEST_URL='http://localhost:9080/v1/trace' sfx-py-trace my_application.py --app_arg_one --app_arg_two
+ $ # SIGNALFX_ENDPOINT_URL should be a deployed Smart Agent trace endpoint (http://localhost:9080/v1/trace) by default
+ $ SIGNALFX_ENDPOINT_URL='http://MySmartAgent:9080/v1/trace' sfx-py-trace my_application.py --app_arg_one --app_arg_two
 ```
 
 `sfx-py-trace` works by sourcing your organization access token (if provided) and registering an auto-instrumenting

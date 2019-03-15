@@ -15,7 +15,7 @@ INSTALLED_APPS = ['signalfx_tracing']
 Your Django app will then be able to report spans to SignalFx:
 
 ```bash
- $ SIGNALFX_INGEST_URL='http://MySmartAgentOrGateway:9080/v1/trace' \
+ $ SIGNALFX_ENDPOINT_URL='http://MySmartAgent:9080/v1/trace' \
    SIGNALFX_SERVICE_NAME='MyApp' sfx-py-trace manage.py runserver 0.0.0.0:8001
 ```
 

@@ -18,7 +18,7 @@ class TestCreateTracer(object):
     def reset_jaeger_environment(self):
         Config._initialized = False
         prev = {}
-        for env_var in ('SIGNALFX_SERVICE_NAME', token_var, 'SIGNALFX_INGEST_URL', 'SIGNALFX_SAMPLER_TYPE',
+        for env_var in ('SIGNALFX_SERVICE_NAME', token_var, 'SIGNALFX_ENDPOINT_URL', 'SIGNALFX_SAMPLER_TYPE',
                         'SIGNALFX_SAMPLER_PARAM', 'SIGNALFX_PROPAGATION'):
             try:
                 prev[env_var] = os.environ.pop(env_var)
@@ -29,12 +29,34 @@ class TestCreateTracer(object):
             if prev[env_var] is not None:
                 os.environ[env_var] = prev[env_var]
 
+    @pytest.fixture(autouse=True)
+    def reset_cached_tracer(self):
+        prev = utils._tracer
+        utils._tracer = None
+        yield
+        utils._tracer = prev
+
     def test_access_token_optional(self):
         utils.create_tracer()
 
     def test_creation_with_access_token_arg(self):
         tracer = utils.create_tracer('AccessToken')
         assert isinstance(tracer, Tracer)
+
+    def test_creation_is_idempotent(self):
+        tracer = utils.create_tracer('AccessToken')
+        assert isinstance(tracer, Tracer)
+        assert utils.create_tracer('SomethingElse') is tracer
+
+    def test_creation_allows_multiple(self):
+        tracer = utils.create_tracer('AccessToken')
+        assert isinstance(tracer, Tracer)
+
+        other = utils.create_tracer('SomethingElse', allow_multiple=True)
+        assert isinstance(other, Tracer)
+        assert other is not tracer
+
+        assert utils.create_tracer('SomethingElse') is other
 
     def test_creation_with_access_token_env_var(self):
         os.environ[token_var] = 'AccessToken'
@@ -52,7 +74,7 @@ class TestCreateTracer(object):
         assert created['service_name'] == 'SignalFx-Tracing'
         assert created['jaeger_user'] == 'auth'
         assert created['jaeger_password'] == 'auth_token'
-        assert created['jaeger_endpoint'] == 'https://ingest.signalfx.com/v1/trace'
+        assert created['jaeger_endpoint'] == 'http://localhost:9080/v1/trace'
         assert created['propagation'] == 'b3'
 
     def test_defaults_overridden_by_config(self):
@@ -91,7 +113,7 @@ class TestCreateTracer(object):
         env = os.environ
         env['SIGNALFX_SERVICE_NAME'] = 'SomeService'
         env[token_var] = 'SomeToken'
-        env['SIGNALFX_INGEST_URL'] = 'SomeEndpoint'
+        env['SIGNALFX_ENDPOINT_URL'] = 'SomeEndpoint'
         env['SIGNALFX_SAMPLER_TYPE'] = 'probabilistic'
         env['SIGNALFX_SAMPLER_PARAM'] = '.05'
         env['SIGNALFX_PROPAGATION'] = 'SomePropagation'
@@ -111,7 +133,7 @@ class TestCreateTracer(object):
         env = os.environ
         env['SIGNALFX_SERVICE_NAME'] = ''
         env[token_var] = ''
-        env['SIGNALFX_INGEST_URL'] = ''
+        env['SIGNALFX_ENDPOINT_URL'] = ''
         env['SIGNALFX_SAMPLER_TYPE'] = ''
         env['SIGNALFX_SAMPLER_PARAM'] = ''
         env['SIGNALFX_PROPAGATION'] = ''
