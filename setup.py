@@ -4,8 +4,7 @@ from setuptools.command.test import test as TestCommand
 from setuptools import setup, find_packages
 import sys
 import os
-
-version = '0.0.7'
+import re
 
 
 protocols = ('http://', 'https://', 'ssh://', 'svn://')
@@ -108,6 +107,14 @@ with open(os.path.join(cwd, 'requirements-inst.txt')) as inst_requirements_file:
 with open(os.path.join(cwd, 'README.md')) as readme_file:
     long_description = readme_file.read()
 
+version = None
+with open(os.path.join(cwd, 'signalfx_tracing/__init__.py')) as init_file:
+    match = re.search("__version__ = ['\"]([^'\"]*)['\"]", init_file.read())
+    if not match:
+        raise RuntimeError('Not able to determine current version in signalfx_tracing/__init__.py')
+    version = match.group(1)
+
+
 unit_test_requirements = ['mock', 'pytest', 'six']
 
 setup_args = dict(
@@ -133,6 +140,7 @@ setup_args = dict(
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7'
     ],
     packages=find_packages(),
     install_requires=requirements,
