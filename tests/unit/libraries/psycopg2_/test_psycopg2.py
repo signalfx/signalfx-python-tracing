@@ -2,8 +2,8 @@
 import types
 
 from opentracing.mocktracer import MockTracer
-from mock import Mock, MagicMock
 from opentracing.ext import tags
+from mock import MagicMock
 import psycopg2.extensions
 import opentracing
 import psycopg2
@@ -13,7 +13,7 @@ from signalfx_tracing.libraries.psycopg2_.instrument import config, instrument, 
 from .conftest import Psycopg2TestSuite
 
 
-class MockDBAPICursor(Mock):
+class MockDBAPICursor(object):
 
     execute = MagicMock(spec=types.MethodType)
     execute.__name__ = 'execute'
@@ -26,6 +26,9 @@ class MockDBAPICursor(Mock):
 
     rowcount = 'SomeRowCount'
 
+    def __init__(self, *args, **kwargs):
+        pass
+
     def __enter__(self):
         return self
 
@@ -33,13 +36,16 @@ class MockDBAPICursor(Mock):
         return self
 
 
-class MockDBAPIConnection(Mock):
+class MockDBAPIConnection(object):
 
     commit = MagicMock(spec=types.MethodType)
     commit.__name__ = 'commit'
 
     rollback = MagicMock(spec=types.MethodType)
     rollback.__name__ = 'rollback'
+
+    def __init__(self, *args, **kwargs):
+        pass
 
     def cursor(self):
         return MockDBAPICursor()
@@ -57,13 +63,12 @@ class TestPsycopg2(Psycopg2TestSuite):
         opentracing.tracer = tracer
         config.tracer = tracer
 
-        with mock.patch.object(psycopg2.extensions, 'connection', MockDBAPIConnection):
-            with mock.patch.object(psycopg2.extensions, 'cursor', MockDBAPICursor):
-                connection = psycopg2.connect("dbname=test", connection_factory=MockDBAPIConnection())
-                with connection.cursor() as cursor:
-                    cursor.execute('traced')
-                    cursor.executemany('traced')
-                    cursor.callproc('traced')
+        with mock.patch.object(psycopg2.extensions, 'cursor', MockDBAPICursor):
+            connection = psycopg2.connect("dbname=test", connection_factory=MockDBAPIConnection)
+            with connection.cursor() as cursor:
+                cursor.execute('traced')
+                cursor.executemany('traced')
+                cursor.callproc('traced')
 
         assert not tracer.finished_spans()
 
@@ -75,7 +80,7 @@ class TestPsycopg2(Psycopg2TestSuite):
         with mock.patch.object(psycopg2.extensions, 'connection', MockDBAPIConnection):
             with mock.patch.object(psycopg2.extensions, 'cursor', MockDBAPICursor):
                 instrument(tracer)
-                connection = psycopg2.connect("dbname=test", connection_factory=MockDBAPIConnection())
+                connection = psycopg2.connect("dbname=test")
                 with connection.cursor() as cursor:
                     cursor.execute('traced')
                     cursor.executemany('traced')
@@ -92,7 +97,7 @@ class TestPsycopg2(Psycopg2TestSuite):
                 uninstrument()
                 tracer.reset()
 
-                connection = psycopg2.connect("dbname=test", connection_factory=MockDBAPIConnection())
+                connection = psycopg2.connect("dbname=test", connection_factory=MockDBAPIConnection)
                 with connection.cursor() as cursor:
                     cursor.execute('traced')
                     cursor.executemany('traced')
@@ -107,14 +112,13 @@ class TestPsycopg2Config(Psycopg2TestSuite):
         tracer = MockTracer()
         opentracing.tracer = tracer
 
-        with mock.patch.object(psycopg2.extensions, 'connection', MockDBAPIConnection):
-            with mock.patch.object(psycopg2.extensions, 'cursor', MockDBAPICursor):
-                instrument()
-                connection = psycopg2.connect("dbname=test", connection_factory=MockDBAPIConnection())
-                with connection.cursor() as cursor:
-                    cursor.execute('traced')
-                    cursor.executemany('traced')
-                    cursor.callproc('traced')
+        with mock.patch.object(psycopg2.extensions, 'cursor', MockDBAPICursor):
+            instrument()
+            connection = psycopg2.connect("dbname=test", connection_factory=MockDBAPIConnection)
+            with connection.cursor() as cursor:
+                cursor.execute('traced')
+                cursor.executemany('traced')
+                cursor.callproc('traced')
 
         spans = tracer.finished_spans()
         assert len(spans) == 3
@@ -129,7 +133,7 @@ class TestPsycopg2Config(Psycopg2TestSuite):
         with mock.patch.object(psycopg2.extensions, 'connection', MockDBAPIConnection):
             with mock.patch.object(psycopg2.extensions, 'cursor', MockDBAPICursor):
                 instrument()
-                connection = psycopg2.connect("dbname=test", connection_factory=MockDBAPIConnection())
+                connection = psycopg2.connect("dbname=test")
                 with connection.cursor() as cursor:
                     cursor.execute('traced')
                     cursor.executemany('traced')
@@ -149,7 +153,7 @@ class TestPsycopg2Config(Psycopg2TestSuite):
         with mock.patch.object(psycopg2.extensions, 'connection', MockDBAPIConnection):
             with mock.patch.object(psycopg2.extensions, 'cursor', MockDBAPICursor):
                 instrument()
-                connection = psycopg2.connect("dbname=test", connection_factory=MockDBAPIConnection())
+                connection = psycopg2.connect("dbname=test", connection_factory=MockDBAPIConnection)
                 with connection.cursor() as cursor:
                     cursor.executemany('untraced')
                     cursor.callproc('untraced')
@@ -170,7 +174,7 @@ class TestPsycopg2Config(Psycopg2TestSuite):
                     callproc.__name__ = 'callproc'
 
                     instrument()
-                    connection = psycopg2.connect("dbname=test", connection_factory=MockDBAPIConnection())
+                    connection = psycopg2.connect("dbname=test", connection_factory=MockDBAPIConnection)
                     with connection as cursor:
                         cursor.execute('traced')
 
@@ -200,7 +204,7 @@ class TestPsycopg2Config(Psycopg2TestSuite):
                     callproc.__name__ = 'callproc'
 
                     instrument()
-                    connection = psycopg2.connect("dbname=test", connection_factory=MockDBAPIConnection())
+                    connection = psycopg2.connect("dbname=test", connection_factory=MockDBAPIConnection)
                     with connection as cursor:
                         cursor.executemany('untraced')
                         cursor.execute('traced')
@@ -222,7 +226,7 @@ class TestPsycopg2Config(Psycopg2TestSuite):
         with mock.patch.object(psycopg2.extensions, 'connection', MockDBAPIConnection):
             with mock.patch.object(psycopg2.extensions, 'cursor', MockDBAPICursor):
                 instrument()
-                connection = psycopg2.connect("dbname=test", connection_factory=MockDBAPIConnection())
+                connection = psycopg2.connect("dbname=test", connection_factory=MockDBAPIConnection)
                 with connection as cursor:
                     cursor.executemany('traced')
                     cursor.execute('traced')

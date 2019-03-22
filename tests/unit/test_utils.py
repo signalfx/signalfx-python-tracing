@@ -20,6 +20,10 @@ def test_get_module_imports_unimported_modules():
             import logging
 
 
+def test_get_module_is_none_for_unavailable_modules():
+    assert utils.get_module('not_a_real_module_12345') is None
+
+
 def test_mark_instrumented_and_uninstrumented():
     class MockModule(object):
         pass

@@ -1,5 +1,6 @@
 # Copyright (C) 2019 SignalFx, Inc. All rights reserved.
 import logging
+import inspect
 
 from wrapt import wrap_function_wrapper
 from opentracing.ext import tags
@@ -20,10 +21,12 @@ config = utils.Config(
 
 def instrument(tracer=None):
     psycopg2 = utils.get_module('psycopg2')
-    if utils.is_instrumented(psycopg2):
+    if psycopg2 is None or utils.is_instrumented(psycopg2):
         return
 
     dbapi_opentracing = utils.get_module('dbapi_opentracing')
+    if dbapi_opentracing is None:
+        return
 
     def psycopg2_tracer(connect, _, args, kwargs):
         """
@@ -31,7 +34,6 @@ def instrument(tracer=None):
         dbapi_opentracing.ConnectionTracing upon database connection.
         """
 
-        connection = connect(*args, **kwargs)
         _tracer = tracer or config.tracer or opentracing.tracer
 
         traced_commands = set(config.traced_commands)
@@ -48,8 +50,22 @@ def instrument(tracer=None):
         if config.span_tags is not None:
             span_tags.update(config.span_tags)
 
-        return dbapi_opentracing.ConnectionTracing(connection, _tracer, span_tags=span_tags,
-                                                   **traced_commands_kwargs)
+        if 'connection_factory' in kwargs:
+            connection_factory = kwargs['connection_factory']
+            if not inspect.isclass(connection_factory):
+                log.error('connection_factory value %s is not a class, so it cannot be subclassed along with '
+                          'PsycopgConnectionTracing.  No auto-instrumentation possible.', connection_factory)
+                return connect(*args, **kwargs)
+
+            traced_commands_kwargs['connection_factory'] = kwargs.pop('connection_factory')
+
+        traced_commands_kwargs['tracer'] = _tracer
+        traced_commands_kwargs['span_tags'] = span_tags
+
+        def init_psycopg_connection_tracing(*a):
+            return dbapi_opentracing.PsycopgConnectionTracing(*a, **traced_commands_kwargs)
+
+        return connect(*args, connection_factory=init_psycopg_connection_tracing, **kwargs)
 
     wrap_function_wrapper('psycopg2', 'connect', psycopg2_tracer)
     utils.mark_instrumented(psycopg2)

@@ -6,6 +6,8 @@ import os.path
 from opentracing.mocktracer import MockTracer
 from psycopg2.extras import DictCursor
 from opentracing.ext import tags
+import psycopg2.extensions
+import opentracing
 import psycopg2
 import docker
 import pytest
@@ -54,14 +56,21 @@ class TestInstrumentedConnection(object):
 
     def test_instrumented_sanity(self, connection_tracing):
         tracer, conn = connection_tracing
+
+        # C arg validation
+        assert isinstance(conn, psycopg2.extensions.connection)
+        psycopg2.extensions.register_type(psycopg2.extensions.UNICODE, conn)
+
         with tracer.start_active_span('Parent'):
             with conn.cursor(cursor_factory=DictCursor) as cursor:
+                # C arg validation
+                assert isinstance(cursor, psycopg2.extensions.cursor)
+                psycopg2.extras.register_uuid(None, cursor)
+
                 cursor.execute('insert into table_one values (%s, %s, %s, %s)',
-                               (random_string(), random_string(),
-                                datetime.now(), datetime.now()))
+                               (random_string(), random_string(), datetime.now(), datetime.now()))
                 cursor.execute('insert into table_two values (%s, %s, %s, %s)',
-                               (random_int(0, 100000), random_int(0, 100000),
-                                random_float(), random_float()))
+                               (random_int(0, 100000), random_int(0, 100000), random_float(), random_float()))
             conn.commit()
         spans = tracer.finished_spans()
         assert len(spans) == 4
@@ -77,3 +86,25 @@ class TestInstrumentedConnection(object):
         assert second.tags[tags.DATABASE_STATEMENT] == 'insert into table_two values (%s, %s, %s, %s)'
         assert commit.operation_name == 'connection.commit()'
         assert parent.operation_name == 'Parent'
+
+    def test_nonclass_connection_factory_prevents_tracing(self, postgres_container):
+        tracer = MockTracer()
+        opentracing.tracer = tracer
+        for i in range(480):
+            try:
+                conn = psycopg2.connect(host='127.0.0.1', user='test_user', password='test_password',
+                                        dbname='test_db', port=5432, options='-c search_path=test_schema',
+                                        connection_factory=lambda dsn: psycopg2.extensions.connection(dsn))
+                break
+            except psycopg2.OperationalError:
+                sleep(.25)
+            if i == 479:
+                raise Exception('Failed to connect to Postgres: {}'.format(postgres_container.logs()))
+
+        assert isinstance(conn, psycopg2.extensions.connection)
+
+        with conn.cursor(cursor_factory=DictCursor) as cursor:
+            cursor.execute('insert into table_one values (%s, %s, %s, %s)',
+                           (random_string(), random_string(), datetime.now(), datetime.now()))
+        conn.commit()
+        assert not tracer.finished_spans()
