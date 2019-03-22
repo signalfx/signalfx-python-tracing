@@ -21,9 +21,9 @@ instrumentors = {
     'elasticsearch': ('https://github.com/signalfx/python-elasticsearch/tarball/2.0_support_multiple_versions'
                       '#egg=elasticsearch-opentracing'),
     'flask': 'https://github.com/signalfx/python-flask/tarball/adopt_scope_manager#egg=flask_opentracing',
-    'psycopg2': 'dbapi-opentracing',
+    'psycopg2': 'dbapi-opentracing>=0.0.3',
     'pymongo': 'pymongo-opentracing',
-    'pymysql': 'dbapi-opentracing',
+    'pymysql': 'dbapi-opentracing>=0.0.3',
     'redis': 'https://github.com/opentracing-contrib/python-redis/tarball/v1.0.0#egg=redis-opentracing',
     'requests': 'requests-opentracing',
     'tornado': 'tornado-opentracing==1.0.1'

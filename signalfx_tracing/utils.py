@@ -25,8 +25,12 @@ def is_truthy(value):
 
 
 def get_module(library):
+    """Attempts import a library by name, returning None if not available"""
     if library not in sys.modules:
-        importlib.import_module(library)
+        try:
+            importlib.import_module(library)
+        except ImportError:
+            return None
     return sys.modules[library]
 
 
