@@ -13,8 +13,7 @@ def is_installed(library):
     return library in sys.modules or pkgutil.find_loader(library) is not None
 
 
-jaeger_client = ('https://github.com/signalfx/jaeger-client-python/tarball/'
-                 'ot_20_http_sender_no_tornado#egg=jaeger-client')
+jaeger_client = 'sfx-jaeger-client>=3.13.1b0.dev1'
 
 instrumentors = {
     'django': 'https://github.com/signalfx/python-django/tarball/django_2_ot_2_jaeger#egg=django-opentracing',
