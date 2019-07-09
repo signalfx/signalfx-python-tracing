@@ -24,7 +24,8 @@ except Exception:
 # can trigger garbage collection and cause lookup failures in other modules.
 sys.modules['sfx_sitecustomize'] = sys.modules.pop('sitecustomize', None)
 sys.path.remove(os.path.abspath(os.path.dirname(__file__)))
-try:
-    get_module('sitecustomize')
-except ImportError:
-    pass
+
+# Attempt to load any existing sitecustomize
+module = get_module('sitecustomize')
+if module is None:  # reset to our own if no preexisting
+    sys.modules['sitecustomize'] = sys.modules['sfx_sitecustomize']

@@ -29,11 +29,13 @@ class TestRunner(object):
         if val:
             os.environ['SIGNALFX_TRACING_ENABLED'] = val
 
-    @pytest.fixture(scope='class', autouse=True)
+    @pytest.fixture
     def add_existing_sitecustomize(self):
         py_path = os.environ.get('PYTHONPATH', '')
         cwd = os.path.abspath(os.path.dirname(__file__))
         os.environ['PYTHONPATH'] = cwd + os.pathsep + py_path if py_path else cwd
+        yield
+        os.environ['PYTHONPATH'] = py_path
 
     def check_output(self, arg_ls, **kwargs):
         return check_output(arg_ls, stderr=STDOUT, **kwargs)
@@ -101,3 +103,9 @@ class TestRunner(object):
     def test_enabled_env_var_doesnt_prevents_site_addition(self):
         os.environ['SIGNALFX_TRACING_ENABLED'] = 'True'
         self.check_output(['sfx-py-trace', target] + target_args)
+
+    def test_existing_sitecustomize_called(self, add_existing_sitecustomize):
+        assert not len(self.check_output(['sfx-py-trace', target] + target_args + ['--sitecustomize']))
+
+    def test_no_existing_sitecustomize_doesnt_cause_noise(self):
+        assert not len(self.check_output(['sfx-py-trace', target] + target_args))

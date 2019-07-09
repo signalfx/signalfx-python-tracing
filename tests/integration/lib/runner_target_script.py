@@ -23,6 +23,8 @@ else:
     ap.add_argument('-t', dest='t', type=str)
     ap.add_argument('--token', dest='token', type=str)
 
+    ap.add_argument('--sitecustomize', dest='sitecustomize', action='store_true')
+
     known, unknown = ap.parse_known_args()
 
     assert known.one == 123
@@ -35,9 +37,13 @@ else:
     assert known.token == 'collision2'
     assert unknown == ['--unknown=asdf', '-u' 'file.py', 'file.txt']
 
-    assert sys.argv == [os.path.abspath(__file__), '--one', '123', '--two', '123.456',
-                        '--three', 'This Is A String', '-i', '1', '2', '3', '4', '5',
-                        '-j', '1', '2', '3', '4', '5', '-t', 'collision1', '--token', 'collision2',
-                        '--unknown=asdf', '-u' 'file.py', 'file.txt']
+    expected_args = [os.path.abspath(__file__), '--one', '123', '--two', '123.456',
+                     '--three', 'This Is A String', '-i', '1', '2', '3', '4', '5',
+                     '-j', '1', '2', '3', '4', '5', '-t', 'collision1', '--token', 'collision2',
+                     '--unknown=asdf', '-u' 'file.py', 'file.txt']
 
-    assert sys.modules['my_altered_site'] is True
+    if known.sitecustomize:
+        expected_args += ['--sitecustomize']
+    assert sys.argv == expected_args
+
+    assert sys.modules.get('my_altered_site', False) is known.sitecustomize
