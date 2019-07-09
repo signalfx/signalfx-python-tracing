@@ -15,6 +15,7 @@ def is_installed(library):
 
 jaeger_client = 'sfx-jaeger-client>=3.13.1b0.dev1'
 
+# target library to desired instrumentor path/versioned package name
 instrumentors = {
     'django': 'https://github.com/signalfx/python-django/tarball/django_2_ot_2_jaeger#egg=django-opentracing',
     'elasticsearch': ('https://github.com/signalfx/python-elasticsearch/tarball/2.0_support_multiple_versions'
@@ -28,18 +29,19 @@ instrumentors = {
     'tornado': 'tornado-opentracing==1.0.1'
 }
 
+# relevant instrumentors and tracers to uninstall and check for conflicts for target libraries
 packages = {
-    'django': 'django-opentracing',
-    'elasticsearch': 'elasticsearch-opentracing',
-    'flask': 'Flask-OpenTracing',
-    'jaeger': 'jaeger-client',
-    'psycopg2': 'dbapi-opentracing',
-    'pymongo': 'pymongo-opentracing',
-    'pymysql': 'dbapi-opentracing',
-    'redis': 'redis-opentracing',
-    'requests': 'requests-opentracing',
-    'signalfx-tracing': 'signalfx-tracing',
-    'tornado': 'tornado-opentracing'
+    'django': ('django-opentracing',),
+    'elasticsearch': ('elasticsearch-opentracing',),
+    'flask': ('Flask-OpenTracing',),
+    'jaeger': ('jaeger-client', 'sfx-jaeger-client'),
+    'psycopg2': ('dbapi-opentracing',),
+    'pymongo': ('pymongo-opentracing',),
+    'pymysql': ('dbapi-opentracing',),
+    'redis': ('redis-opentracing',),
+    'requests': ('requests-opentracing',),
+    'signalfx-tracing': ('signalfx-tracing',),
+    'tornado': ('tornado-opentracing',),
 }
 
 
@@ -58,10 +60,10 @@ def _install_updated_dependency(library, package_path, target=None):
     """
     if not target:
         pip_list = subprocess.check_output([sys.executable, '-m', 'pip', 'freeze']).decode().lower()
-        path = packages[library]
-        if '{}=='.format(path).lower() in pip_list:
-            print('Existing {} installation detected.  Uninstalling.'.format(path))
-            subprocess.check_call([sys.executable, '-m', 'pip', 'uninstall', '-y', path])
+        for package in packages[library]:
+            if '{}=='.format(package).lower() in pip_list:
+                print('Existing {} installation detected.  Uninstalling.'.format(package))
+                subprocess.check_call([sys.executable, '-m', 'pip', 'uninstall', '-y', package])
 
     # explicit upgrade strategy to override potential pip config
     subprocess.check_call([sys.executable, '-m', 'pip', 'install', '-U',
@@ -83,9 +85,10 @@ def _pip_check():
     check_pipe = subprocess.Popen([sys.executable, '-m', 'pip', 'check'], stdout=subprocess.PIPE)
     pip_check = check_pipe.communicate()[0].decode()
     pip_check_lower = pip_check.lower()
-    for package in packages.values():
-        if package.lower() in pip_check_lower:
-            raise RuntimeError('Dependency conflict found: {}'.format(pip_check))
+    for package_tup in packages.values():
+        for package in package_tup:
+            if package.lower() in pip_check_lower:
+                raise RuntimeError('Dependency conflict found: {}'.format(pip_check))
 
 
 def install_jaeger(target=None):
