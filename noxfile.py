@@ -211,7 +211,7 @@ def test_jaeger(session):
 @nox.session(python=('2.7', '3.4', '3.5', '3.6', '3.7'), reuse_venv=True)
 def jaeger_via_bootstrap(session):
     # provides coverage for desired version installation via bootstrap
-    install_unit_tests(session, 'jaeger-client')
+    install_unit_tests(session, 'jaeger-client', 'sfx-jaeger-client')
     session.run('sfx-py-trace-bootstrap')
     pip_check(session)
     pip_freeze(session)
