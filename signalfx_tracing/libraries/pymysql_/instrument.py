@@ -3,6 +3,7 @@ import logging
 
 from wrapt import wrap_function_wrapper
 from opentracing.ext import tags
+from six import ensure_str
 import opentracing
 
 from signalfx_tracing import utils
@@ -45,6 +46,9 @@ def instrument(tracer=None):
             traced_commands_kwargs[flag] = True
 
         span_tags = {tags.DATABASE_TYPE: 'MySQL'}
+        if connection.db is not None:
+            span_tags[tags.DATABASE_INSTANCE] = ensure_str(connection.db)
+
         if config.span_tags is not None:
             span_tags.update(config.span_tags)
 

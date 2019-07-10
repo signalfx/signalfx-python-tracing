@@ -233,12 +233,25 @@ def jaeger_via_extras(session, pip):
     test_jaeger(session)
 
 
-@nox.session(python=('2.7', '3.4', '3.5', '3.6', '3.7'), reuse_venv=True)
-def psycopg2_via_extras(session):
-    install_unit_tests(session, 'psycopg2>=2.7,<2.8', 'docker')
-    session.install(f'{sdist}[psycopg2]')
+def test_psycopg(session):
     session.run('pytest', 'tests/unit/libraries/psycopg2_')
     session.run('pytest', 'tests/integration/psycopg2_')
+
+
+@nox.session(python=('2.7', '3.4', '3.5', '3.6', '3.7'), reuse_venv=True)
+@nox.parametrize('psycopg2', ('>=2.7,<2.8', '>=2.8,<2.9'))
+def psycopg2_via_extras(session, psycopg2):
+    install_unit_tests(session, f'psycopg2{psycopg2}', 'docker')
+    session.install(f'{sdist}[psycopg2]')
+    test_psycopg(session)
+
+
+@nox.session(python=('2.7', '3.4', '3.5', '3.6', '3.7'), reuse_venv=True)
+@nox.parametrize('psycopg2', ('>=2.7,<2.8', '>=2.8,<2.9'))
+def psycopg2_binary_via_extras(session, psycopg2):
+    install_unit_tests(session, f'psycopg2-binary{psycopg2}', 'docker')
+    session.install(f'{sdist}[psycopg2]')
+    test_psycopg(session)
 
 
 @nox.session(python=('2.7', '3.4', '3.5', '3.6', '3.7'), reuse_venv=True)
