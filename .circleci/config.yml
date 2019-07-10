@@ -1,0 +1,84 @@
+version: 2
+
+pyenv: &pyenv
+  machine:
+    image: ubuntu-1604:201903-01
+  working_directory: ~/signalfx-python-tracing
+  resource_class: medium
+  steps:
+    - checkout
+    - &pyenv-versions
+      run:
+        name: Pyenv
+        command: pyenv versions
+    - &pyenv-set-local
+      run:
+        name: Pyenv
+        command: pyenv local 2.7.12 3.5.2 3.6.5 3.7.0
+    - &install-nox
+      run:
+        name: Install nox
+        command: python3.7 -m pip install nox
+
+jobs:
+  lint:
+    <<: *pyenv
+    steps:
+      - checkout
+      - *pyenv-versions
+      - *pyenv-set-local
+      - *install-nox
+      - run:
+          name: Lint
+          command: python3.7 -m nox -s flake8
+  unit:
+    <<: *pyenv
+    steps:
+      - checkout
+      - *pyenv-versions
+      - *pyenv-set-local
+      - *install-nox
+      - run:
+          name: Unit
+          command: python3.7 -m nox -s unit
+  jaeger_bootstrap:
+    <<: *pyenv
+    steps:
+      - checkout
+      - *pyenv-versions
+      - *pyenv-set-local
+      - *install-nox
+      - run:
+          name: Bootstrap
+          command: python3.7 -m nox -s jaeger_via_bootstrap
+  jaeger_extras:
+    <<: *pyenv
+    steps:
+    - checkout
+    - *pyenv-versions
+    - *pyenv-set-local
+    - *install-nox
+    - run:
+        name: Extras
+        command: python3.7 -m nox -s jaeger_via_extras
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - lint
+      - unit
+      - jaeger_bootstrap
+  nightly:
+    triggers:
+      - schedule:
+          cron: "0 0 * * *"
+          filters:
+            branches:
+              only:
+                - master
+    jobs:
+      - lint
+      - unit
+      - jaeger_bootstrap
+      - jaeger_extras
