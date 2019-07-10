@@ -50,6 +50,9 @@ class MockDBAPIConnection(object):
     def cursor(self):
         return MockDBAPICursor()
 
+    def get_dsn_parameters(self):
+        return dict(dbname='test')
+
     def __exit__(self, exc, value, tb):
         if exc:
             return self.rollback()
@@ -90,6 +93,8 @@ class TestPsycopg2(Psycopg2TestSuite):
                 assert len(spans) == 3
                 for span in spans:
                     assert span.tags[tags.DATABASE_TYPE] == 'PostgreSQL'
+                    assert span.tags[tags.DATABASE_INSTANCE] == 'test'
+
                 assert spans[0].operation_name == 'MockDBAPICursor.execute(traced)'
                 assert spans[1].operation_name == 'MockDBAPICursor.executemany(traced)'
                 assert spans[2].operation_name == 'MockDBAPICursor.callproc(traced)'

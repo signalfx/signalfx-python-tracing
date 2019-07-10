@@ -65,7 +65,13 @@ def instrument(tracer=None):
         def init_psycopg_connection_tracing(*a):
             return dbapi_opentracing.PsycopgConnectionTracing(*a, **traced_commands_kwargs)
 
-        return connect(*args, connection_factory=init_psycopg_connection_tracing, **kwargs)
+        connection = connect(*args, connection_factory=init_psycopg_connection_tracing, **kwargs)
+        if tags.DATABASE_INSTANCE not in span_tags:
+            db_name = connection.get_dsn_parameters().get('dbname')
+            if db_name:
+                span_tags[tags.DATABASE_INSTANCE] = db_name
+
+        return connection
 
     wrap_function_wrapper('psycopg2', 'connect', psycopg2_tracer)
     utils.mark_instrumented(psycopg2)

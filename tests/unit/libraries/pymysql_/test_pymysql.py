@@ -42,6 +42,8 @@ class MockDBAPIConnection(Mock):
     rollback = MagicMock(spec=types.MethodType)
     rollback.__name__ = 'rollback'
 
+    db = 'test_db'
+
     def cursor(self):
         return MockDBAPICursor()
 
@@ -86,6 +88,8 @@ class TestPyMySQL(PyMySQLTestSuite):
                 assert len(spans) == 3
                 for span in spans:
                     assert span.tags[tags.DATABASE_TYPE] == 'MySQL'
+                    assert span.tags[tags.DATABASE_INSTANCE] == connection.db
+
                 assert spans[0].operation_name == 'MockDBAPICursor.execute(traced)'
                 assert spans[1].operation_name == 'MockDBAPICursor.executemany(traced)'
                 assert spans[2].operation_name == 'MockDBAPICursor.callproc(traced)'
@@ -235,3 +239,5 @@ class TestPyMySQLConfig(PyMySQLTestSuite):
                 assert spans[2].operation_name == 'MockDBAPIConnection.commit()'
                 for span in spans:
                     assert span.tags['custom'] == 'tag'
+                    assert span.tags[tags.DATABASE_TYPE] == 'MySQL'
+                    assert span.tags[tags.DATABASE_INSTANCE] == connection.db

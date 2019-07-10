@@ -74,11 +74,14 @@ class TestInstrumentedConnection(object):
             conn.commit()
         spans = tracer.finished_spans()
         assert len(spans) == 4
+        for span in spans[:3]:
+            assert span.tags['some'] == 'tag'
+            assert span.tags[tags.DATABASE_TYPE] == 'PostgreSQL'
+            assert span.tags[tags.DATABASE_INSTANCE] == 'test_db'
+
         first, second, commit, parent = spans
         for span in (first, second):
             assert span.operation_name == 'DictCursor.execute(insert)'
-            assert span.tags['some'] == 'tag'
-            assert span.tags[tags.DATABASE_TYPE] == 'PostgreSQL'
             assert span.tags['db.rows_produced'] == 1
             assert span.parent_id == parent.context.span_id
             assert tags.ERROR not in span.tags
