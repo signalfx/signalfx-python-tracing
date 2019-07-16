@@ -1,7 +1,8 @@
-# Copyright (C) 2018 SignalFx, Inc. All rights reserved.
+# Copyright (C) 2018-2019 SignalFx, Inc. All rights reserved.
 import functools
 import importlib
 import traceback
+import atexit
 import sys
 import os
 
@@ -128,6 +129,8 @@ def create_tracer(access_token=None, set_global=True, config=None, *args, **kwar
     jaeger_config = Config(config, *args, **kwargs)
 
     tracer = jaeger_config.new_tracer()
+
+    atexit.register(tracer.close)
 
     if set_global:
         import opentracing
