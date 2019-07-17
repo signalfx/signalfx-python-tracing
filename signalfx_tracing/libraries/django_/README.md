@@ -5,32 +5,55 @@
 
 The SignalFx Auto-instrumentor configures the OpenTracing Project's Django instrumentation for your Django 1.x or
 2.x project.  You can enable instrumentation within your project by adding the `signalfx_tracing` instrumentor
-app to your installed apps and specifying your tracer callable:
+app to your installed apps and using `sfx-py-trace` when starting your http server.
 
 ```python
 # settings.py
+# Must be specified for Django tracing, in most cases.
 INSTALLED_APPS = ['signalfx_tracing']
 ```
 
-Your Django app will then be able to report spans to SignalFx:
+Your Django app will then be able to report spans to SignalFx once launched with `sfx-py-trace`:
 
 ```bash
- $ SIGNALFX_ENDPOINT_URL='http://MySmartAgent:9080/v1/trace' \
-   SIGNALFX_SERVICE_NAME='MyApp' sfx-py-trace manage.py runserver 0.0.0.0:8001
+ $ export SIGNALFX_ENDPOINT_URL='http://MySmartAgent:9080/v1/trace' \
+ $ export SIGNALFX_SERVICE_NAME='MyApp'
+ $ # sfx-py-trace is compatible with the local development server
+ $ sfx-py-trace manage.py runserver 0.0.0.0:8001
+ $ # or if using Gunicorn
+ $ sfx-py-trace $(which gunicorn) myApp.wsgi
 ```
 
-To configure Django tracing, some settings are provided to establish
+**Note: if you are deploying your application via WSGI and a non-Python web server (uWSGI, nginx, apache, etc.),
+`sfx-py-trace` is not compatible and you must manually create a tracer and initiate auto-instrumentation of your
+application.  It's recommended that you do so in your `wsgi.py` file before any other activity.**
+
+```python
+# myApp/wsgi.py
+from signalfx_tracing import create_tracer, auto_instrument
+auto_instrument(create_tracer())
+
+import os
+
+from django.core.wsgi import get_wsgi_application
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'myApp.settings')
+
+application = get_wsgi_application()
+```
+
+To further configure Django tracing, some settings are provided to establish
 the desired tracer and request attributes for span tagging:
 
 | Setting name | Definition | Default value |
 | -------------|------------|---------------|
 | SIGNALFX\_TRACE\_ALL | Whether to trace all requests. | `True` |
 | SIGNALFX\_TRACED\_ATTRIBUTES | Request attributes to use as span tags. | `['path', 'method']` |
-| SIGNALFX\_TRACER\_CALLABLE | The Python path for an OpenTracing-compatible tracer class or callable that returns an instance. | `None` |
+| SIGNALFX\_TRACER\_CALLABLE | The Python path for an OpenTracing-compatible tracer class or callable that returns an instance.  Not necessary for most usages. | `None` |
 | SIGNALFX\_TRACER\_PARAMETERS | A dictionary of named arguments for initializing the SIGNALFX\_TRACER\_CALLABLE. | `{}` |
-| SIGNALFX\_TRACER | An instance of an OpenTracing-compatible tracer for all Django traces. | `opentracing.tracer` if no callable provided |
+| SIGNALFX\_TRACER | An instance of an OpenTracing-compatible tracer for all Django traces. | `opentracing.tracer` if no callable provided, which is suggested for most usages. |
 | SIGNALFX\_SET\_GLOBAL\_TRACER | Whether to set global opentracing.tracer from this instrumentation's DjangoTracing().tracer (not recommended). | `False` |
-| SIGNALFX\_MIDDLEWARE\_CLASS | The Django middleware configured during setup.  | `'django_opentracing.OpenTracingMiddleware'` |
+| SIGNALFX\_MIDDLEWARE\_CLASS | The Django middleware configured during setup.  Not necessary for most usages.  | `'django_opentracing.OpenTracingMiddleware'` |
 
 ```python
 # my_app.settings.py

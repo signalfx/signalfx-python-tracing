@@ -24,8 +24,8 @@ class TestDjangoOpenTracingMiddleware(SimpleTestCase, DjangoTestSuite):
         tracer = opentracing.tracer
         span = tracer.finished_spans().pop()
 
-        span.tags['path'] = '/one/'
-        span.tags['method'] = 'GET'
+        assert span.tags['path'] == '/one/'
+        assert span.tags['method'] == 'GET'
 
         assert settings.OPENTRACING_TRACER_CALLABLE == config.tracer_callable
         assert settings.OPENTRACING_TRACER_PARAMETERS == dict(scope_manager=None)
@@ -39,8 +39,8 @@ class TestDjangoOpenTracingMiddleware(SimpleTestCase, DjangoTestSuite):
         client.get('/one/')
 
         span = tracer.finished_spans().pop()
-        span.tags['path'] = '/one/'
-        span.tags['method'] = 'GET'
+        assert span.tags['path'] == '/one/'
+        assert span.tags['method'] == 'GET'
 
         assert not hasattr(settings, 'OPENTRACING_TRACER_CALLABLE')
         assert not hasattr(settings, 'OPENTRACING_TRACER_PARAMETERS')
