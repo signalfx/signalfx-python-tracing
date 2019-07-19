@@ -121,8 +121,9 @@ def django20_via_extras(session):
 
 
 @nox.session(python=('3.5', '3.6', '3.7'), reuse_venv=True)
-def django21_via_extras(session):
-    install_unit_tests(session, 'django>=2.1,<2.2', 'pytest-django')
+@nox.parametrize('django', ('>=2.1,<2.2', '>=2.2<2.3'))
+def django21_22_via_extras(session, django):
+    install_unit_tests(session, f'django{django}', 'pytest-django')
     session.install(f'{sdist}[django]')
     pip_check(session)
     pip_freeze(session)

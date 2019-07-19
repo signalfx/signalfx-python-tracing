@@ -195,8 +195,9 @@ is provided by the installer:
   $ SIGNALFX_ENDPOINT_URL='http://MySmartAgent:9080/v1/trace' sfx-py-trace my_application.py
 ```
 
-**Note: `sfx-py-trace` cannot, at this time, enable auto-instrumentation of Django projects, as the `signalfx_tracing` 
-instrumentor application must still be added to the project settings' installed apps.**
+**Note: `sfx-py-trace` cannot, by itself, enable auto-instrumentation of Django projects, as the `signalfx_tracing`
+instrumentor must still be added to the project settings' installed apps.  Once the application is specified,
+`sfx-py-trace` may be used as described in the [Django instrumentation documentation](./signalfx_tracing/libraries/django_/README.md).**
 
 This command line script loader will create a Jaeger tracer instance using the access token specified via
 environment variable or argument to report your spans to SignalFx.  It will then call `auto_instrument()` before

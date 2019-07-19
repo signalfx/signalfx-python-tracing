@@ -18,8 +18,8 @@ class TestSignalFxTracingInstalledApp(SimpleTestCase):
         client.get('/one/')
         tracer = settings.OPENTRACING_TRACING.tracer
         span = tracer.finished_spans().pop()
-        span.tags['path'] = '/one/'
-        span.tags['method'] = 'GET'
+        assert span.tags['path'] == '/one/'
+        assert span.tags['method'] == 'GET'
 
         assert settings.OPENTRACING_TRACER_CALLABLE == 'opentracing.mocktracer.MockTracer'
         assert settings.OPENTRACING_TRACER_PARAMETERS == dict(scope_manager=None)
