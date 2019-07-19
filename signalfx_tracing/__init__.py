@@ -2,7 +2,7 @@
 from .instrumentation import instrument, uninstrument, auto_instrument  # noqa
 from .utils import create_tracer, trace  # noqa
 
-__version__ = '0.0.11'
+__version__ = '0.0.12'
 
 # Django
 default_app_config = 'signalfx_tracing.libraries.django_.apps.SignalFxConfig'  # noqa
