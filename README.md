@@ -49,6 +49,7 @@ auto-instrumented application locally or in test environments.**
 
 ## Supported Frameworks and Libraries
 
+* [Celery 3.1+](./signalfx_tracing/libraries/celery_/README.md) - `instrument(celery=True)`
 * [Django 1.8+](./signalfx_tracing/libraries/django_/README.md) - `instrument(django=True)`
 * [Elasticsearch 2.0+](./signalfx_tracing/libraries/elasticsearch_/README.md) - `instrument(elasticsearch=True)`
 * [Flask 0.10+](./signalfx_tracing/libraries/flask_/README.md) - `instrument(flask=True)`

@@ -1,4 +1,5 @@
 # Copyright (C) 2018-2019 SignalFx, Inc. All rights reserved.
+from .celery_ import config as celery_config  # noqa
 from .django_ import config as django_config  # noqa
 from .elasticsearch_ import config as elasticsearch_config  # noqa
 from .flask_ import config as flask_config  # noqa
