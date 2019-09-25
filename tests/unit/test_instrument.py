@@ -22,9 +22,9 @@ else:
                 stack.enter_context(context)
             yield
 
-expected_traceable_libraries = ('django', 'elasticsearch', 'flask', 'psycopg2', 'pymongo', 'pymysql', 'redis',
+expected_traceable_libraries = ('celery', 'django', 'elasticsearch', 'flask', 'psycopg2', 'pymongo', 'pymysql', 'redis',
                                 'requests', 'tornado')
-expected_auto_instrumentable_libraries = ('elasticsearch', 'flask', 'psycopg2', 'pymongo', 'pymysql', 'redis',
+expected_auto_instrumentable_libraries = ('celery', 'elasticsearch', 'flask', 'psycopg2', 'pymongo', 'pymysql', 'redis',
                                           'requests', 'tornado')
 
 

@@ -191,3 +191,12 @@ def trace(operation_name=None, tags=None, **kwargs):
                 raise
 
     return _trace(_wrapped)
+
+
+class TracerProxy(ObjectProxy):
+    """To be used in cases where auto-instrumentation requires a tracer instance before creating one is viable."""
+    def __init__(self):
+        super(TracerProxy, self).__init__(opentracing.tracer)
+
+    def set_tracer(self, tracer):
+        self.__wrapped__ = tracer

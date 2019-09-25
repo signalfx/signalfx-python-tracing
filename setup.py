@@ -174,6 +174,7 @@ def extras_require(lib):
 setup_args['extras_require'] = dict(
     unit_tests=unit_test_requirements,
     instrumentation_tests=instrumentation_test_requirements,
+    celery=extras_require('celery-opentracing'),
     dbapi=extras_require('dbapi-opentracing'),
     django=extras_require('django-opentracing'),
     elasticsearch=extras_require('elasticsearch-opentracing'),

@@ -71,6 +71,18 @@ def bootstrap_with_target(session):
     shutil.rmtree(dir)
 
 
+# Only testing python versions with full range of celery support.  Other permutations assumed from instrumentation's
+# tests until distributed test framework is implemented.
+@nox.session(python=('2.7', '3.5', '3.6'), reuse_venv=True)
+@nox.parametrize('celery', ('>=3.1,<3.2', '>=4.0,<4.1', '>=4.2,<4.3', '>=4.3,<4.4', '>=4.4.0-rc1,<4.5'))
+def celery_via_extras(session, celery):
+    install_unit_tests(session, f'celery{celery}')
+    session.install(f'{sdist}[celery]')
+    pip_check(session)
+    pip_freeze(session)
+    session.run('pytest', 'tests/unit/libraries/celery_')
+
+
 def test_django(session):
     session.run('pytest', 'tests/unit/libraries/django_')
     session.run('pytest', 'tests/integration/django_')

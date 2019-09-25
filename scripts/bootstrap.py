@@ -17,6 +17,7 @@ jaeger_client = 'sfx-jaeger-client>=3.13.1b0.dev1'
 
 # target library to desired instrumentor path/versioned package name
 instrumentors = {
+    'celery': 'celery-opentracing',
     'django': 'https://github.com/signalfx/python-django/tarball/django_2_ot_2_jaeger#egg=django-opentracing',
     'elasticsearch': ('https://github.com/signalfx/python-elasticsearch/tarball/2.0_support_multiple_versions'
                       '#egg=elasticsearch-opentracing'),
@@ -31,6 +32,7 @@ instrumentors = {
 
 # relevant instrumentors and tracers to uninstall and check for conflicts for target libraries
 packages = {
+    'celery': ('celery-opentracing',),
     'django': ('django-opentracing',),
     'elasticsearch': ('elasticsearch-opentracing',),
     'flask': ('Flask-OpenTracing',),

@@ -1,7 +1,9 @@
 # Copyright (C) 2018 SignalFx, Inc. All rights reserved.
 import sys
 
+from opentracing.mocktracer import MockTracer
 from wrapt import wrap_function_wrapper
+import opentracing
 import pytest
 
 from signalfx_tracing import utils, constants
@@ -84,3 +86,14 @@ def test_is_truthy():
 
     for val in (True, 'y', 1, 'asdf', [1], (1,), {'one': 1}, set([1])):
         assert utils.is_truthy(val) is True
+
+
+def test_tracer_proxy():
+    proxy = utils.TracerProxy()
+    assert proxy == opentracing.tracer
+    assert proxy.start_active_span == opentracing.tracer.start_active_span
+
+    mock = MockTracer()
+    proxy.set_tracer(mock)
+    assert proxy == mock
+    assert proxy.start_active_span == mock.start_active_span
