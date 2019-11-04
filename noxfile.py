@@ -34,7 +34,7 @@ def build(session):
 
 def install_unit_tests(session, *other_packaages):
     build(session)
-    return session.install(pytest, f'{sdist}[unit_tests]', *other_packaages)
+    return session.install('attrs==19.1.0', pytest, f'{sdist}[unit_tests]', *other_packaages)
 
 
 def pip_check(session):
