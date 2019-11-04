@@ -8,7 +8,7 @@ from signalfx_tracing import utils
 # Configures Requests tracing as described by
 # https://github.com/signalfx/python-requests/blob/master/README.rst
 config = utils.Config(
-    propagate=False,
+    propagate=True,
     span_tags=None,
     tracer=None,
 )
