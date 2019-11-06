@@ -11,7 +11,7 @@ context propagation, and custom tag name and values for all created spans:
 
 | Setting name | Definition | Default value |
 | -------------|------------|---------------|
-| propagate | Whether to propagate current trace via request headers. Only use if client reaches your services exclusively | `False` |
+| propagate | Whether to propagate current trace via request headers. Only use if client reaches your services exclusively | `True` |
 | span_tags | Span tag names and values, as a dictionary, with which to tag all Requests spans. | `{}` |
 | tracer | An instance of an OpenTracing-compatible tracer for all Requests traces. | `opentracing.tracer` |
 
