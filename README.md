@@ -56,7 +56,7 @@ auto-instrumented application locally or in test environments.**
 * [Psycopg 2.7+](./signalfx_tracing/libraries/psycopg2_/README.md) - `instrument(psycopg2=True)`
 * [PyMongo 3.1+](./signalfx_tracing/libraries/pymongo_/README.md) - `instrument(pymongo=True)`
 * [PyMySQL 0.8+](./signalfx_tracing/libraries/pymysql_/README.md) - `instrument(pymysql=True)`
-* [Redis-Py 2.10](./signalfx_tracing/libraries/redis_/README.md) - `instrument(redis=True)`
+* [Redis-Py 2.10+](./signalfx_tracing/libraries/redis_/README.md) - `instrument(redis=True)`
 * [Requests 2.0+](./signalfx_tracing/libraries/requests_/README.md) - `instrument(requests=True)`
 * [Tornado 4.3+](./signalfx_tracing/libraries/tornado_/README.md) - `instrument(tornado=True)`
 

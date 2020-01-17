@@ -287,8 +287,10 @@ def pymysql_via_extras(session, pymysql):
 
 
 @nox.session(python=('2.7', '3.4', '3.5', '3.6', '3.7'), reuse_venv=True)
+@nox.parametrize('redis', ('>=2.10,<2.11', '>=3.0,<3.1', '>=3.1,<3.2', '>=3.2,<3.3',
+                           '>=3.3,<3.4'))
 def redis_via_extras(session):
-    install_unit_tests(session, f'redis>=2.10,<2.11', 'docker')
+    install_unit_tests(session, f'redis{redis}', 'docker')
     session.install(f'{sdist}[redis]')
     session.run('pytest', 'tests/unit/libraries/redis_')
     session.run('pytest', 'tests/integration/redis_')
