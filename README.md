@@ -58,7 +58,7 @@ auto-instrumented application locally or in test environments.**
 * [PyMySQL 0.8+](./signalfx_tracing/libraries/pymysql_/README.md) - `instrument(pymysql=True)`
 * [Redis-Py 2.10](./signalfx_tracing/libraries/redis_/README.md) - `instrument(redis=True)`
 * [Requests 2.0+](./signalfx_tracing/libraries/requests_/README.md) - `instrument(requests=True)`
-* [Tornado 4.3+](./signalfx_tracing/libraries/tornado_/README.md) - `instrument(tornado=True)`
+* [Tornado 4.3-5.x](./signalfx_tracing/libraries/tornado_/README.md) - `instrument(tornado=True)`
 
 ## Installation and Configuration
 
