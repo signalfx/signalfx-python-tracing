@@ -1,9 +1,12 @@
 # Copyright (C) 2018 SignalFx, Inc. All rights reserved.
+from time import sleep
+
 from opentracing.mocktracer import MockTracer
 from opentracing.ext import tags as ext_tags
 import docker
 import pytest
-from redis import StrictRedis
+from redis import Connection, StrictRedis
+from redis.exceptions import ConnectionError
 
 from signalfx_tracing.libraries import redis_config as config
 from signalfx_tracing import instrument, uninstrument
@@ -14,6 +17,19 @@ def redis_container():
     session = docker.from_env()
     redis = session.containers.run('redis:latest', ports={'6379/tcp': 6379}, detach=True)
     try:
+        conn = Connection()
+        for i in range(60):
+            try:
+                conn.connect()
+                conn.disconnect()
+                break
+            except ConnectionError:
+                pass
+
+            if i == 59:
+                raise RuntimeError('Failed to connect to Redis.')
+            sleep(.5)
+
         yield redis
     finally:
         redis.remove(force=True, v=True)
