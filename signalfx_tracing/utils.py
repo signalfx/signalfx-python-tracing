@@ -50,6 +50,11 @@ def mark_uninstrumented(module):
         pass
 
 
+def instrumentation_disabled(library):
+    env_var = _get_env_var('SIGNALFX_{}_ENABLED'.format(library.upper()), True)
+    return not is_truthy(env_var)
+
+
 class Config(object):
     """A basic namespace"""
 

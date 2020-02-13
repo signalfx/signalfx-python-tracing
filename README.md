@@ -209,6 +209,18 @@ statement (see: [Python threading doc](https://docs.python.org/2/library/threadi
 Because of this issue, and for general lack of HTTP reporting support, we highly suggest you use our modified [Jaeger
 tracer](#Tracer) that provides deferred thread creation to avoid this constraint.
 
+The application runner will by default attempt to instrument all available libraries for which there are corresponding
+instrumentations installed on your system.  If you would like to prevent the tracing of particular libraries at run time,
+you can set the `SIGNALFX_<LIBRARY_NAME>_ENABLED=False` environment variables when launching the `sfx-py-trace` process.
+For example, to prevent auto-instrumentation of Tornado, you could run:
+
+```sh
+  $ SIGNALFX_TORNADO_ENABLED=False sfx-py-trace my_application.py
+```
+
+The supported value of each library name is the uppercase form of the corresponding `instrument()`
+[keyword argument](#Supported-Frameworks-and-Libraries).
+
 ### Trace Decorator
 Not all applications follow the basic architectural patterns allowed by their frameworks, and no single tool will be
 able to represent all use cases without user input.  To meaningfully unite isolated traces into a single, more

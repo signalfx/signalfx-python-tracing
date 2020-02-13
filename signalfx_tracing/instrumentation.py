@@ -5,7 +5,7 @@ import sys
 import os
 
 from .constants import traceable_libraries, auto_instrumentable_libraries
-from .utils import is_truthy, get_module
+from .utils import is_truthy, get_module, instrumentation_disabled
 
 
 log = logging.getLogger(__name__)
@@ -59,10 +59,13 @@ def instrument(tracer=None, **libraries):
     for library, inst in libraries.items():
         if library not in traceable_libraries:
             log.warn('Unable to trace {}'.format(library))
-        elif not inst:
+        elif instrumentation_disabled(library) or not inst:
             uninstrument(library)
         else:
-            imported_instrumentor(library).instrument(tracer)
+            try:
+                imported_instrumentor(library).instrument(tracer)
+            except Exception:
+                log.exception('Failed to instrument {}'.format(library))
 
 
 def uninstrument(*libraries):
