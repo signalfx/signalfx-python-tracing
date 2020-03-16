@@ -186,14 +186,7 @@ def trace(operation_name=None, tags=None, **kwargs):
     @decorator
     def _trace(wrapped, _, _args, _kwargs):
         with opentracing.tracer.start_active_span(operation_name, tags=tags) as scope:
-            try:
-                return wrapped(*_args, **_kwargs)
-            except Exception:
-                span = scope.span
-                span.set_tag(ext_tags.ERROR, True)
-                span.log_kv({'event': 'error',
-                             'error.object': traceback.format_exc()})
-                raise
+            return wrapped(*_args, **_kwargs)
 
     return _trace(_wrapped)
 

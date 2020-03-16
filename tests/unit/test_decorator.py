@@ -163,11 +163,13 @@ class TestMethodDecorator(DecoratorTest):
             Thing().traced_method(1, one=1)
 
         spans = self.tracer.finished_spans()
+
         assert len(spans) == 1
         assert spans[0].operation_name == 'operation_name'
         assert spans[0].tags == {'one': 1, 'two': '2', ext_tags.ERROR: True}
         assert len(spans[0].logs) == 1
         assert spans[0].logs[0].key_values.get('error.object')
+        assert str(spans[0].logs[0].key_values.get('error.object')) == 'SomeException'
 
         assert Thing().traced_method.__name__ == 'traced_method'
 
@@ -181,7 +183,7 @@ class TestMethodDecorator(DecoratorTest):
             def traced_method(cls, *args, **kwargs):
                 assert args == (1,)
                 assert kwargs == dict(one=1)
-                raise CustomException('SomeException')
+                raise CustomException('AnotherException')
 
         with pytest.raises(CustomException):
             Thing().traced_method(1, one=1)
@@ -192,6 +194,7 @@ class TestMethodDecorator(DecoratorTest):
         assert spans[0].tags == {'one': 1, 'two': '2', ext_tags.ERROR: True}
         assert len(spans[0].logs) == 1
         assert spans[0].logs[0].key_values.get('error.object')
+        assert str(spans[0].logs[0].key_values.get('error.object')) == 'AnotherException'
 
         assert Thing().traced_method.__name__ == 'traced_method'
 
@@ -205,7 +208,7 @@ class TestMethodDecorator(DecoratorTest):
             def traced_method(*args, **kwargs):
                 assert args == (1,)
                 assert kwargs == dict(one=1)
-                raise CustomException('SomeException')
+                raise CustomException('YetAnotherException')
 
         with pytest.raises(CustomException):
             Thing.traced_method(1, one=1)
@@ -216,5 +219,6 @@ class TestMethodDecorator(DecoratorTest):
         assert spans[0].tags == {'one': 1, 'two': '2', ext_tags.ERROR: True}
         assert len(spans[0].logs) == 1
         assert spans[0].logs[0].key_values.get('error.object')
+        assert str(spans[0].logs[0].key_values.get('error.object')) == 'YetAnotherException'
 
         assert Thing().traced_method.__name__ == 'traced_method'
