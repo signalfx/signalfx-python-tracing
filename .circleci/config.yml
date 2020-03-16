@@ -62,6 +62,129 @@ jobs:
         name: Extras
         command: python3.7 -m nox -s jaeger_via_extras
 
+  nox_all:
+    <<: *pyenv
+    steps:
+    - checkout
+    - *pyenv-versions
+    - *pyenv-set-local
+    - *install-nox
+    - run:
+        name: All Nox 
+        command: python3.7 -m nox
+
+  tornado:
+    <<: *pyenv
+    steps:
+    - checkout
+    - *pyenv-versions
+    - *pyenv-set-local
+    - *install-nox
+    - run:
+        name: Tornado Legacy 
+        command: python3.7 -m nox -k tornado
+
+  requests:
+    <<: *pyenv
+    steps:
+    - checkout
+    - *pyenv-versions
+    - *pyenv-set-local
+    - *install-nox
+    - run:
+        name: Requests 
+        command: python3.7 -m nox -k requests
+
+  redis:
+    <<: *pyenv
+    steps:
+    - checkout
+    - *pyenv-versions
+    - *pyenv-set-local
+    - *install-nox
+    - run:
+        name: Redis 
+        command: python3.7 -m nox -k redis
+
+  pymysql:
+    <<: *pyenv
+    steps:
+    - checkout
+    - *pyenv-versions
+    - *pyenv-set-local
+    - *install-nox
+    - run:
+        name: PyMysql 
+        command: python3.7 -m nox -k pymysql
+
+  pymongo:
+    <<: *pyenv
+    steps:
+    - checkout
+    - *pyenv-versions
+    - *pyenv-set-local
+    - *install-nox
+    - run:
+        name: PyMongo
+        command: python3.7 -m nox -k pymongo
+
+  psycopg2:
+    <<: *pyenv
+    steps:
+    - checkout
+    - *pyenv-versions
+    - *pyenv-set-local
+    - *install-nox
+    - run:
+        name: Psycopg2
+        command: python3.7 -m nox -k psycopg2
+
+  flask:
+    <<: *pyenv
+    steps:
+    - checkout
+    - *pyenv-versions
+    - *pyenv-set-local
+    - *install-nox
+    - run:
+        name: Flask 
+        command: python3.7 -m nox -k flask
+
+  django:
+    <<: *pyenv
+    steps:
+    - checkout
+    - *pyenv-versions
+    - *pyenv-set-local
+    - *install-nox
+    - run:
+        name: Django
+        command: python3.7 -m nox -k django
+
+  celery:
+    <<: *pyenv
+    steps:
+    - checkout
+    - *pyenv-versions
+    - *pyenv-set-local
+    - *install-nox
+    - run:
+        name: Celery 
+        command: python3.7 -m nox -k celery 
+
+  elasticsearch:
+    <<: *pyenv
+    steps:
+    - checkout
+    - *pyenv-versions
+    - *pyenv-set-local
+    - *install-nox
+    - run:
+        name: ElasticSearch 
+        command: python3.7 -m nox -k elasticsearch 
+
+
+
 workflows:
   version: 2
   build:
@@ -69,6 +192,15 @@ workflows:
       - lint
       - unit
       - jaeger_bootstrap
+      - tornado
+      - requests
+      - redis
+      - pymongo
+      - pymysql
+      - flask
+      - django
+      - celery
+
   nightly:
     triggers:
       - schedule:
@@ -82,3 +214,14 @@ workflows:
       - unit
       - jaeger_bootstrap
       - jaeger_extras
+      - lint
+      - unit
+      - jaeger_bootstrap
+      - tornado
+      - requests
+      - redis
+      - pymongo
+      - pymysql
+      - flask
+      - django
+      - celery

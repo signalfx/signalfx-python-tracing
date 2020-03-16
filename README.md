@@ -58,7 +58,7 @@ auto-instrumented application locally or in test environments.**
 * [PyMySQL 0.8+](./signalfx_tracing/libraries/pymysql_/README.md) - `instrument(pymysql=True)`
 * [Redis-Py 2.10+](./signalfx_tracing/libraries/redis_/README.md) - `instrument(redis=True)`
 * [Requests 2.0+](./signalfx_tracing/libraries/requests_/README.md) - `instrument(requests=True)`
-* [Tornado 4.3-5.x](./signalfx_tracing/libraries/tornado_/README.md) - `instrument(tornado=True)`
+* [Tornado 4.3-6.x](./signalfx_tracing/libraries/tornado_/README.md) - `instrument(tornado=True)`
 
 ## Installation and Configuration
 
@@ -152,7 +152,7 @@ tracer = create_tracer(set_global=False)
 
 All other `create_tracer()` arguments are those that can be passed to a `jaeger_client.Config` constructor:
 ```python
-from opentracing.scope_managers.tornado import TornadoScopeManager
+from tornado_opentracing.scope_managers import TornadoScopeManager
 from signalfx_tracing import create_tracer
 
 tracer = create_tracer(

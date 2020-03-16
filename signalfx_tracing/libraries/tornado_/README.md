@@ -17,16 +17,17 @@ span tagging:
 | tracer | An instance of an OpenTracing-compatible tracer for all Tornado traces. | `opentracing.tracer` |
 | start_span_cb | A callback invoked upon new span creation.  Must take the Span and request as parameters. | `None` |
 
-OpenTracing 2.0 introduced the [`TornadoScopeManager`](https://github.com/opentracing/opentracing-python/blob/master/opentracing/scope_managers/tornado.py).
+SignalFX's fork of Tornado Opentracing introduced the [`TornadoScopeManager`](https://github.com/signalfx/python-tornado/blob/master/tornado_opentracing/scope_managers.py).
 Due to the asynchronous nature of Tornado, it is strongly recommended that your OpenTracing-compatible tracer use
-this for its scope manager.
+this for its scope manager. Using `TornadoScopeManager` from Tornado Opentracing package ensures that the correct
+scope manager will be used based on the version of Tornado and Python being used.
 
 ```python
 # my_app.py
 from signalfx_tracing import auto_instrument, instrument
 from signalfx_tracing.libraries import tornado_config
 
-from opentracing.scope_managers.tornado import TornadoScopeManager
+from tornado_opentracing.scope_managers import TornadoScopeManager
 
 import tornado.ioloop
 import tornado.web  

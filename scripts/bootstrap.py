@@ -13,21 +13,22 @@ def is_installed(library):
     return library in sys.modules or pkgutil.find_loader(library) is not None
 
 
-jaeger_client = 'sfx-jaeger-client>=3.13.1b0.dev1'
+jaeger_client = 'sfx-jaeger-client>=3.13.1b0.dev2'
+
 
 # target library to desired instrumentor path/versioned package name
 instrumentors = {
     'celery': 'celery-opentracing',
-    'django': 'https://github.com/signalfx/python-django/tarball/django_2_ot_2_jaeger#egg=django-opentracing',
+    'django': 'https://github.com/signalfx/python-django/tarball/0.1.18post0#egg=django-opentracing',
     'elasticsearch': ('https://github.com/signalfx/python-elasticsearch/tarball/2.0_support_multiple_versions'
                       '#egg=elasticsearch-opentracing'),
-    'flask': 'https://github.com/signalfx/python-flask/tarball/adopt_scope_manager#egg=flask_opentracing',
+    'flask': 'https://github.com/signalfx/python-flask/tarball/1.0.0post0#egg=flask_opentracing',
     'psycopg2': 'dbapi-opentracing>=0.0.4',
     'pymongo': 'pymongo-opentracing',
     'pymysql': 'dbapi-opentracing>=0.0.4',
-    'redis': 'https://github.com/opentracing-contrib/python-redis/tarball/v1.0.0#egg=redis-opentracing',
+    'redis': 'https://github.com/signalfx/python-redis/tarball/v1.0.0post0#egg=redis-opentracing',
     'requests': 'requests-opentracing',
-    'tornado': 'tornado-opentracing==1.0.1'
+    'tornado': 'https://github.com/signalfx/python-tornado/archive/1.0.1post0.zip#egg=tornado_opentracing',
 }
 
 # relevant instrumentors and tracers to uninstall and check for conflicts for target libraries
@@ -70,7 +71,6 @@ def _install_updated_dependency(library, package_path, target=None):
     # explicit upgrade strategy to override potential pip config
     subprocess.check_call([sys.executable, '-m', 'pip', 'install', '-U',
                            '--upgrade-strategy', 'only-if-needed', package_path] + _to_target_arg(target))
-    _pip_check()
 
 
 def _pip_check():
@@ -125,6 +125,7 @@ def console_script():
 
     install_jaeger(args.target)
     install_deps(args.target)
+    _pip_check()
 
 
 def main():

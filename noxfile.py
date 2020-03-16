@@ -223,9 +223,7 @@ def test_jaeger(session):
 
 @nox.session(python=('2.7', '3.4', '3.5', '3.6', '3.7'), reuse_venv=True)
 def jaeger_via_bootstrap(session):
-    # provides coverage for desired version installation via bootstrap.
-    # pinning Tornado dep to that w/ stack_context.  Should remove w/ Tornado 6 support.
-    install_unit_tests(session, 'tornado==5.1.1', 'jaeger-client', 'sfx-jaeger-client')
+    install_unit_tests(session, 'jaeger-client', 'sfx-jaeger-client')
     session.run('sfx-py-trace-bootstrap')
     pip_check(session)
     pip_freeze(session)
@@ -311,9 +309,19 @@ def requests_via_extras(session, requests):
     session.run('pytest', 'tests/integration/requests_')
 
 
+@nox.session(python=('3.5', '3.6', '3.7'), reuse_venv=True)
+@nox.parametrize('tornado', ('>=6.0,<7.0'))
+def tornado_via_extras(session, tornado):
+    _tornado_via_extras(session, tornado)
+
+
 @nox.session(python=('2.7', '3.4', '3.5', '3.6', '3.7'), reuse_venv=True)
 @nox.parametrize('tornado', ('>=4.3,<4.4', '>=4.4,<4.5', '>=4.5,<5.0', '>=5.0,<5.1', '>=5.1,<5.2'))
-def tornado_via_extras(session, tornado):
+def tornado_legacy_via_extras(session, tornado):
+    _tornado_via_extras(session, tornado)
+
+
+def _tornado_via_extras(session, tornado):
     install_unit_tests(session, f'tornado{tornado}', 'requests')
     session.install(f'{sdist}[tornado]')
     session.run('pytest', 'tests/unit/libraries/tornado_')

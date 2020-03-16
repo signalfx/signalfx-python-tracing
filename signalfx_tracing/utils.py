@@ -1,12 +1,10 @@
 # Copyright (C) 2018-2019 SignalFx, Inc. All rights reserved.
 import functools
 import importlib
-import traceback
 import atexit
 import sys
 import os
 
-from opentracing.ext import tags as ext_tags
 from wrapt import decorator, ObjectProxy
 import opentracing
 
@@ -185,15 +183,8 @@ def trace(operation_name=None, tags=None, **kwargs):
 
     @decorator
     def _trace(wrapped, _, _args, _kwargs):
-        with opentracing.tracer.start_active_span(operation_name, tags=tags) as scope:
-            try:
-                return wrapped(*_args, **_kwargs)
-            except Exception:
-                span = scope.span
-                span.set_tag(ext_tags.ERROR, True)
-                span.log_kv({'event': 'error',
-                             'error.object': traceback.format_exc()})
-                raise
+        with opentracing.tracer.start_active_span(operation_name, tags=tags):
+            return wrapped(*_args, **_kwargs)
 
     return _trace(_wrapped)
 

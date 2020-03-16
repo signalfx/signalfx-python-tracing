@@ -7,6 +7,9 @@
 .python-version
 .nox
 .tox
+.vscode
+venv/
+env/
 build/
 dist/
 htmlcov/

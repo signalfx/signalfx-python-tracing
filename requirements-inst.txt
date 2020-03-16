@@ -1,10 +1,10 @@
 celery-opentracing
 dbapi-opentracing>=0.0.4
-git+https://github.com/signalfx/python-django.git@django_2_ot_2_jaeger#egg=django-opentracing
-git+https://github.com/signalfx/python-elasticsearch.git@2.0_support_multiple_versions#egg=elasticsearch-opentracing
-git+https://github.com/signalfx/python-flask.git@adopt_scope_manager#egg=flask_opentracing
-sfx-jaeger-client>=3.13.1b0.dev1
+git+https://github.com/signalfx/python-django.git@0.1.18post0#egg=django-opentracing
+git+https://github.com/signalfx/python-elasticsearch.git@0.1.4post0#egg=elasticsearch-opentracing
+git+https://github.com/signalfx/python-flask.git@1.0.0post0#egg=flask_opentracing
+sfx-jaeger-client>=3.13.1b0.dev2
 pymongo-opentracing
-git+https://github.com/opentracing-contrib/python-redis.git@v1.0.0#egg=redis-opentracing
+git+https://github.com/signalfx/python-redis.git@v1.0.0post0#egg=redis-opentracing
 requests-opentracing
-tornado_opentracing>=1.0.1
+git+https://github.com/signalfx/python-tornado.git@1.0.1post0#egg=tornado_opentracing
