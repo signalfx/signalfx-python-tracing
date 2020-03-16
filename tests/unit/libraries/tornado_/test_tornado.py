@@ -1,5 +1,5 @@
 # Copyright (C) 2018 SignalFx, Inc. All rights reserved.
-from tornado.testing import AsyncHTTPTestCase
+# from tornado.testing import AsyncHTTPTestCase
 from opentracing.mocktracer import MockTracer
 from opentracing.ext import tags
 import tornado.web
@@ -8,6 +8,7 @@ import pytest
 import mock
 
 from signalfx_tracing.libraries.tornado_.instrument import config, instrument, uninstrument
+from .helpers import AsyncHTTPTestCase
 from .conftest import TornadoTestSuite
 
 
@@ -66,9 +67,8 @@ class TestTornadoApplicationAndClient(AsyncHTTPTestCase, TornadoTestSuite):
         return tornado.web.Application([('/endpoint', Handler)])
 
     def test_instrument_application_and_client(self):
-        self.http_client.fetch(self.get_url('/endpoint'), self.stop)
+        response = self.http_fetch(self.get_url('/endpoint'))
 
-        response = self.wait()
         assert response.code == 200
 
         spans = self.tracer.finished_spans()
@@ -91,8 +91,7 @@ class TestTornadoApplicationAndClient(AsyncHTTPTestCase, TornadoTestSuite):
                                     'http.status_code': 200}
 
     def test_uninstrument_application_and_client(self):
-        self.http_client.fetch(self.get_url('/endpoint'), self.stop)
-        response = self.wait()
+        response = self.http_fetch(self.get_url('/endpoint'))
         assert response.code == 200
 
         spans = self.tracer.finished_spans()
@@ -101,8 +100,7 @@ class TestTornadoApplicationAndClient(AsyncHTTPTestCase, TornadoTestSuite):
         self.tracer.reset()
         uninstrument()
 
-        self.http_client.fetch(self.get_url('/endpoint'), self.stop)
-        response = self.wait()
+        response = self.http_fetch(self.get_url('/endpoint'))
         assert response.code == 200
         assert self.tracer.finished_spans() == []
 
@@ -118,9 +116,8 @@ class TestTornadoApplicationAndNotClient(AsyncHTTPTestCase, TornadoTestSuite):
         return self.app
 
     def test_instrument_application_and_client(self):
-        self.http_client.fetch(self.get_url('/endpoint'), self.stop)
+        response = self.http_fetch(self.get_url('/endpoint'))
 
-        response = self.wait()
         assert response.code == 200
 
         spans = self.tracer.finished_spans()
@@ -137,8 +134,7 @@ class TestTornadoApplicationAndNotClient(AsyncHTTPTestCase, TornadoTestSuite):
                                     tags.SPAN_KIND: tags.SPAN_KIND_RPC_SERVER}
 
     def test_uninstrument_application(self):
-        self.http_client.fetch(self.get_url('/endpoint'), self.stop)
-        response = self.wait()
+        response = self.http_fetch(self.get_url('/endpoint'))
         assert response.code == 200
 
         spans = self.tracer.finished_spans()
@@ -147,8 +143,7 @@ class TestTornadoApplicationAndNotClient(AsyncHTTPTestCase, TornadoTestSuite):
         self.tracer.reset()
         uninstrument()
 
-        self.http_client.fetch(self.get_url('/endpoint'), self.stop)
-        response = self.wait()
+        response = self.http_fetch(self.get_url('/endpoint'))
         assert response.code == 200
         assert self.tracer.finished_spans() == []
 
@@ -163,9 +158,8 @@ class TestTornadoClientAndNotApplication(AsyncHTTPTestCase, TornadoTestSuite):
         return tornado.web.Application([('/endpoint', Handler)])
 
     def test_instrument_application_and_client(self):
-        self.http_client.fetch(self.get_url('/endpoint'), self.stop)
+        response = self.http_fetch(self.get_url('/endpoint'))
 
-        response = self.wait()
         assert response.code == 200
 
         spans = self.tracer.finished_spans()
@@ -180,8 +174,7 @@ class TestTornadoClientAndNotApplication(AsyncHTTPTestCase, TornadoTestSuite):
                                     'http.status_code': 200}
 
     def test_uninstrument_client(self):
-        self.http_client.fetch(self.get_url('/endpoint'), self.stop)
-        response = self.wait()
+        response = self.http_fetch(self.get_url('/endpoint'))
         assert response.code == 200
 
         spans = self.tracer.finished_spans()
@@ -190,7 +183,6 @@ class TestTornadoClientAndNotApplication(AsyncHTTPTestCase, TornadoTestSuite):
         self.tracer.reset()
         uninstrument()
 
-        self.http_client.fetch(self.get_url('/endpoint'), self.stop)
-        response = self.wait()
+        response = self.http_fetch(self.get_url('/endpoint'))
         assert response.code == 200
         assert self.tracer.finished_spans() == []
