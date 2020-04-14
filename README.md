@@ -256,8 +256,8 @@ class MyBusinessLogic:
 
     @staticmethod
     @trace('MyOtherOperation',  # Specify span operation name and tags
-           dict({tag_name='tag_value',
-                another_tag_name='another_tag_value'}))
+           dict({tag_name:'tag_value',
+                another_tag_name:'another_tag_value'}))
     def my_additional_function(arg):
         span = opentracing.tracer.active_span  # This active span is 'MyOtherOperation', the child of 'MyOperation'.
         value = compute(arg)
