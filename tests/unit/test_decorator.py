@@ -2,13 +2,15 @@
 import pytest
 
 from opentracing.mocktracer import MockTracer
-from opentracing.ext import tags as ext_tags
 import opentracing
 
 from signalfx_tracing.utils import trace
+from signalfx_tracing import tags as ext_tags
+
+from .conftest import SpanTest
 
 
-class DecoratorTest(object):
+class DecoratorTest(SpanTest):
     @pytest.fixture(autouse=True)
     def _setup_tracer(self):
         self.tracer = MockTracer()
@@ -105,11 +107,13 @@ class TestFunctionDecorator(DecoratorTest):
         class CustomException(Exception):
             pass
 
+        error = CustomException('SomeException')
+
         @trace
         def traced_function(*args, **kwargs):
             assert args == (1,)
             assert kwargs == dict(one=1)
-            raise CustomException('SomeException')
+            raise error
 
         with pytest.raises(CustomException):
             traced_function(1, one=1)
@@ -117,9 +121,7 @@ class TestFunctionDecorator(DecoratorTest):
         spans = self.tracer.finished_spans()
         assert len(spans) == 1
         assert spans[0].operation_name == 'traced_function'
-        assert spans[0].tags == {ext_tags.ERROR: True}
-        assert len(spans[0].logs) == 1
-        assert spans[0].logs[0].key_values.get('error.object')
+        self.assert_span_with_exception(spans[0], error)
 
         assert traced_function.__name__ == 'traced_function'
 
@@ -127,11 +129,12 @@ class TestFunctionDecorator(DecoratorTest):
         class CustomException(Exception):
             pass
 
+        error = CustomException('SomeException')
         @trace('operation_name', tags=dict(one=1, two='2'))
         def traced_function(*args, **kwargs):
             assert args == (1,)
             assert kwargs == dict(one=1)
-            raise CustomException('SomeException')
+            raise error
 
         with pytest.raises(CustomException):
             traced_function(1, one=1)
@@ -139,11 +142,12 @@ class TestFunctionDecorator(DecoratorTest):
         spans = self.tracer.finished_spans()
         assert len(spans) == 1
         assert spans[0].operation_name == 'operation_name'
-        assert spans[0].tags == {'one': 1, 'two': '2', ext_tags.ERROR: True}
-        assert len(spans[0].logs) == 1
-        assert spans[0].logs[0].key_values.get('error.object')
 
-        assert traced_function.__name__ == 'traced_function'
+        self.assert_span_contains_tags(spans[0], {
+            'one': 1,
+            'two': '2',
+        })
+        self.assert_span_with_exception(spans[0], error)
 
 
 class TestMethodDecorator(DecoratorTest):
@@ -152,12 +156,14 @@ class TestMethodDecorator(DecoratorTest):
         class CustomException(Exception):
             pass
 
+        error = CustomException('SomeException')
+
         class Thing(object):
             @trace('operation_name', tags=dict(one=1, two='2'))
             def traced_method(self, *args, **kwargs):
                 assert args == (1,)
                 assert kwargs == dict(one=1)
-                raise CustomException('SomeException')
+                raise error
 
         with pytest.raises(CustomException):
             Thing().traced_method(1, one=1)
@@ -165,10 +171,12 @@ class TestMethodDecorator(DecoratorTest):
         spans = self.tracer.finished_spans()
         assert len(spans) == 1
         assert spans[0].operation_name == 'operation_name'
-        assert spans[0].tags == {'one': 1, 'two': '2', ext_tags.ERROR: True}
-        assert len(spans[0].logs) == 1
-        assert spans[0].logs[0].key_values.get('error.object')
-        assert str(spans[0].logs[0].key_values.get('error.object')) == 'SomeException'
+
+        self.assert_span_contains_tags(spans[0], {
+            'one': 1,
+            'two': '2',
+        })
+        self.assert_span_with_exception(spans[0], error)
 
         assert Thing().traced_method.__name__ == 'traced_method'
 
@@ -176,13 +184,15 @@ class TestMethodDecorator(DecoratorTest):
         class CustomException(Exception):
             pass
 
+        error = CustomException('AnotherException')
+
         class Thing(object):
             @classmethod
             @trace('operation_name', tags=dict(one=1, two='2'))
             def traced_method(cls, *args, **kwargs):
                 assert args == (1,)
                 assert kwargs == dict(one=1)
-                raise CustomException('AnotherException')
+                raise error
 
         with pytest.raises(CustomException):
             Thing().traced_method(1, one=1)
@@ -190,10 +200,11 @@ class TestMethodDecorator(DecoratorTest):
         spans = self.tracer.finished_spans()
         assert len(spans) == 1
         assert spans[0].operation_name == 'operation_name'
-        assert spans[0].tags == {'one': 1, 'two': '2', ext_tags.ERROR: True}
-        assert len(spans[0].logs) == 1
-        assert spans[0].logs[0].key_values.get('error.object')
-        assert str(spans[0].logs[0].key_values.get('error.object')) == 'AnotherException'
+        self.assert_span_contains_tags(
+            spans[0],
+            {'one': 1, 'two': '2', ext_tags.ERROR: True}
+        )
+        self.assert_span_with_exception(spans[0], error)
 
         assert Thing().traced_method.__name__ == 'traced_method'
 
@@ -201,13 +212,15 @@ class TestMethodDecorator(DecoratorTest):
         class CustomException(Exception):
             pass
 
+        error = CustomException('YetAnotherException')
+
         class Thing(object):
             @staticmethod
             @trace('operation_name', tags=dict(one=1, two='2'))
             def traced_method(*args, **kwargs):
                 assert args == (1,)
                 assert kwargs == dict(one=1)
-                raise CustomException('YetAnotherException')
+                raise error
 
         with pytest.raises(CustomException):
             Thing.traced_method(1, one=1)
@@ -215,9 +228,7 @@ class TestMethodDecorator(DecoratorTest):
         spans = self.tracer.finished_spans()
         assert len(spans) == 1
         assert spans[0].operation_name == 'operation_name'
-        assert spans[0].tags == {'one': 1, 'two': '2', ext_tags.ERROR: True}
-        assert len(spans[0].logs) == 1
-        assert spans[0].logs[0].key_values.get('error.object')
-        assert str(spans[0].logs[0].key_values.get('error.object')) == 'YetAnotherException'
+        self.assert_span_contains_tags(spans[0], {'one': 1, 'two': '2'})
+        self.assert_span_with_exception(spans[0], error)
 
         assert Thing().traced_method.__name__ == 'traced_method'
