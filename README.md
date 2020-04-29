@@ -64,12 +64,11 @@ default value:
 
 ## Automatically instrument a Python application
 
-Install the tracing library, the instrumentation, and a Jaeger tracer, and
-automatically instrument your application with the default settings. Install
-instrumentation and the Jaeger tracer with the
-[bootstrap utility](./scripts/README.md#sfx-py-trace-bootstrap) and
-automatically instrument your application with the
-[trace utility](./scripts/README.md#sfx-py-trace).
+Install the tracing library, use the `sfx-py-trace-bootstrap` utility to
+configure instrumentation and create a tracer, and automatically instrument your
+application with the `sfx-py-trace` utility. Install instrumentation and the
+Jaeger tracer with the [bootstrap utility](./scripts/README.md#sfx-py-trace-bootstrap) and
+automatically instrument your application with the [trace utility](./scripts/README.md#sfx-py-trace).
 
 1. Set the service name, endpoint URL, and access token:
     ```bash
