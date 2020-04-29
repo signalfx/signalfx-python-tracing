@@ -3,22 +3,22 @@
 The SignalFx Tracing Library for Python automatically instruments your
 Python 2.7 or 3.4+ application to capture and report distributed traces to
 SignalFx with a single function. The library configures an OpenTracing-compatible
-tracer to capture and export trace spans.
+tracer to capture and export trace spans. You can use the tracer to imbed custom
+instrumentation in the automatically generated traces.
 
 The SignalFx-Tracing Library for Python works by detecting your libraries and
 frameworks and configuring available instrumentors for distributed tracing via
 the Python [OpenTracing API 2.0](https://pypi.org/project/opentracing/2.0.0/).
 By default, its footprint is small and doesn't declare any instrumentors as
-dependencies. It assumes you install 2.0-compatible instrumentors.
+dependencies.
 
-Because adopting the API occurs on a per-instrumentor basis, it's helpful to
-use the [bootstrap utility](./scripts/README.md) to install each applicable
-instrumentor along with a compatible tracer. The bootstrap utility selectively
-installs custom instrumentors listed in the
-[instrumentor requirements file](./requirements-inst.txt).
-If you use the bootstrap utility, you can create a tracer with a modified
-[Jaeger Client](https://github.com/jaegertracing/jaeger-client-python)ready
-for reporting to SignalFx.
+The library provides a helpful [bootstrap utility](./scripts/README.md) to
+install each applicable instrumentor along with a compatible tracer. The
+bootstrap utility selectively installs custom instrumentors listed in the
+[instrumentor requirements file](./requirements-inst.txt). The bootstrap
+utility creates a tracer with a modified
+[Jaeger Client](https://github.com/signalfx/jaeger-client-python)ready for
+reporting to SignalFx.
 
 The library enables tracing with constant sampling (i.e., 100% chance of tracing)
 and reports each span to SignalFx. Where applicable, context propagation uses
@@ -132,7 +132,8 @@ application. Manually instrumenting an application is helpful when you want to
 monitor more than the auto-instrumentation process configures or you want to
 add custom instrumentation tags.
 
-1. Uninstall any previous instrumentor versions.
+1. Uninstall any previous instrumentor versions. If you use the bootstrap
+utility, it automatically does this for you. 
 2. Install the tracing library:
       ```bash
     $ pip install signalfx-tracing
