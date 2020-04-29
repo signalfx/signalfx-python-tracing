@@ -1,170 +1,57 @@
-# SignalFx-Tracing Library for Python: An OpenTracing Auto-Instrumentor
+# SignalFx Tracing Library for Python
 
-This utility provides users with the ability of automatically configuring
-OpenTracing 2.0-compatible community-contributed [instrumentation libraries](https://github.com/opentracing-contrib)
-for their Python 2.7 and 3.4+ applications via a single function.
+The SignalFx Tracing Library for Python automatically instruments your
+Python 2.7 or 3.4+ application to capture and report distributed traces to
+SignalFx with a single function. The library configures an OpenTracing-compatible
+tracer to capture and export trace spans.
 
-```python
-from signalfx_tracing import auto_instrument, create_tracer
+The SignalFx-Tracing Library for Python works by detecting your libraries and
+frameworks and configuring available instrumentors for distributed tracing via
+the Python [OpenTracing API 2.0](https://pypi.org/project/opentracing/2.0.0/).
+By default, its footprint is small and doesn't declare any instrumentors as
+dependencies. It assumes you install 2.0-compatible instrumentors.
 
-tracer = create_tracer(service_name='MyService')
-auto_instrument(tracer)
-```
+Because adopting the API occurs on a per-instrumentor basis, it's helpful to
+use the [bootstrap utility](./scripts/README.md) to install each applicable
+instrumentor along with a compatible tracer. The bootstrap utility selectively
+installs custom instrumentors listed in the
+[instrumentor requirements file](./requirements-inst.txt).
+If you use the bootstrap utility, you can create a tracer with a modified
+[Jaeger Client](https://github.com/jaegertracing/jaeger-client-python)ready
+for reporting to SignalFx.
 
-If auto-instrumentation of all applicable libraries and frameworks isn't desired,
-enabling instrumentation individually can be done by specifying your target module:
-
-```python
-from signalfx_tracing import create_tracer, instrument, uninstrument
-
-tracer = create_tracer()
-instrument(tracer, flask=True)
-# or
-instrument(flask=True)  # uses the global Tracer from opentracing.tracer by default
-
-import flask
-
-traced_app = flask.Flask('MyTracedApplication')
-
-@traced_app.route('/hello_world')
-def traced_route():
-    # Obtain active span created by traced middleware
-    span = tracer.scope_manager.active.span
-    span.set_tag('Hello', 'World')
-    span.log_kv({'event': 'initiated'})
-    return 'Hello!'  # Span is automatically finished after request handler
-
-uninstrument('flask')  # prevent future registrations
-
-untraced_app = flask.Flask('MyUntracedApplication')
-
-@untraced_app.route('/untraced_hello_world')
-def untraced_route():
-    return 'Goodbye!'
-```
-
-**Note: Both `instrument()` and `auto_instrument()` invocations can be converted to no-ops if the
-`SIGNALFX_TRACING_ENABLED` environment variable is set to `False` or `0`.  This can be helpful when developing your
-auto-instrumented application locally or in test environments.**
-
-## Supported Frameworks and Libraries
-
-* [Celery 3.1+](./signalfx_tracing/libraries/celery_/README.md) - `instrument(celery=True)`
-* [Django 1.8+](./signalfx_tracing/libraries/django_/README.md) - `instrument(django=True)`
-* [Elasticsearch 2.0+](./signalfx_tracing/libraries/elasticsearch_/README.md) - `instrument(elasticsearch=True)`
-* [Flask 0.10+](./signalfx_tracing/libraries/flask_/README.md) - `instrument(flask=True)`
-* [Psycopg 2.7+](./signalfx_tracing/libraries/psycopg2_/README.md) - `instrument(psycopg2=True)`
-* [PyMongo 3.1+](./signalfx_tracing/libraries/pymongo_/README.md) - `instrument(pymongo=True)`
-* [PyMySQL 0.8+](./signalfx_tracing/libraries/pymysql_/README.md) - `instrument(pymysql=True)`
-* [Redis-Py 2.10+](./signalfx_tracing/libraries/redis_/README.md) - `instrument(redis=True)`
-* [Requests 2.0+](./signalfx_tracing/libraries/requests_/README.md) - `instrument(requests=True)`
-* [Tornado 4.3-6.x](./signalfx_tracing/libraries/tornado_/README.md) - `instrument(tornado=True)`
-
-## Installation and Configuration
-
-### Library and Instrumentors
-The SignalFx-Tracing Library for Python works by detecting your libraries and frameworks and configuring available
-instrumentors for distributed tracing via the Python [OpenTracing API 2.0](https://pypi.org/project/opentracing/2.0.0/). 
-By default, its footprint is small and doesn't declare any instrumentors as dependencies. That is, it operates on the
-assumption that you have 2.0-compatible instrumentors installed as needed. As adoption of this API is done on a
-per-instrumentor basis, it's highly recommended you use the helpful [bootstrap utility](./scripts/README.md) for
-obtaining and installing any applicable, feature-ready instrumentors along with a compatible tracer:
-
-```sh
-  $ pip install signalfx-tracing
-  $ sfx-py-trace-bootstrap
-```
-
-For example, if your environment has Requests and Flask in its Python path, the corresponding OpenTracing
-instrumentors will be pip installed.  Again, since OpenTracing-Contrib instrumentation support of API 2.0 is not
-ubiquitous, this bootstrap selectively installs custom instrumentors listed in
-[the instrumentor requirements file](./requirements-inst.txt).  As such, we suggest being sure to uninstall any previous
-instrumentor versions before running the bootstrapper, ideally in a clean environment.
-
-To run the instrumentor bootstrap process without installing the suggested tracer, you can run the following from this
-project's source tree:
-
-```sh
-  $ scripts/bootstrap.py --deps-only
-```
-
-You can also specify a target installation directory, which will include the most recent `signalfx-tracing` as provided
-by PyPI:
-
-```sh
-  $ sfx-py-trace-bootstrap -t /my/site/packages/directory
-```
-
-It's also possible to install the supported instrumentors as package extras from a cloned repository:
-
-```bash
-  $ git clone https://github.com/signalfx/signalfx-python-tracing.git
-  # Supported extras are dbapi, django, flask, pymongo, pymysql, redis, requests, tornado
-  $ pip install './signalfx-python-tracing[django,redis,requests]'
-```
-
-**Note: For pip versions earlier than 18.0, it's necessary to include `--process-dependency-links` to
-obtain the desired instrumentor versions.**
-
-```bash
-  $ git clone https://github.com/signalfx/signalfx-python-tracing.git
-  # pip versions <18.0
-  $ pip install --process-dependency-links './signalfx-python-tracing[jaeger,tornado]'
-```
-
-### Tracer
-Not all stable versions of OpenTracing-compatible tracers support the 2.0 API, so we provide
-and recommend installing a modified [Jaeger Client](https://github.com/jaegertracing/jaeger-client-python)
-ready for reporting to SignalFx. You can obtain an instance of the suggested Jaeger tracer using a
- `signalfx_tracing.utils.create_tracer()` helper, provided you've run:
-
-```sh
-  $ sfx-py-trace-bootstrap
-
-  # or as package extra
-  $ pip install './signalfx-python-tracing[jaeger]'
-  # please use required --process-dependency-links for pip versions <18.0 
-  $ pip install --process-dependency-links './signalfx-python-tracing[jaeger]'
-
-  # or from project source tree, along with applicable instrumentors
-  $ scripts/bootstrap.py --jaeger
-
-  # or to avoid applicable instrumentors
-  $ scripts/bootstrap.py --jaeger-only
-```
-
-By default `create_tracer()` will enable tracing with constant sampling (100% chance of tracing) and report each span
-directly to SignalFx. Where applicable, context propagation will be done via
+The library enables tracing with constant sampling (i.e., 100% chance of tracing)
+and reports each span to SignalFx. Where applicable, context propagation uses
 [B3 headers](https://github.com/openzipkin/b3-propagation).
 
-```python
-from signalfx_tracing import create_tracer
+For more information about automatically instrumenting your application, see
+[Automatically instrument a Python application](#Automatically-instrument-a-Python-application).
 
-# sets the global opentracing.tracer by default:
-tracer = create_tracer()  # uses 'SIGNALFX_ACCESS_TOKEN' environment variable if provided
+If you don't want to automatically instrument all applicable libraries and
+frameworks, specify your target module to manually instrument your Python
+application. For more information about manually instrumenting your application,
+see [Manually instrument a Python application](#Manually-instrument-a-Python-application).
 
-# or directly provide your organization access token if not using the Smart Agent to analyze spans:
-tracer = create_tracer('<OrganizationAccessToken>', ...)
+## Requirements and supported software
 
-# or to disable setting the global tracer:
-tracer = create_tracer(set_global=False)
-```
+These are the supported libraries.
 
-All other `create_tracer()` arguments are those that can be passed to a `jaeger_client.Config` constructor:
-```python
-from tornado_opentracing.scope_managers import TornadoScopeManager
-from signalfx_tracing import create_tracer
+| Library | Versions supported | Instrumentation name(s) |
+| ---     | ---                | ---                     |
+|[Celery](./signalfx_tracing/libraries/celery_/README.md) | 3.1+ | `instrument(celery=True)` |
+| [Django](./signalfx_tracing/libraries/django_/README.md) | 1.8+ | `instrument(django=True)` |
+| [Elasticsearch](./signalfx_tracing/libraries/elasticsearch_/README.md) | 2.0+ | `instrument(elasticsearch=True)` |
+| [Flask](./signalfx_tracing/libraries/flask_/README.md) | 0.10+ | `instrument(flask=True)` |
+| [Psycopg](./signalfx_tracing/libraries/psycopg2_/README.md) | 2.7+ | `instrument(psycopg2=True)` |
+| [PyMongo](./signalfx_tracing/libraries/pymongo_/README.md) | 3.1+ | `instrument(pymongo=True)` |
+| [PyMySQL](./signalfx_tracing/libraries/pymysql_/README.md) | 0.8+ | `instrument(pymysql=True)` |
+| [Redis-Py](./signalfx_tracing/libraries/redis_/README.md) | 2.10+ | `instrument(redis=True)` |
+| [Requests](./signalfx_tracing/libraries/requests_/README.md) | 2.0+ | `instrument(requests=True)` |
+| [Tornado 4.3-6.x](./signalfx_tracing/libraries/tornado_/README.md) | 4.3-6.x | `instrument(tornado=True)` |
 
-tracer = create_tracer(
-    '<OptionalOrganizationAccessToken>',
-    config=dict(jaeger_endpoint='http://localhost:9080/v1/trace'),
-    service_name='MyTracedApplication',
-    scope_manager=TornadoScopeManager  # Necessary for span scope in Tornado applications
-)
-```
-
-If a `config` dictionary isn't provided or doesn't specify the desired items for your tracer, the following environment
-variables are checked for before selecting a default value:
+If you don't provide a  `config` dictionary or don't specify the following items
+for your tracer, these environment variables are checked before selecting a
+default value:
 
 | Config kwarg | environment variable | default value |
 |--------------|----------------------|---------------|
@@ -175,100 +62,213 @@ variables are checked for before selecting a default value:
 | `['sampler']['param']` | `SIGNALFX_SAMPLER_PARAM` | `1` |
 | `propagation` | `SIGNALFX_PROPAGATION` | `'b3'` |
 
+## Automatically instrument a Python application
 
-**Note: By default `create_tracer()` will store the initial tracer created upon first invocation and return
-that instance for subsequent invocations.  If for some reason multiple tracers are needed, you can provide
-`create_tracer(allow_multiple=True)` as a named argument.**
+Install the tracing library, the instrumentation, and a Jaeger tracer, and
+automatically instrument your application with the default settings. Install
+instrumentation and the Jaeger tracer with the
+[bootstrap utility](./scripts/README.md#sfx-py-trace-bootstrap) and
+automatically instrument your application with the
+[trace utility](./scripts/README.md#sfx-py-trace).
 
-## Usage
+1. Set the service name, endpoint URL, and access token:
+    ```bash
+    # Specify a name for the service in SignalFx.
+    $ export SIGNALFX_SERVICE_NAME="your_service"
+    # Set the endpoint URL for the Smart Agent, OpenTelemetry Collector, or ingest endpoint.
+    $ export SIGNALFX_ENDPOINT_URL="http://localhost:9080/v1/trace"
+    # Provide the access token for your SignalFx organization.
+    $ export SIGNALFX_ACCESS_TOKEN="your_access_token"
+    ```
+2. Install the tracing library:
+    ```bash
+    $ pip install signalfx-tracing
+    ```
+3. Run the bootstrap utility:
+    ```bash
+    $ sfx-py-trace-bootstrap
+    ```
+4. Run the trace utility:
+    ```bash
+    $ sfx-py-trace your_application.py --app_arg_one --app_arg_two
+    ```
 
-### Application Runner
-The SignalFx-Tracing Library for Python's auto-instrumentation configuration can be performed while loading
-your framework-based and library-utilizing application as described in the corresponding
-[instrumentation instructions](#supported-frameworks-and-libraries).
-However, if you have installed the recommended [Jaeger client](#Tracer) (`sfx-py-trace-bootstrap`) and would like to
-automatically instrument your applicable program with the default settings, a helpful `sfx-py-trace` entry point
-is provided by the installer:
+`sfx-py-trace` can't enable auto-instrumentation of Django projects by itself
+because you have to add the `signalfx_tracing` instrumentor the project settings'
+installed applications. Once you specify the application, use `sfx-py-trace` as
+described in the 
+[Django instrumentation documentation](./signalfx_tracing/libraries/django_/README.md).
 
-```sh
-  $ sfx-py-trace my_application.py --app_arg_one --app_arg_two
-  # Or if your Smart Agent is not available at the default endpoint url:
-  $ SIGNALFX_ENDPOINT_URL='http://MySmartAgent:9080/v1/trace' sfx-py-trace my_application.py
-```
+`sfx-py-trace` creates a Jaeger tracer instance using the access token specified
+with the environment variable or argument to report your spans to SignalFx. It
+then calls `auto_instrument()` before running your target application file in
+its own module namespace. Due to potential deadlocks in importing forking code,
+you can't initialize the standard Jaeger tracer as a side effect of an import
+statement. For more information, see
+[Python threading doc](https://docs.python.org/2/library/threading.html#importing-in-threaded-code) 
+and [known Jaeger issue](https://github.com/jaegertracing/jaeger-client-python/issues/60#issuecomment-318909730).
+Because of this issue, and for general lack of HTTP reporting support, use the
+modified [Jaeger tracer](#Tracer) that provides deferred thread creation to
+avoid this constraint.
 
-**Note: `sfx-py-trace` cannot, by itself, enable auto-instrumentation of Django projects, as the `signalfx_tracing`
-instrumentor must still be added to the project settings' installed apps.  Once the application is specified,
-`sfx-py-trace` may be used as described in the [Django instrumentation documentation](./signalfx_tracing/libraries/django_/README.md).**
-
-This command line script loader will create a Jaeger tracer instance using the access token specified via
-environment variable or argument to report your spans to SignalFx.  It will then call `auto_instrument()` before
-running your target application file in its own module namespace.  It's important to note that due to potential
-deadlocks in importing forking code, the standard Jaeger tracer cannot be initialized as a side effect of an import
-statement (see: [Python threading doc](https://docs.python.org/2/library/threading.html#importing-in-threaded-code) and
-[known Jaeger issue](https://github.com/jaegertracing/jaeger-client-python/issues/60#issuecomment-318909730)).
-Because of this issue, and for general lack of HTTP reporting support, we highly suggest you use our modified [Jaeger
-tracer](#Tracer) that provides deferred thread creation to avoid this constraint.
-
-The application runner will by default attempt to instrument all available libraries for which there are corresponding
-instrumentations installed on your system.  If you would like to prevent the tracing of particular libraries at run time,
-you can set the `SIGNALFX_<LIBRARY_NAME>_ENABLED=False` environment variables when launching the `sfx-py-trace` process.
-For example, to prevent auto-instrumentation of Tornado, you could run:
+`sfx-py-trace` attempts to instrument all available libraries there are
+corresponding instrumentations installed on your system for. If want to prevent
+the tracing of particular libraries at run time, set the
+`SIGNALFX_<LIBRARY_NAME>_ENABLED=False` environment variable when launching the
+`sfx-py-trace` process. For example, to prevent auto-instrumentation of Tornado,
+you could run:
 
 ```sh
   $ SIGNALFX_TORNADO_ENABLED=False sfx-py-trace my_application.py
 ```
 
-The supported value of each library name is the uppercase form of the corresponding `instrument()`
-[keyword argument](#Supported-Frameworks-and-Libraries).
+The supported value of each library name is the uppercase form of the
+corresponding `instrument()` [keyword argument](#Supported-Frameworks-and-Libraries).
 
-### Trace Decorator
-Not all applications follow the basic architectural patterns allowed by their frameworks, and no single tool will be
-able to represent all use cases without user input.  To meaningfully unite isolated traces into a single, more
-representative structure, or to decompose large spans into functional units, manual instrumentation will
-become necessary.  The SignalFx-Tracing Library provides a helpful function decorator to automatically create spans
-for tracing your custom logic:
+## Manually instrument a Python application
 
-```python
-from signalfx_tracing import trace
-import opentracing
+Manually configure each applicable instrumentor, tracer, and instrument your
+application. Manually instrumenting an application is helpful when you want to
+monitor more than the auto-instrumentation process configures or you want to
+add custom instrumentation tags.
 
-from my_app import annotate, compute, report
+1. Uninstall any previous instrumentor versions.
+2. Install the tracing library:
+      ```bash
+    $ pip install signalfx-tracing
+      ```
+3. Install applicable instrumentors. There are a few ways to do this.
+   1. Run the bootstrap utility:
+        ```bash
+      $ sfx-py-trace-bootstrap
+        ```
+   2. Run the bootstrap utility and specify a target installation directory that
+   includes the most recent tracing library provided by PyPI:
+        ```bash
+  		$ sfx-py-trace-bootstrap -t /your/site/packages/directory 
+        ```
+   3. Run the bootstrap utility without installing the Jaeger tracer from your
+   project's source tree:
+        ```bash
+  		$ scripts/bootstrap.py --deps-only
+        ```
+   4. Install the supported instrumentors as package extras from a cloned repository:
+        ```bash
+  	 	$ git clone https://github.com/signalfx/signalfx-python-tracing.git
+      # View setup.py for available package extras.
+      # If you're using a pip version older than version 18, include
+      # --process-dependency-links in the install command.
+	    $ pip install './signalfx-python-tracing[extra,extra,extra]'
+      ```
+4. Set the service name, endpoint URL, and access token:
+    ```bash
+    # Specify a name for the service in SignalFx.
+    $ export SIGNALFX_SERVICE_NAME="your_service"
+    # Set the endpoint URL for the Smart Agent, OpenTelemetry Collector, or ingest endpoint.
+    $ export SIGNALFX_ENDPOINT_URL="http://localhost:9080/v1/trace"
+    # Provide the access token for your SignalFx organization.
+    $ export SIGNALFX_ACCESS_TOKEN="your_access_token"
+    ```
+5. Create a tracer using `signalfx_tracing.utils.create_tracer()`. This sets
+the global `opentracing.tracer` by default. The tracer uses the
+`SIGNALFX_ACCESS_TOKEN` environment variable. By default, `create_tracer()`
+stores the initial tracer created upon first invocation and returns that instance
+for subsequent invocations. If you need to use multiple tracers, you can provide
+`create_tracer(allow_multiple=True)` as a named argument.
+      ```python
+      from signalfx_tracing import create_tracer
 
+      tracer = create_tracer()
+      ```
+    If you're instrumenting a Tornado application, import the Tornado Scope Manager
+    when you create the tracer:
+      ```python
+      from tornado_opentracing.scope_managers import TornadoScopeManager
+      from signalfx_tracing import create_tracer
 
-@trace  # uses global opentracing.tracer set by signalfx_tracing.utils.create_tracer()
-def my_function(arg):  # default span operation name is the name of the function
-    # span will automatically trace duration of my_function() without any modifications necessary
-    annotated = annotate(arg)
-    return MyBusinessLogic().my_other_function(annotated)
+      tracer = create_tracer(
+        scope_manager=TornadoScopeManager
+      )
+      ```
 
+6. Instrument your code. You can automatically instrument your code or manually
+instrument your code. You can convert `instrument()` and `auto_instrument()` to
+no-ops by setting the `SIGNALFX_TRACING_ENABLED` environment variable to `False`
+or `0`. This can be helpful when you're developing your application locally or
+deploying in a test environment.
+   1. Automatically instrument your code:
+      ```python
+      from signalfx_tracing import auto_instrument, create_tracer
+      tracer = create_tracer()
+      auto_instrument(tracer)
+      ```
+   2. Manually instrument your code:
+      ```python
+      from signalfx_tracing import create_tracer, instrument, uninstrument
 
-class MyBusinessLogic:
+      tracer = create_tracer()
+      instrument(tracer, flask=True)
+      # or
+      instrument(flask=True)  # uses the global Tracer from opentracing.tracer by default
+      
+      import flask
 
-    @classmethod  # It's necessary to declare @trace after @classmethod and @staticmethod
-    @trace('MyOperation')  # Specify span operation name
-    def my_other_function(cls, arg):
-        # Using OpenTracing api, it's possible to modify current spans.
-        # This active span is 'MyOperation', the current traced function and child of 'my_function'.
-        span = opentracing.tracer.active_span
-        span.set_tag('MyAnnotation', arg)
-        value = cls.my_additional_function(arg)
-        return report(value)
+      traced_app = flask.Flask('MyTracedApplication')
+      
+      @traced_app.route('/hello_world')
+      def traced_route():
+        # Obtain active span created by traced middleware
+        span = tracer.scope_manager.active.span
+        span.set_tag('Hello', 'World')
+        span.log_kv({'event': 'initiated'})
+        return 'Hello!'  # Span is automatically finished after request handler
 
-    @staticmethod
-    @trace('MyOtherOperation',  # Specify span operation name and tags
-           dict(tag_name='tag_value',
-                another_tag_name='another_tag_value'))
-    def my_additional_function(arg):
-        span = opentracing.tracer.active_span  # This active span is 'MyOtherOperation', the child of 'MyOperation'.
-        value = compute(arg)
-        span.set_tag('ComputedValue', value)
-        return value
-```
+      uninstrument('flask')  # prevent future registrations
 
-In the above example, any invocation of `my_function()` will result in a trace consisting of at least three spans
-whose relationship mirrors the call graph.  If `my_function()` were to be called from another traced function or
-auto-instrumented request handler, its resulting span would be parented by that caller function's span.
+      untraced_app = flask.Flask('MyUntracedApplication')
 
-**Note: As the example shows, `@trace` must be applied to traced methods before the `@classmethod` and `@staticmethod`
-decorators are evaluated (declared after), as the utility doesn't account for their respective descriptor
-implementations at this time. Not doing so will likely cause undesired behavior in your application.**
+      @untraced_app.route('/untraced_hello_world')
+      def untraced_route():
+        return 'Goodbye!'
+      ```
+7. Automatically create spans for custom application logic with a trace decorator:
+    ```python
+ 	  from signalfx_tracing import trace
+	  import opentracing
+
+	  from my_app import annotate, compute, report
+
+  	@trace
+	  def my_function(arg):  # The default span operation name is the name of the function
+      	# span will automatically trace duration of my_function() without any
+        # modifications necessary
+    	  annotated = annotate(arg)
+    	  return MyBusinessLogic().my_other_function(annotated)
+
+  	class MyBusinessLogic:
+
+      	@classmethod  # You have to declare @trace after @classmethod and @staticmethod
+      	@trace('MyOperation')  # Specify span operation name
+    	  def my_other_function(cls, arg):
+ 	         # Using OpenTracing API, it's possible to modify current spans.
+    	      # This active span is 'MyOperation', the current traced function and child of 'my_function'.
+        	  span = opentracing.tracer.active_span
+        	  span.set_tag('MyAnnotation', arg)
+        	  value = cls.my_additional_function(arg)
+        	  return report(value)
+
+    	  @staticmethod
+    	  @trace('MyOtherOperation',  # Specify span operation name and tags
+          	   dict(tag_name='tag_value',
+              	    another_tag_name='another_tag_value'))
+    	  def my_additional_function(arg):
+            # This active span is 'MyOtherOperation', the child of 'MyOperation'.
+          	span = opentracing.tracer.active_span
+        	  value = compute(arg)
+        	  span.set_tag('ComputedValue', value)
+        	  return value
+    ```
+    Any invocation of `my_function()` results in a trace consisting of at least
+    three spans whose relationship mirrors the call graph. If `my_function()` were
+    to be called from another traced function or auto-instrumented request handler, 
+    its resulting span would be parented by that caller function's span.
