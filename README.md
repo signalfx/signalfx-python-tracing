@@ -76,7 +76,7 @@ automatically instrument your application with the [trace utility](./scripts/REA
     $ export SIGNALFX_SERVICE_NAME="your_service"
     # Set the endpoint URL for the Smart Agent, OpenTelemetry Collector, or ingest endpoint.
     $ export SIGNALFX_ENDPOINT_URL="http://localhost:9080/v1/trace"
-    # Provide the access token for your SignalFx organization.
+    # If you're reporting directly to SignalFx without a Smart Agent or Collector, provide the access token for your SignalFx organization.
     $ export SIGNALFX_ACCESS_TOKEN="your_access_token"
     ```
 2. Install the tracing library:
