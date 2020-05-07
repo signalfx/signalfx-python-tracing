@@ -143,6 +143,10 @@ class TestFlaskApp(object):
                          'path': '/traced',
                          'span.kind': 'server',
                          'handled': 'tag'}
-        if six.PY3:  # https://github.com/opentracing-contrib/python-flask/pull/28
+
+        # some versions of flask add query_string attribute with an empty
+        # string as the attribute value
+        if len(expected_tags) < len(parent.tags):
             expected_tags['query_string'] = "b''"
+
         assert parent.tags == expected_tags
