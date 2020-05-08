@@ -12,12 +12,12 @@ the Python [OpenTracing API 2.0](https://pypi.org/project/opentracing/2.0.0/).
 By default, its footprint is small and doesn't declare any instrumentors as
 dependencies.
 
-The library provides a helpful [bootstrap utility](./scripts/README.md) to
+The library provides helpful [utilities](./scripts/README.md) to
 install each applicable instrumentor along with a compatible tracer. The
 bootstrap utility selectively installs custom instrumentors listed in the
-[instrumentor requirements file](./requirements-inst.txt). The bootstrap
-utility creates a tracer with a modified
-[Jaeger Client](https://github.com/signalfx/jaeger-client-python)ready for
+[instrumentor requirements file](./requirements-inst.txt). The application
+runner creates a tracer with a modified 
+[Jaeger Client](https://github.com/signalfx/jaeger-client-python) ready for
 reporting to SignalFx.
 
 The library enables tracing with constant sampling (i.e., 100% chance of tracing)
@@ -36,18 +36,18 @@ see [Manually instrument a Python application](#Manually-instrument-a-Python-app
 
 These are the supported libraries.
 
-| Library | Versions supported | Instrumentation name(s) |
-| ---     | ---                | ---                     |
-|[Celery](./signalfx_tracing/libraries/celery_/README.md) | 3.1+ | `instrument(celery=True)` |
-| [Django](./signalfx_tracing/libraries/django_/README.md) | 1.8+ | `instrument(django=True)` |
-| [Elasticsearch](./signalfx_tracing/libraries/elasticsearch_/README.md) | 2.0+ | `instrument(elasticsearch=True)` |
-| [Flask](./signalfx_tracing/libraries/flask_/README.md) | 0.10+ | `instrument(flask=True)` |
-| [Psycopg](./signalfx_tracing/libraries/psycopg2_/README.md) | 2.7+ | `instrument(psycopg2=True)` |
-| [PyMongo](./signalfx_tracing/libraries/pymongo_/README.md) | 3.1+ | `instrument(pymongo=True)` |
-| [PyMySQL](./signalfx_tracing/libraries/pymysql_/README.md) | 0.8+ | `instrument(pymysql=True)` |
-| [Redis-Py](./signalfx_tracing/libraries/redis_/README.md) | 2.10+ | `instrument(redis=True)` |
-| [Requests](./signalfx_tracing/libraries/requests_/README.md) | 2.0+ | `instrument(requests=True)` |
-| [Tornado 4.3-6.x](./signalfx_tracing/libraries/tornado_/README.md) | 4.3-6.x | `instrument(tornado=True)` |
+| Library | Versions supported | Instrumentation name(s) | Notes |
+| ---     | ---                | ---                     | ---   |
+|[Celery](./signalfx_tracing/libraries/celery_/README.md) | 3.1+ | `instrument(celery=True)` | |
+| [Django](./signalfx_tracing/libraries/django_/README.md) | 1.8+ | `instrument(django=True)` | Requires `signalfx_tracing` in the project's installed applications. |
+| [Elasticsearch](./signalfx_tracing/libraries/elasticsearch_/README.md) | 2.0+ | `instrument(elasticsearch=True)` | |
+| [Flask](./signalfx_tracing/libraries/flask_/README.md) | 0.10+ | `instrument(flask=True)` | |
+| [Psycopg](./signalfx_tracing/libraries/psycopg2_/README.md) | 2.7+ | `instrument(psycopg2=True)` | |
+| [PyMongo](./signalfx_tracing/libraries/pymongo_/README.md) | 3.1+ | `instrument(pymongo=True)` | |
+| [PyMySQL](./signalfx_tracing/libraries/pymysql_/README.md) | 0.8+ | `instrument(pymysql=True)` | |
+| [Redis-Py](./signalfx_tracing/libraries/redis_/README.md) | 2.10+ | `instrument(redis=True)` | |
+| [Requests](./signalfx_tracing/libraries/requests_/README.md) | 2.0+ | `instrument(requests=True)` | |
+| [Tornado 4.3-6.x](./signalfx_tracing/libraries/tornado_/README.md) | 4.3-6.x | `instrument(tornado=True)` | |
 
 If you don't provide a  `config` dictionary or don't specify the following items
 for your tracer, these environment variables are checked before selecting a
@@ -58,9 +58,6 @@ default value:
 | `service_name` | `SIGNALFX_SERVICE_NAME` | `'SignalFx-Tracing'` |
 | `jaeger_endpoint` | `SIGNALFX_ENDPOINT_URL` | `'http://localhost:9080/v1/trace'` |
 | `jaeger_password` | `SIGNALFX_ACCESS_TOKEN` | `None` |
-| `['sampler']['type']` | `SIGNALFX_SAMPLER_TYPE` | `'const'` |
-| `['sampler']['param']` | `SIGNALFX_SAMPLER_PARAM` | `1` |
-| `propagation` | `SIGNALFX_PROPAGATION` | `'b3'` |
 
 ## Automatically instrument a Python application
 
@@ -68,32 +65,10 @@ Install the tracing library, use the `sfx-py-trace-bootstrap` utility to
 configure instrumentation and create a tracer, and automatically instrument your
 application with the `sfx-py-trace` utility. Install instrumentation and the
 Jaeger tracer with the [bootstrap utility](./scripts/README.md#sfx-py-trace-bootstrap) and
-automatically instrument your application with the [trace utility](./scripts/README.md#sfx-py-trace).
-
-1. Set the service name, endpoint URL, and access token:
-    ```bash
-    # Specify a name for the service in SignalFx.
-    $ export SIGNALFX_SERVICE_NAME="your_service"
-    # Set the endpoint URL for the Smart Agent, OpenTelemetry Collector, or ingest endpoint.
-    $ export SIGNALFX_ENDPOINT_URL="http://localhost:9080/v1/trace"
-    # If you're reporting directly to SignalFx without a Smart Agent or Collector, provide the access token for your SignalFx organization.
-    $ export SIGNALFX_ACCESS_TOKEN="your_access_token"
-    ```
-2. Install the tracing library:
-    ```bash
-    $ pip install signalfx-tracing
-    ```
-3. Run the bootstrap utility:
-    ```bash
-    $ sfx-py-trace-bootstrap
-    ```
-4. Run the trace utility:
-    ```bash
-    $ sfx-py-trace your_application.py --app_arg_one --app_arg_two
-    ```
+automatically instrument your application with the [application runner](./scripts/README.md#sfx-py-trace).
 
 `sfx-py-trace` can't enable auto-instrumentation of Django projects by itself
-because you have to add the `signalfx_tracing` instrumentor the project settings'
+because you have to add the `signalfx_tracing` instrumentor in the project settings'
 installed applications. Once you specify the application, use `sfx-py-trace` as
 described in the 
 [Django instrumentation documentation](./signalfx_tracing/libraries/django_/README.md).
@@ -124,6 +99,28 @@ you could run:
 The supported value of each library name is the uppercase form of the
 corresponding `instrument()` [keyword argument](#Supported-Frameworks-and-Libraries).
 
+1. Set the service name, endpoint URL, and access token:
+    ```bash
+    # Specify a name for the service in SignalFx.
+    $ export SIGNALFX_SERVICE_NAME="your_service"
+    # Set the endpoint URL for the Smart Agent, OpenTelemetry Collector, or ingest endpoint.
+    $ export SIGNALFX_ENDPOINT_URL="http://localhost:9080/v1/trace"
+    # If you're reporting directly to SignalFx without a Smart Agent or Collector, provide the access token for your SignalFx organization.
+    $ export SIGNALFX_ACCESS_TOKEN="your_access_token"
+    ```
+2. Install the tracing library:
+    ```bash
+    $ pip install signalfx-tracing
+    ```
+3. Run the bootstrap utility:
+    ```bash
+    $ sfx-py-trace-bootstrap
+    ```
+4. Run the trace utility:
+    ```bash
+    $ sfx-py-trace your_application.py --app_arg_one --app_arg_two
+    ```
+    
 ## Manually instrument a Python application
 
 Manually configure each applicable instrumentor, tracer, and instrument your
