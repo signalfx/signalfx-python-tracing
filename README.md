@@ -122,7 +122,7 @@ corresponding `instrument()` [keyword argument](#Supported-Frameworks-and-Librar
     $ sfx-py-trace your_application.py --app_arg_one --app_arg_two
     ```
     
-## Manually instrument a Python application
+## Manually configure the tracing library components
 
 Manually configure each applicable instrumentor, tracer, and instrument your
 application. Manually instrumenting an application is helpful when you want to
@@ -202,7 +202,7 @@ deploying in a test environment.
       ```
    2. Manually instrument your code:
       ```python
-      from signalfx_tracing import create_tracer, instrument, uninstrument
+      from signalfx_tracing import create_tracer, instrument
 
       tracer = create_tracer()
       instrument(tracer, flask=True)
@@ -221,15 +221,13 @@ deploying in a test environment.
         span.log_kv({'event': 'initiated'})
         return 'Hello!'  # Span is automatically finished after request handler
 
-      uninstrument('flask')  # prevent future registrations
-
       untraced_app = flask.Flask('MyUntracedApplication')
 
       @untraced_app.route('/untraced_hello_world')
       def untraced_route():
         return 'Goodbye!'
       ```
-7. Automatically create spans for custom application logic with a trace decorator:
+1. Automatically create spans for custom application logic with a trace decorator:
     ```python
  	  from signalfx_tracing import trace
 	  import opentracing
