@@ -2,7 +2,8 @@
 
 The SignalFx Tracing Library for Python automatically instruments your
 Python 2.7 or 3.4+ application to capture and report distributed traces to
-SignalFx with a single function. The library configures an OpenTracing-compatible
+SignalFx with a single function. The library does so by configuring an OpenTracing-compatible
+tracer you can use to embed...
 tracer to capture and export trace spans. You can use the tracer to embed custom
 instrumentation in the automatically generated traces.
 
