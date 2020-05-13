@@ -223,41 +223,41 @@ deploying in a test environment.
         return 'Hello!'  # Span is automatically finished after request handler
       ```
 1. Automatically create spans for custom application logic with a trace decorator:
-    ```python
-    from signalfx_tracing import trace
-    import opentracing
+      ```python
+      from signalfx_tracing import trace
+      import opentracing
 
-    from my_app import annotate, compute, report
+      from my_app import annotate, compute, report
 
-  	@trace
-	  def my_function(arg):  # The default span operation name is the name of the function
-      	# span will automatically trace duration of my_function() without any
-        # modifications necessary
-    	  annotated = annotate(arg)
-    	  return MyBusinessLogic().my_other_function(annotated)
 
-  	class MyBusinessLogic:
+      @trace  # uses global opentracing.tracer set by signalfx_tracing.utils.create_tracer()
+      def my_function(arg):  # default span operation name is the name of the function
+          # span will automatically trace duration of my_function() without any modifications necessary
+          annotated = annotate(arg)
+          return MyBusinessLogic().my_other_function(annotated)
 
-      	@classmethod  # You have to declare @trace after @classmethod and @staticmethod
-      	@trace('MyOperation')  # Specify span operation name
-    	  def my_other_function(cls, arg):
- 	         # Using OpenTracing API, it's possible to modify current spans.
-    	      # This active span is 'MyOperation', the current traced function and child of 'my_function'.
-        	  span = opentracing.tracer.active_span
-        	  span.set_tag('MyAnnotation', arg)
-        	  value = cls.my_additional_function(arg)
-        	  return report(value)
 
-    	  @staticmethod
-    	  @trace('MyOtherOperation',  # Specify span operation name and tags
-              dict({'tag_name':'tag_value','another_tag_name':'another_tag_value'}))
-    	  def my_additional_function(arg):
-            # This active span is 'MyOtherOperation', the child of 'MyOperation'.
-          	span = opentracing.tracer.active_span
-        	  value = compute(arg)
-        	  span.set_tag('ComputedValue', value)
-        	  return value
-    ```
+      class MyBusinessLogic:
+
+          @classmethod  # It's necessary to declare @trace after @classmethod and @staticmethod
+          @trace('MyOperation')  # Specify span operation name
+          def my_other_function(cls, arg):
+              # Using OpenTracing api, it's possible to modify current spans.
+              # This active span is 'MyOperation', the current traced function and child of 'my_function'.
+              span = opentracing.tracer.active_span
+              span.set_tag('MyAnnotation', arg)
+              value = cls.my_additional_function(arg)
+              return report(value)
+
+          @staticmethod
+          @trace('MyOtherOperation',  # Specify span operation name and tags
+                 tags={'tag_name':'tag_value','another_tag_name':'another_tag_value'})
+          def my_additional_function(arg):
+              span = opentracing.tracer.active_span  # This active span is 'MyOtherOperation', the child of 'MyOperation'.
+              value = compute(arg)
+              span.set_tag('ComputedValue', value)
+              return value
+      ```
     Any invocation of `my_function()` results in a trace consisting of at least
     three spans whose relationship mirrors the call graph. If `my_function()` were
     to be called from another traced function or auto-instrumented request handler, 
