@@ -2,10 +2,10 @@
 
 The SignalFx Tracing Library for Python automatically instruments your
 Python 2.7 or 3.4+ application to capture and report distributed traces to
-SignalFx with a single function. The library does so by configuring an OpenTracing-compatible
-tracer you can use to embed...
-tracer to capture and export trace spans. You can use the tracer to embed custom
-instrumentation in the automatically generated traces.
+SignalFx with a single function. The library does so by configuring an
+OpenTracing-compatible tracer you can use to capture and export trace spans.
+You can use the tracer to embed custom instrumentation in the automatically
+generated traces.
 
 The SignalFx-Tracing Library for Python works by detecting your libraries and
 frameworks and configuring available instrumentors for distributed tracing via
@@ -19,7 +19,8 @@ bootstrap utility selectively installs custom instrumentors listed in the
 [instrumentor requirements file](./requirements-inst.txt). The application
 runner creates a tracer with a modified 
 [Jaeger Client](https://github.com/signalfx/jaeger-client-python) ready for
-reporting to SignalFx.
+reporting to SignalFx and auto-instruments your app without any required
+code changes.
 
 The library enables tracing with constant sampling (i.e., 100% chance of tracing)
 and reports each span to SignalFx. Where applicable, context propagation uses
@@ -87,8 +88,8 @@ modified [Jaeger tracer](#Tracer) that provides deferred thread creation to
 avoid this constraint.
 
 `sfx-py-trace` attempts to instrument all available libraries there are
-corresponding instrumentations installed on your system for. If want to prevent
-the tracing of particular libraries at run time, set the
+corresponding instrumentations installed on your system for. If you want to
+prevent the tracing of particular libraries at run time, set the
 `SIGNALFX_<LIBRARY_NAME>_ENABLED=False` environment variable when launching the
 `sfx-py-trace` process. For example, to prevent auto-instrumentation of Tornado,
 you could run:
@@ -220,19 +221,13 @@ deploying in a test environment.
         span.set_tag('Hello', 'World')
         span.log_kv({'event': 'initiated'})
         return 'Hello!'  # Span is automatically finished after request handler
-
-      untraced_app = flask.Flask('MyUntracedApplication')
-
-      @untraced_app.route('/untraced_hello_world')
-      def untraced_route():
-        return 'Goodbye!'
       ```
 1. Automatically create spans for custom application logic with a trace decorator:
     ```python
- 	  from signalfx_tracing import trace
-	  import opentracing
+    from signalfx_tracing import trace
+    import opentracing
 
-	  from my_app import annotate, compute, report
+    from my_app import annotate, compute, report
 
   	@trace
 	  def my_function(arg):  # The default span operation name is the name of the function
