@@ -1,4 +1,4 @@
-# Copyright (C) 2018 SignalFx, Inc. All rights reserved.
+# Copyright (C) 2018 SignalFx. All rights reserved.
 import pytest
 
 from signalfx_tracing.libraries.redis_.instrument import config, uninstrument

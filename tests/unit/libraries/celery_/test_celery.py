@@ -1,4 +1,4 @@
-# Copyright (C) 2019 SignalFx, Inc. All rights reserved.
+# Copyright (C) 2019 SignalFx. All rights reserved.
 from opentracing.mocktracer import MockTracer
 from celery_opentracing import CeleryTracing
 from celery import signals

@@ -1,4 +1,4 @@
-# Copyright (C) 2018-2019 SignalFx, Inc. All rights reserved.
+# Copyright (C) 2018-2019 SignalFx. All rights reserved.
 import logging
 
 from wrapt import wrap_function_wrapper

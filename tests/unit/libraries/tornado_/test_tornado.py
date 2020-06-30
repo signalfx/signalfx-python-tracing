@@ -1,4 +1,4 @@
-# Copyright (C) 2018 SignalFx, Inc. All rights reserved.
+# Copyright (C) 2018 SignalFx. All rights reserved.
 from opentracing.mocktracer import MockTracer
 from opentracing.ext import tags
 import tornado.web

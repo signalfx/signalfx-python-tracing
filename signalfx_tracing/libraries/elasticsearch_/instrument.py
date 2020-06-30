@@ -1,4 +1,4 @@
-# Copyright (C) 2019 SignalFx, Inc. All rights reserved.
+# Copyright (C) 2019 SignalFx. All rights reserved.
 import opentracing
 
 from signalfx_tracing import utils

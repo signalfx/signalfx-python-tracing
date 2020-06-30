@@ -1,18 +1,18 @@
 # Copyright (C) 2018 SignalFx. All rights reserved.
 import pytest
 
-from signalfx_tracing.libraries.pymysql_.instrument import config, uninstrument
+from signalfx_tracing.libraries.requests_.instrument import config, uninstrument
 
 
-class PyMySQLTestSuite(object):
+class LoggingTestSuite(object):
 
     @pytest.fixture(autouse=True)
-    def restored_pymysql_config(self):
+    def restored_logging_config(self):
         orig = dict(config.__dict__)
         yield
         config.__dict__ = orig
 
     @pytest.fixture(autouse=True)
-    def uninstrument_pymysql(self):
+    def uninstrument_logging(self):
         yield
         uninstrument()

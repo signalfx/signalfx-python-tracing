@@ -1,4 +1,4 @@
-# Copyright (C) 2018 SignalFx, Inc. All rights reserved.
+# Copyright (C) 2018 SignalFx. All rights reserved.
 from wrapt import wrap_function_wrapper
 import opentracing
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2018-2019 SignalFx, Inc. All rights reserved.
+# Copyright (C) 2018-2019 SignalFx. All rights reserved.
 from __future__ import print_function
 
 from argparse import ArgumentParser

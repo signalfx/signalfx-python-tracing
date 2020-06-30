@@ -1,4 +1,4 @@
-# Copyright (C) 2018 SignalFx, Inc. All rights reserved.
+# Copyright (C) 2018 SignalFx. All rights reserved.
 from opentracing.mocktracer import MockTracer
 from django_opentracing import DjangoTracing
 from django.conf import settings
