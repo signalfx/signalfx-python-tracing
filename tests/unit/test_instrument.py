@@ -1,4 +1,4 @@
-# Copyright (C) 2018-2019 SignalFx, Inc. All rights reserved.
+# Copyright (C) 2018-2019 SignalFx. All rights reserved.
 import sys
 import os
 
@@ -23,9 +23,9 @@ else:
             yield
 
 expected_traceable_libraries = ('celery', 'django', 'elasticsearch', 'flask', 'psycopg2', 'pymongo', 'pymysql', 'redis',
-                                'requests', 'tornado')
+                                'requests', 'tornado', 'logging')
 expected_auto_instrumentable_libraries = ('celery', 'elasticsearch', 'flask', 'psycopg2', 'pymongo', 'pymysql', 'redis',
-                                          'requests', 'tornado')
+                                          'requests', 'tornado', 'logging')
 
 tracing_enabled_env_var = 'SIGNALFX_TRACING_ENABLED'
 
@@ -126,7 +126,7 @@ class TestInstrument(object):
             os.environ.pop(env_var)
 
     def test_auto_instrument_instruments_all_available_libraries(self):
-        modules = [(utils.get_module(l), l) for l in expected_traceable_libraries]
+        modules = [(utils.get_module(lib), lib) for lib in expected_traceable_libraries]
         assert self.all_are_uninstrumented(modules)
 
         auto_instrument()
@@ -141,7 +141,7 @@ class TestInstrument(object):
     def test_env_var_disables_instrument(self, env_var, are_uninstrumented):
         os.environ[tracing_enabled_env_var] = env_var
         try:
-            modules = [utils.get_module(l) for l in expected_traceable_libraries]
+            modules = [utils.get_module(lib) for lib in expected_traceable_libraries]
             assert self.all_are_uninstrumented(modules)
 
             for m in expected_traceable_libraries:
@@ -155,7 +155,7 @@ class TestInstrument(object):
     def test_env_var_disables_prevents_auto_instrument(self, env_var, are_uninstrumented):
         os.environ[tracing_enabled_env_var] = env_var
         try:
-            modules = [utils.get_module(l) for l in expected_auto_instrumentable_libraries]
+            modules = [utils.get_module(lib) for lib in expected_auto_instrumentable_libraries]
             assert self.all_are_uninstrumented(modules)
 
             auto_instrument()
@@ -170,7 +170,7 @@ class TestInstrument(object):
         for enabled in enableds:
             os.environ[enabled] = env_var
         try:
-            modules = [utils.get_module(l) for l in expected_auto_instrumentable_libraries]
+            modules = [utils.get_module(lib) for lib in expected_auto_instrumentable_libraries]
             assert self.all_are_uninstrumented(modules)
 
             auto_instrument()

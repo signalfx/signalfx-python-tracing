@@ -262,3 +262,15 @@ deploying in a test environment.
     three spans whose relationship mirrors the call graph. If `my_function()` were
     to be called from another traced function or auto-instrumented request handler, 
     its resulting span would be parented by that caller function's span.
+
+## Inject trace IDs in logs
+
+Link individual log entries with trace IDs and span IDs associated with corresponding events. The SignalFx Python instrumentation patches `logging.Logger.makeRecord` method to automatically inject trace context into all `LogRecord` objects. When `SIGNALFX_LOGS_INJECTION` environment variable is set to `true`, the logging instrumentation also sets a custom logging format to automatically inject the trace context into logs. The default format looks like the following:
+
+```
+%(asctime)s %(levelname)s [%(name)s] [%(filename)s:%(lineno)d] [signalfx.trace_id=%(sfxTraceId)s signalfx.span_id=%(sfxSpanId)s] - %(message)s
+```
+
+If you don't want the instrumentation to set a custom logging format and would rather use your format, you can set `SIGNALFX_LOGS_INJECTION` to `false` to disable automatic injection. You can then add `%(sfxSpanId)s` and `%(sfxTraceId)s` to your log format to inject the trace context. Alternately, you can keep automatic injection enabled and pass your custom logging format to the instrumentation by setting the `SIGNALFX_LOGGING_FORMAT` env var. 
+
+Log injection is not enabled by default and can be enabled by setting `SIGNALFX_LOGS_INJECTION` environment variable to `true`.

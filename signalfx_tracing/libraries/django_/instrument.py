@@ -1,4 +1,4 @@
-# Copyright (C) 2018 SignalFx, Inc. All rights reserved.
+# Copyright (C) 2018 SignalFx. All rights reserved.
 from signalfx_tracing import utils
 
 # Configures Django tracing as described by

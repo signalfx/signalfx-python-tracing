@@ -1,4 +1,4 @@
-# Copyright (C) 2018 SignalFx, Inc. All rights reserved.
+# Copyright (C) 2018 SignalFx. All rights reserved.
 import logging
 import pkgutil
 import sys
@@ -86,4 +86,4 @@ def auto_instrument(tracer=None):
     available, unavailable = _importable_libraries(*auto_instrumentable_libraries)
     for library in unavailable:
         log.debug('Unable to auto-instrument {} as it is unavailable.'.format(library))
-    instrument(tracer, **{l: True for l in available})
+    instrument(tracer, **{lib: True for lib in available})

@@ -1,4 +1,4 @@
-# Copyright (C) 2019 SignalFx, Inc. All rights reserved.
+# Copyright (C) 2019 SignalFx. All rights reserved.
 import pytest
 
 from signalfx_tracing.libraries.psycopg2_.instrument import config, uninstrument

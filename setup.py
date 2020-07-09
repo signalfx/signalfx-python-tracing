@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2018-2019 SignalFx, Inc. All rights reserved.
+# Copyright (C) 2018-2019 SignalFx. All rights reserved.
 from setuptools.command.test import test as TestCommand
 from setuptools import setup, find_packages
 import sys
@@ -115,12 +115,12 @@ with open(os.path.join(cwd, 'signalfx_tracing/__init__.py')) as init_file:
     version = match.group(1)
 
 
-unit_test_requirements = ['mock', 'pytest', 'six']
+unit_test_requirements = ['mock', 'pytest', 'six', 'sfx-jaeger-client']
 
 setup_args = dict(
     name='signalfx-tracing',
     version=version,
-    author='SignalFx, Inc.',
+    author='SignalFx',
     author_email='signalfx-oss@splunk.com',
     url='http://github.com/signalfx/signalfx-python-tracing',
     download_url='http://github.com/signalfx/signalfx-python-tracing/tarball/master',

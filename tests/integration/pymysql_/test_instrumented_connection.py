@@ -1,4 +1,4 @@
-# Copyright (C) 2018-2019 SignalFx, Inc. All rights reserved.
+# Copyright (C) 2018-2019 SignalFx. All rights reserved.
 from datetime import datetime
 from time import sleep
 import os.path

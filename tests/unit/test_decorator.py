@@ -1,4 +1,4 @@
-# Copyright (C) 2018 SignalFx, Inc. All rights reserved.
+# Copyright (C) 2018 SignalFx. All rights reserved.
 import pytest
 
 from opentracing.mocktracer import MockTracer
@@ -130,6 +130,7 @@ class TestFunctionDecorator(DecoratorTest):
             pass
 
         error = CustomException('SomeException')
+
         @trace('operation_name', tags=dict(one=1, two='2'))
         def traced_function(*args, **kwargs):
             assert args == (1,)

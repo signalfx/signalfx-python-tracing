@@ -1,4 +1,4 @@
-# Copyright (C) 2019 SignalFx, Inc. All rights reserved.
+# Copyright (C) 2019 SignalFx. All rights reserved.
 
 
 def pytest_addoption(parser):
