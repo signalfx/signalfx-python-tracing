@@ -37,7 +37,7 @@ packages = {
     'django': ('django-opentracing',),
     'elasticsearch': ('elasticsearch-opentracing',),
     'flask': ('Flask-OpenTracing',),
-    'jaeger': ('jaeger-client', 'sfx-jaeger-client'),
+    'jaeger': ('sfx-jaeger-client', 'jaeger-client'),
     'psycopg2': ('dbapi-opentracing',),
     'pymongo': ('pymongo-opentracing',),
     'pymysql': ('dbapi-opentracing',),
