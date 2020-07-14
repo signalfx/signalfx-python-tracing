@@ -2,6 +2,7 @@ django
 docker
 elasticsearch
 flake8
+falcon
 mock
 mockupdb
 psycopg2

@@ -150,6 +150,17 @@ jobs:
         name: Flask 
         command: python3.7 -m nox -k flask
 
+  falcon:
+    <<: *pyenv
+    steps:
+    - checkout
+    - *pyenv-versions
+    - *pyenv-set-local
+    - *install-nox
+    - run:
+        name: Falcon 
+        command: python3.7 -m nox -k falcon
+
   django:
     <<: *pyenv
     steps:
@@ -198,6 +209,7 @@ workflows:
       - pymongo
       - pymysql
       - flask
+      - falcon 
       - django
       - celery
 
@@ -223,5 +235,6 @@ workflows:
       - pymongo
       - pymysql
       - flask
+      - falcon 
       - django
       - celery
