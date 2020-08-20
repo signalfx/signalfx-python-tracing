@@ -177,6 +177,20 @@ def elasticsearch6i_via_extras(session, elasticsearch):
     test_elasticsearch(session, '6.5.4')
 
 
+def test_falcon(session):
+    session.run('pytest', 'tests/unit/libraries/falcon_')
+    session.run('pytest', 'tests/integration/falcon_')
+
+
+@nox.session(python=('3.4', '3.5', '3.6', '3.7'), reuse_venv=True)
+def falcon_via_bootstrap(session):
+    install_unit_tests(session, 'falcon>=2.0', 'requests')
+    session.run('sfx-py-trace-bootstrap')
+    pip_check(session)
+    pip_freeze(session)
+    test_falcon(session)
+
+
 def test_flask(session):
     session.run('pytest', 'tests/unit/libraries/flask_')
     session.run('pytest', 'tests/integration/flask_')
