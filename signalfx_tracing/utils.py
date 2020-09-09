@@ -9,6 +9,8 @@ from wrapt import decorator, ObjectProxy
 import opentracing
 
 from .constants import instrumented_attr
+from .tags import SFX_TRACING_LIBRARY, SFX_TRACING_VERSION
+from .version import __version__
 
 
 # Accepted case-insensitive disabling environment variable values
@@ -128,6 +130,11 @@ def create_tracer(access_token=None, set_global=True, config=None, *args, **kwar
     if 'propagation' not in config:
         propagation = _get_env_var('SIGNALFX_PROPAGATION', 'b3')
         config['propagation'] = propagation
+
+    config['root_span_tags'] = {
+        SFX_TRACING_LIBRARY: 'python-tracing',
+        SFX_TRACING_VERSION: __version__
+    }
 
     jaeger_config = Config(config, *args, **kwargs)
 

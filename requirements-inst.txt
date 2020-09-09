@@ -7,4 +7,4 @@ git+https://github.com/signalfx/python-pymongo.git@v0.0.3post1#egg=pymongo-opent
 git+https://github.com/signalfx/python-redis.git@v1.0.0post1#egg=redis-opentracing
 git+https://github.com/signalfx/python-requests.git@v0.2.0post1#egg=requests-opentracing
 git+https://github.com/signalfx/python-tornado.git@1.0.1post1#egg=tornado_opentracing
-sfx-jaeger-client>=3.13.1b0.dev2
+sfx-jaeger-client>=3.13.1b0.dev3
