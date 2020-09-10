@@ -16,3 +16,9 @@ ERROR_MESSAGE = 'sfx.error.message'
 # A stack trace in platform-conventional format; may or may not pertain to
 # an error.
 ERROR_STACK = 'sfx.error.stack'
+
+# SFX_TRACING_VERSION specifies the SignalFx tracing library that generated the span.
+SFX_TRACING_VERSION = 'signalfx.tracing.version'
+
+# SFX_TRACING_LIBRARY specifies the SignalFx tracing library version.
+SFX_TRACING_LIBRARY = 'signalfx.tracing.library'

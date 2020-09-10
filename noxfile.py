@@ -20,7 +20,7 @@ def build(session):
         return
 
     cwd = os.path.abspath(os.path.dirname(__file__))
-    with open(os.path.join(cwd, 'signalfx_tracing/__init__.py')) as init_file:
+    with open(os.path.join(cwd, 'signalfx_tracing/version.py')) as init_file:
         match = re.search("__version__ = ['\"]([^'\"]*)['\"]", init_file.read())
         if not match:
             raise RuntimeError('Not able to determine current version')

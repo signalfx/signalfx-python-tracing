@@ -108,10 +108,10 @@ with open(os.path.join(cwd, 'README.md')) as readme_file:
     long_description = readme_file.read()
 
 version = None
-with open(os.path.join(cwd, 'signalfx_tracing/__init__.py')) as init_file:
+with open(os.path.join(cwd, 'signalfx_tracing/version.py')) as init_file:
     match = re.search("__version__ = ['\"]([^'\"]*)['\"]", init_file.read())
     if not match:
-        raise RuntimeError('Not able to determine current version in signalfx_tracing/__init__.py')
+        raise RuntimeError('Not able to determine current version in signalfx_tracing/version.py')
     version = match.group(1)
 
 
