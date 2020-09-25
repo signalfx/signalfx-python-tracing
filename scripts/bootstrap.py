@@ -13,7 +13,7 @@ def is_installed(library):
     return library in sys.modules or pkgutil.find_loader(library) is not None
 
 
-jaeger_client = 'sfx-jaeger-client>=3.13.1b0.dev3'
+jaeger_client = 'sfx-jaeger-client>=3.13.1b0.dev4'
 
 
 # target library to desired instrumentor path/versioned package name
