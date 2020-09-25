@@ -264,6 +264,11 @@ deploying in a test environment.
     to be called from another traced function or auto-instrumented request handler, 
     its resulting span would be parented by that caller function's span.
 
+## Tracer debug logging
+
+The tracer can be configured to log debugging information by setting `SIGNALFX_TRACING_DEBUG` to `true`. This tell the tracer to log additional information that might be
+helpful in understanding how it operates. Note that in order for debug logging to work, you application must initialize logging with `logging.basicConfig()` first.
+
 ## Inject trace IDs in logs
 
 Link individual log entries with trace IDs and span IDs associated with corresponding events. The SignalFx Python instrumentation patches `logging.Logger.makeRecord` method to automatically inject trace context into all `LogRecord` objects. When `SIGNALFX_LOGS_INJECTION` environment variable is set to `true`, the logging instrumentation also sets a custom logging format to automatically inject the trace context into logs. The default format looks like the following:

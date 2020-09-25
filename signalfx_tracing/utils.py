@@ -1,4 +1,5 @@
 # Copyright (C) 2018-2019 SignalFx. All rights reserved.
+import logging
 import functools
 import importlib
 import atexit
@@ -130,6 +131,13 @@ def create_tracer(access_token=None, set_global=True, config=None, *args, **kwar
     if 'propagation' not in config:
         propagation = _get_env_var('SIGNALFX_PROPAGATION', 'b3')
         config['propagation'] = propagation
+
+    logger = logging.getLogger('signalfx-tracing')
+    config['logging'] = True
+    config['logger'] = logger
+
+    if _get_env_var('SIGNALFX_TRACING_DEBUG', False):
+        logger.setLevel(logging.DEBUG)
 
     config['root_span_tags'] = {
         SFX_TRACING_LIBRARY: 'python-tracing',
