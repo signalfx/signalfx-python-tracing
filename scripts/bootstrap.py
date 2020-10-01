@@ -52,6 +52,13 @@ def _to_target_arg(target=None):
     return ['-t', target] if target else []
 
 
+def _install_or_print_updated_dependency(library, package_path, target=None, print_dep=False):
+    if print_dep:
+        print(package_path)
+    else:
+        _install_updated_dependency(library, package_path, target)
+
+
 def _install_updated_dependency(library, package_path, target=None):
     """
     Ensures that desired version is installed w/o upgrading its dependencies by uninstalling where necessary (if
@@ -93,16 +100,18 @@ def _pip_check():
                 raise RuntimeError('Dependency conflict found: {}'.format(pip_check))
 
 
-def install_jaeger(target=None):
-    print('Installing Jaeger Client.')
-    _install_updated_dependency('jaeger', jaeger_client, target)
+def install_jaeger(target=None, print_deps=False):
+    if not print_deps:
+        print('Installing Jaeger Client.')
+    _install_or_print_updated_dependency('jaeger', jaeger_client, target, print_deps)
 
 
-def install_deps(target=None):
+def install_deps(target=None, print_deps=False):
     for library, instrumentor in instrumentors.items():
         if is_installed(library):
-            print('Installing {} instrumentor.'.format(library))
-            _install_updated_dependency(library, instrumentor, target)
+            if not print_deps:
+                print('Installing {} instrumentor.'.format(library))
+            _install_or_print_updated_dependency(library, instrumentor, target, print_deps)
 
 
 def install_sfx_py_trace(target=None):
@@ -114,17 +123,22 @@ def install_sfx_py_trace(target=None):
 target_help = ('The value to provide pip for --target: "Install packages into <dir>.". '
                'Will trigger additional signalfx-tracing installation from PyPI to target.')
 
+requirements_help = ('Print the list of packages instead of installing them.')
+
 
 def console_script():
     ap = ArgumentParser()
     ap.add_argument('-t', '--target', help=target_help)
+    ap.add_argument('-r', '--requirements', action='store_true', help=requirements_help)
     args = ap.parse_args()
 
     if args.target:
-        _install_updated_dependency('signalfx-tracing', 'signalfx-tracing', args.target)
+        _install_or_print_updated_dependency(
+            'signalfx-tracing', 'signalfx-tracing', args.target, args.requirements
+        )
 
-    install_jaeger(args.target)
-    install_deps(args.target)
+    install_jaeger(args.target, args.requirements)
+    install_deps(args.target, args.requirements)
     _pip_check()
 
 
