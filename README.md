@@ -280,3 +280,31 @@ Link individual log entries with trace IDs and span IDs associated with correspo
 If you don't want the instrumentation to set a custom logging format and would rather use your format, you can set `SIGNALFX_LOGS_INJECTION` to `false` to disable automatic injection. You can then add `%(sfxSpanId)s` and `%(sfxTraceId)s` to your log format to inject the trace context. Alternately, you can keep automatic injection enabled and pass your custom logging format to the instrumentation by setting the `SIGNALFX_LOGGING_FORMAT` env var. 
 
 Log injection is not enabled by default and can be enabled by setting `SIGNALFX_LOGS_INJECTION` environment variable to `true`.
+
+## Manually installing instrumentations
+
+`sfx-py-trace-bootstrap` command automatically detects and installs the relevant instrumentations for your environment. If for some reason you cannot use the bootstrap command, you can manually install the relevant packages with pip. Following is a list of all the libraries we support and the commands to install their corresponding instrumentation packages.
+
+| Library/Framework | Instrumentation Package |
+| ----------------- | ----------------------- | 
+| celery | https://github.com/signalfx/python-celery/tarball/0.0.1post0#egg=celery-opentracing |
+| django | https://github.com/signalfx/python-django/tarball/0.1.18post1#egg=django-opentracing |
+| elasticsearch | https://github.com/signalfx/python-elasticsearch/tarball/0.1.4post#egg=elasticsearch-opentracing |
+| flask | https://github.com/signalfx/python-flask/tarball/1.1.0post1#egg=flask_opentracing### |
+| psycopg | https://github.com/signalfx/python-dbapi/tarball/v0.0.5post1#egg=dbapi-opentracing |
+| pymongo | https://github.com/signalfx/python-pymongo/tarball/v0.0.3post1#egg=pymongo-opentracing |
+| pymysql | https://github.com/signalfx/python-dbapi/tarball/v0.0.5post1#egg=dbapi-opentracing |
+| redis | https://github.com/signalfx/python-redis/tarball/v1.0.0post1#egg=redis-opentracing |
+| requests | https://github.com/signalfx/python-requests/archive/v0.2.0post1.zip#egg=requests-opentracing |
+| tornado | https://github.com/signalfx/python-tornado/archive/1.0.1post1.zip#egg=tornado_opentracing |
+
+
+### Example
+
+If your Python app is using flask and you want to install flask instrumentation, you'd have to run 
+
+```
+pip install https://github.com/signalfx/python-flask/tarball/1.1.0post1#egg=flask_opentracing
+```
+
+or add the package to your `requirements.txt` file.
