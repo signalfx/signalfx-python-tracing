@@ -14,4 +14,4 @@ redis
 requests
 six
 tornado
-sfx-jaeger-client>=3.13.1b0.dev4
+sfx-jaeger-client>=3.13.1b0.dev5
