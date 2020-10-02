@@ -30,6 +30,15 @@ please feel free to open a GitHub issue.  `sfx-py-trace-bootstrap` is our prefer
 rather manage your instrumentations manually, we also suggest cloning this repo and using the provided
 [package extras](../README.md#library-and-instrumentors).
 
+### Printing out dependencies instead of installing
+
+The bootstrap utility accepts a `-r` or `--requirements` flag and when set, it prints out the instrumentation packages
+it'd otherwise install to console. The print format is compatible with requirements.txt and can be directly appended or
+added to a requirements.txt file. 
+
+### Installing dependencies to a custom location
+
+The boostrap utility also provides a `-t <target_dir>` or `--target <target_dir>` option for specifying the directory in which to install the dependencies.  This can be helpful when preparing serverless application bundles or images and is effectively equivalent to the `pip install -t <target_dir>` option.
 
 ## sfx-py-trace
 
