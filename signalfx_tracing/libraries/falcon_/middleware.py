@@ -4,6 +4,8 @@ import traceback
 import opentracing
 from opentracing.ext import tags
 
+SCOPE_KEY = "_signalfx_scope_key"
+
 
 class TraceMiddleware(object):
     def __init__(self, tracer=None, attributes=None):
@@ -32,10 +34,10 @@ class TraceMiddleware(object):
             if attr_val:
                 span.set_tag(attr, attr_val)
 
-        req.context.signalfx_tracing_scope = scope
+        setattr(req, SCOPE_KEY, scope)
 
     def process_resource(self, req, resp, resource, params):
-        scope = getattr(req.context, "signalfx_tracing_scope", None)
+        scope = getattr(req, SCOPE_KEY, None)
         if scope is None:
             return
         resource_name = resource.__class__.__name__
@@ -45,7 +47,7 @@ class TraceMiddleware(object):
         )
 
     def process_response(self, req, resp, resource, req_succeeded=None):
-        scope = getattr(req.context, "signalfx_tracing_scope", None)
+        scope = getattr(req, SCOPE_KEY, None)
         if scope is None:
             return
 
