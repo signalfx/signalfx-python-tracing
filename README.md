@@ -57,7 +57,7 @@ for your tracer, these environment variables are checked before selecting a
 default value:
 
 | Config kwarg | environment variable | default value | notes |
-|--------------|----------------------|---------------| |
+|--------------|----------------------|---------------|-------|
 | `service_name` | `SIGNALFX_SERVICE_NAME` | `'SignalFx-Tracing'` | The name to identify the service in SignalFx. |
 | `jaeger_endpoint` | `SIGNALFX_ENDPOINT_URL` | `'http://localhost:9080/v1/trace'` | The endpoint the tracer sends spans to. Send spans to a Smart Agent, OpenTelemetry Collector, or a SignalFx ingest endpoint. |
 | `jaeger_password` | `SIGNALFX_ACCESS_TOKEN` | `None` | The SignalFx organization access token. |
