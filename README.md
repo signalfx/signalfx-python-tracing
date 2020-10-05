@@ -61,7 +61,7 @@ default value:
 | `service_name` | `SIGNALFX_SERVICE_NAME` | `'SignalFx-Tracing'` | The name to identify the service in SignalFx. |
 | `jaeger_endpoint` | `SIGNALFX_ENDPOINT_URL` | `'http://localhost:9080/v1/trace'` | The endpoint the tracer sends spans to. Send spans to a Smart Agent, OpenTelemetry Collector, or a SignalFx ingest endpoint. |
 | `jaeger_password` | `SIGNALFX_ACCESS_TOKEN` | `None` | The SignalFx organization access token. |
-| `N/A` | `SIGNALFX_RECORDED_VALUE_MAX_LENGTH` | `1200` | Maximum length an attribute value can have. Values longer than this are truncated. |
+| `N/A` | `SIGNALFX_RECORDED_VALUE_MAX_LENGTH` | `1200` | The maximum length an attribute value can have. Values longer than this are truncated. |
 
 ## Automatically instrument a Python application
 
