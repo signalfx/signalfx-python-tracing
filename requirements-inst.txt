@@ -1,5 +1,5 @@
 git+https://github.com/signalfx/python-celery.git@0.0.1post0#egg=celery-opentracing
-git+https://github.com/signalfx/python-dbapi.git@v0.0.5post1#egg=dbapi-opentracing
+git+https://github.com/signalfx/python-dbapi.git@v0.0.5post2#egg=dbapi-opentracing
 git+https://github.com/signalfx/python-django.git@0.1.18post1#egg=django-opentracing
 git+https://github.com/signalfx/python-elasticsearch.git@0.1.4post1#egg=elasticsearch-opentracing
 git+https://github.com/signalfx/python-flask.git@1.1.0post1#egg=flask_opentracing

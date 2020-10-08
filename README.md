@@ -292,9 +292,9 @@ Log injection is not enabled by default and can be enabled by setting `SIGNALFX_
 | django | https://github.com/signalfx/python-django/tarball/0.1.18post1#egg=django-opentracing |
 | elasticsearch | https://github.com/signalfx/python-elasticsearch/tarball/0.1.4post#egg=elasticsearch-opentracing |
 | flask | https://github.com/signalfx/python-flask/tarball/1.1.0post1#egg=flask_opentracing### |
-| psycopg | https://github.com/signalfx/python-dbapi/tarball/v0.0.5post1#egg=dbapi-opentracing |
+| psycopg | https://github.com/signalfx/python-dbapi/tarball/v0.0.5post2#egg=dbapi-opentracing |
 | pymongo | https://github.com/signalfx/python-pymongo/tarball/v0.0.3post1#egg=pymongo-opentracing |
-| pymysql | https://github.com/signalfx/python-dbapi/tarball/v0.0.5post1#egg=dbapi-opentracing |
+| pymysql | https://github.com/signalfx/python-dbapi/tarball/v0.0.5post2#egg=dbapi-opentracing |
 | redis | https://github.com/signalfx/python-redis/tarball/v1.0.0post1#egg=redis-opentracing |
 | requests | https://github.com/signalfx/python-requests/archive/v0.2.0post1.zip#egg=requests-opentracing |
 | tornado | https://github.com/signalfx/python-tornado/archive/1.0.1post1.zip#egg=tornado_opentracing |
