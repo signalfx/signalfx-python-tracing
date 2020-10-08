@@ -43,7 +43,7 @@ These are the supported libraries.
 |[Celery](./signalfx_tracing/libraries/celery_/README.md) | 3.1+ | `instrument(celery=True)` | |
 | [Django](./signalfx_tracing/libraries/django_/README.md) | 1.8+ | `instrument(django=True)` | Requires `signalfx_tracing` in the project's installed applications. |
 | [Elasticsearch](./signalfx_tracing/libraries/elasticsearch_/README.md) | 2.0+ | `instrument(elasticsearch=True)` | |
-| [Falcon](./signalfx_tracing/libraries/falcon_/README.md) | 0.10+ | `instrument(falcon=True)` | |
+| [Falcon](./signalfx_tracing/libraries/falcon_/README.md) | 2.0+ | `instrument(falcon=True)` | |
 | [Flask](./signalfx_tracing/libraries/flask_/README.md) | 0.10+ | `instrument(flask=True)` | |
 | [Psycopg](./signalfx_tracing/libraries/psycopg2_/README.md) | 2.7+ | `instrument(psycopg2=True)` | |
 | [PyMongo](./signalfx_tracing/libraries/pymongo_/README.md) | 3.1+ | `instrument(pymongo=True)` | |
