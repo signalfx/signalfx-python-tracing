@@ -7,8 +7,7 @@ import re
 
 import nox
 
-# pytest-django incompatible w/ pytest 4.2
-pytest = 'pytest<4.2'  # https://github.com/pytest-dev/pytest-django/issues/698
+pytest = 'pytest<5.0.0'
 
 
 sdist = None
@@ -32,9 +31,9 @@ def build(session):
     sdist = f'dist/{files.pop()}'
 
 
-def install_unit_tests(session, *other_packaages):
+def install_unit_tests(session, *other_packages):
     build(session)
-    return session.install('attrs==19.1.0', pytest, f'{sdist}[unit_tests]', *other_packaages)
+    return session.install('attrs==19.1.0', pytest, f'{sdist}[unit_tests]', *other_packages)
 
 
 def pip_check(session):
@@ -91,7 +90,7 @@ def test_django(session):
 @nox.session(python=('2.7', '3.4', '3.5', '3.6', '3.7'), reuse_venv=True)
 def django18_via_bootstrap(session):
     # provides coverage for desired version installation via bootstrap
-    install_unit_tests(session, 'django>=1.8,<1.9', 'pytest-django', 'django-opentracing')
+    install_unit_tests(session, 'django>=1.8,<1.9', 'pytest-django<4.0', 'django-opentracing')
     session.run('sfx-py-trace-bootstrap')
     pip_check(session)
     pip_freeze(session)
@@ -101,7 +100,7 @@ def django18_via_bootstrap(session):
 @nox.session(python=('2.7', '3.4', '3.5', '3.6', '3.7'), reuse_venv=True)
 @nox.parametrize('pip', ('<11', '>=18,<19', '>=19,<20'))
 def django18_via_extras(session, pip):
-    install_unit_tests(session, f'pip{pip}', 'django>=1.8,<1.9', 'pytest-django')
+    install_unit_tests(session, f'pip{pip}', 'django>=1.8,<1.9', 'pytest-django<4.0')
 
     django_extra_args = [f'{sdist}[django]']
     if pip == '<11':
@@ -116,7 +115,7 @@ def django18_via_extras(session, pip):
 @nox.session(python=('2.7', '3.4', '3.5', '3.6', '3.7'), reuse_venv=True)
 @nox.parametrize('django', ('>=1.9,<1.10', '>=1.10,<1.11', '>=1.11,<1.12'))
 def django19_110_111_via_extras(session, django):
-    install_unit_tests(session, f'django{django}', 'pytest-django')
+    install_unit_tests(session, f'django{django}', 'pytest-django<4.0')
     session.install(f'{sdist}[django]')
     pip_check(session)
     pip_freeze(session)
@@ -125,7 +124,7 @@ def django19_110_111_via_extras(session, django):
 
 @nox.session(python=('3.4', '3.5', '3.6', '3.7'), reuse_venv=True)
 def django20_via_extras(session):
-    install_unit_tests(session, 'django>=2.0,<2.1', 'pytest-django')
+    install_unit_tests(session, 'django>=2.0,<2.1', 'pytest-django<4.0')
     session.install(f'{sdist}[django]')
     pip_check(session)
     pip_freeze(session)
@@ -135,7 +134,7 @@ def django20_via_extras(session):
 @nox.session(python=('3.5', '3.6', '3.7'), reuse_venv=True)
 @nox.parametrize('django', ('>=2.1,<2.2', '>=2.2<2.3'))
 def django21_22_via_extras(session, django):
-    install_unit_tests(session, f'django{django}', 'pytest-django')
+    install_unit_tests(session, f'django{django}', 'pytest-django<4.0')
     session.install(f'{sdist}[django]')
     pip_check(session)
     pip_freeze(session)
