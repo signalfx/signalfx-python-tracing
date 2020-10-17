@@ -5,6 +5,7 @@ import requests
 import mock
 
 from signalfx_tracing.libraries.requests_.instrument import config, instrument, uninstrument
+from requests_opentracing import SessionTracing
 from .conftest import RequestsTestSuite
 
 
@@ -84,6 +85,65 @@ class TestRequestsConfig(RequestsTestSuite):
         session = requests.Session()
         with mock.patch.object(requests.Session, 'request', mocked_request):
             session.get('some_url')
+
+        spans = tracer.finished_spans()
+        assert len(spans) == 1
+        assert spans[0].tags['some'] == 'tag'
+
+    def test_custom_requests_session(self):
+        class CustomSession(requests.Session):
+            _requests_made = []
+
+            def custom_get(self, url):
+                return self.get(url)
+
+            def request(self, method, url, *args, **kwargs):
+                self._requests_made.append((args, kwargs))
+                return MockResponse(method, url, kwargs.get('headers'))
+
+        tracer = MockTracer()
+        config.tracer = tracer
+        config.span_tags = dict(some='tag')
+
+        instrument()
+        session = CustomSession()
+        assert isinstance(session, CustomSession)
+        assert isinstance(session, requests.Session)
+        assert isinstance(session, SessionTracing)
+
+        session.custom_get('some_url')
+
+        spans = tracer.finished_spans()
+        assert len(spans) == 1
+        assert spans[0].tags['some'] == 'tag'
+
+    def test_custom_requests_session_super(self):
+        class CustomSession(requests.Session):
+            _requests_made = []
+
+            def custom_get(self, url):
+                return self.get(url)
+
+            def request(self, *args, **kwargs):
+                self._requests_made.append((args, kwargs))
+                return super(CustomSession, self).request(*args, **kwargs)
+
+        tracer = MockTracer()
+        config.tracer = tracer
+        config.span_tags = dict(some='tag')
+
+        instrument()
+        session = CustomSession()
+        assert isinstance(session, CustomSession)
+        assert isinstance(session, requests.Session)
+        assert isinstance(session, SessionTracing)
+
+        with mock.patch.object(requests.Session, 'request', mocked_request):
+            session.custom_get('some_url')
+
+        assert len(session._requests_made) == 1
+        args, _ = session._requests_made[0]
+        assert args == ('GET', 'some_url')
 
         spans = tracer.finished_spans()
         assert len(spans) == 1
