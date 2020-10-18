@@ -1,3 +1,12 @@
+# Deprecation Notice
+
+:warning: **Please be advised this project is deprecated. Only critical security
+fixes and bugs will be provided.** :warning:
+
+We recommend using our [Splunk Distribution of OpenTelemetry
+Python](https://github.com/signalfx/splunk-otel-python) going forward, which offers
+the same capabilities and fully supports the OpenTelemetry standard.
+
 # SignalFx Tracing Library for Python
 
 The SignalFx Tracing Library for Python automatically instruments your
