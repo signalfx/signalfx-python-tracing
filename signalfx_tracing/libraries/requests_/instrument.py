@@ -18,10 +18,22 @@ _session_new = [None]
 _session_tracing_new = [None]
 
 
-def session_new(_, __, *args, **kwargs):
+def session_new(_, session_class, *args, **kwargs):
     """Monkey patch Session.__new__() to create a SessionTracing object"""
     from requests_opentracing import SessionTracing
-    return SessionTracing.__new__(SessionTracing)
+    from requests.sessions import Session
+    if session_class is Session:
+        return SessionTracing.__new__(SessionTracing)
+
+    # if a subclass of requests.Session is being used, create
+    # a class that inherits from the subclass and SessionTracing.
+    # This ensures the resulting session object is traced while
+    # still satisying the subclass being used.
+    class CustomSessionTracing(SessionTracing, session_class):
+        def __new__(cls, *args, **kwargs):
+            return object.__new__(CustomSessionTracing)
+
+    return CustomSessionTracing.__new__(CustomSessionTracing)
 
 
 def session_tracing_new(_, __, *args, **kwargs):
