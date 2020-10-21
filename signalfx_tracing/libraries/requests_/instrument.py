@@ -53,9 +53,9 @@ def instrument(tracer=None):
     if utils.is_instrumented(requests):
         return
 
-    def session_tracing_init(__init__, instance, _, __):
+    def session_tracing_init(__init__, instance, args, kwargs):
         _tracer = tracer or config.tracer or opentracing.tracer
-        __init__(_tracer, propagate=config.propagate, span_tags=config.span_tags or {})
+        __init__(_tracer, propagate=config.propagate, span_tags=config.span_tags or {}, *args, **kwargs)
 
     from requests_opentracing import SessionTracing
 
