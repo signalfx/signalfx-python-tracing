@@ -64,6 +64,8 @@ def instrument(tracer=None, **libraries):
         else:
             try:
                 imported_instrumentor(library).instrument(tracer)
+            except ModuleNotFoundError:
+                log.warning('Instrumentation package not found for library: "{0}"'.format(library))
             except Exception:
                 log.exception('Failed to instrument {}'.format(library))
 
