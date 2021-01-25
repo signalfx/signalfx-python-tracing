@@ -174,18 +174,18 @@ def extras_require(lib):
 setup_args['extras_require'] = dict(
     unit_tests=unit_test_requirements,
     instrumentation_tests=instrumentation_test_requirements,
-    celery=extras_require('celery-opentracing'),
-    dbapi=extras_require('dbapi-opentracing'),
-    django=extras_require('django-opentracing'),
-    elasticsearch=extras_require('elasticsearch-opentracing'),
-    flask=extras_require('flask_opentracing'),
+    celery=extras_require('signalfx-instrumentation-celery'),
+    dbapi=extras_require('signalfx-instrumentation-dbapi'),
+    django=extras_require('signalfx-instrumentation-django'),
+    elasticsearch=extras_require('signalfx-instrumentation-elasticsearch'),
+    flask=extras_require('signalfx-instrumentation-flask'),
     jaeger=extras_require('sfx-jaeger-client'),
-    psycopg2=extras_require('dbapi-opentracing'),
-    pymongo=extras_require('pymongo-opentracing'),
-    pymysql=extras_require('dbapi-opentracing'),
-    redis=extras_require('redis-opentracing'),
-    requests=extras_require('requests-opentracing'),
-    tornado=extras_require('tornado_opentracing')
+    psycopg2=extras_require('signalfx-instrumentation-dbapi'),
+    pymongo=extras_require('signalfx-instrumentation-pymongo'),
+    pymysql=extras_require('signalfx-instrumentation-dbapi'),
+    redis=extras_require('signalfx-instrumentation-redis'),
+    requests=extras_require('signalfx-instrumentation-requests'),
+    tornado=extras_require('signalfx-instrumentation-tornado')
 )
 
 setup(**setup_args)

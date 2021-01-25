@@ -1,6 +1,6 @@
 # Tornado
 
-- [opentracing-contrib/python-tornado](https://github.com/opentracing-contrib/python-tornado)
+- [signalfx/python-tornado](https://github.com/signalfx/python-tornado)
 - [Official Site](http://www.tornadoweb.org)
 
 The SignalFx Auto-instrumentor configures the OpenTracing Project's Tornado instrumentation for your Tornado 4.x

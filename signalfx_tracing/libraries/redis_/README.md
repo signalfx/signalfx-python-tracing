@@ -1,6 +1,6 @@
 # Redis
 
-- [opentracing-contrib/python-redis](https://github.com/opentracing-contrib/python-redis)
+- [signalfx/python-redis](https://github.com/signalfx/python-redis)
 - [Official Site](https://redis.io/)
 
 The SignalFx Auto-instrumentor configures the OpenTracing Redis-Py instrumentation for your 2.10+ `StrictRedis`

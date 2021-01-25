@@ -1,6 +1,6 @@
 # Flask
 
-- [opentracing-contrib/python-flask](https://github.com/opentracing-contrib/python-flask)
+- [signalfx/python-flask](https://github.com/signalfx/python-flask)
 - [Official Site](http://flask.pocoo.org)
 
 The SignalFx Auto-instrumentor configures the OpenTracing Project's Flask instrumentation for your Flask 0.10+

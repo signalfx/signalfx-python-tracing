@@ -1,6 +1,6 @@
 # Django
 
-- [opentracing-contrib/python-django](https://github.com/opentracing-contrib/python-django)
+- [signalfx/python-django](https://github.com/signalfx/python-django)
 - [Official Site](https://www.djangoproject.com)
 
 The SignalFx Auto-instrumentor configures the OpenTracing Project's Django instrumentation for your Django 1.x or

@@ -1,6 +1,6 @@
 # Elasticsearch
 
-- [opentracing-contrib/python-elasticsearch](https://github.com/opentracing-contrib/python-elasticsearch)
+- [signalfx/python-elasticsearch](https://github.com/signalfx/python-elasticsearch)
 - [Official Site](https://www.elastic.co/products/elasticsearch)
 
 The SignalFx Auto-instrumentor configures the OpenTracing Project's Elasticsearch instrumentation for your Elasticsearch
