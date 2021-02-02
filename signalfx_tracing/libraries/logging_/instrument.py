@@ -57,5 +57,5 @@ def uninstrument():
     if not utils.is_instrumented(logging):
         return
 
-    utils.revert_wrapper(logging, 'Logger.makeRecord')
+    utils.revert_wrapper(logging.Logger, 'makeRecord')
     utils.mark_uninstrumented(logging)
