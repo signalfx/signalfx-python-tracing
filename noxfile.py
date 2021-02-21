@@ -340,6 +340,7 @@ def _tornado_via_extras(session, tornado):
     session.run('pytest', 'tests/unit/libraries/tornado_')
     session.run('pytest', 'tests/integration/tornado_')
 
+
 @nox.session(python=('2.7', '3.4', '3.5', '3.6', '3.7'), reuse_venv=True)
 def logging(session):
     install_unit_tests(session)

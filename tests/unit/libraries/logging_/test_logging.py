@@ -4,7 +4,7 @@ import sys
 import opentracing
 import logging
 
-from signalfx_tracing import create_tracer, tags
+from signalfx_tracing import create_tracer
 from signalfx_tracing.utils import trace
 from signalfx_tracing.libraries.logging_.instrument import instrument, config
 
@@ -51,7 +51,7 @@ class TestLogging(LoggingTestSuite):
     def test_injection(self, caplog):
         config.injection_enabled = True
         self.setup_tracing(caplog)
-     
+
         @trace
         def traced_function(*args, **kwargs):
             assert args == (1,)

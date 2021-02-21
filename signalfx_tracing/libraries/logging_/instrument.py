@@ -12,34 +12,37 @@ config = utils.Config(
     logging_format=os.environ.get('SIGNALFX_LOGGING_FORMAT', logging_format)
 )
 
+
 def padded_hex(num):
     return '{:016x}'.format(num)
 
+
 def makeRecordPatched(tracer):
-  def patched(makeRecord, instance, args, kwargs):
-      rv = makeRecord(*args, **kwargs)
+    def patched(makeRecord, instance, args, kwargs):
+        rv = makeRecord(*args, **kwargs)
 
-      fields = {
-        'sfxTraceId': '',
-        'sfxSpanId': '',
-        'sfxService': '',
-        'sfxEnvironment': ''
-      }
+        fields = {
+          'sfxTraceId': '',
+          'sfxSpanId': '',
+          'sfxService': '',
+          'sfxEnvironment': ''
+        }
 
-      span = tracer.active_span
+        span = tracer.active_span
 
-      if span is not None:
-          fields['sfxTraceId'] = padded_hex(span.trace_id)
-          fields['sfxSpanId'] = padded_hex(span.span_id)
-          fields['sfxService'] = tracer.service_name
-          fields['sfxEnvironment'] = tracer.tags.get(tags.SFX_ENVIRONMENT, 'unknown')
+        if span is not None:
+            fields['sfxTraceId'] = padded_hex(span.trace_id)
+            fields['sfxSpanId'] = padded_hex(span.span_id)
+            fields['sfxService'] = tracer.service_name
+            fields['sfxEnvironment'] = tracer.tags.get(tags.SFX_ENVIRONMENT, 'unknown')
 
-      for field in fields:
-        setattr(rv, field, fields[field])
+        for field in fields:
+            setattr(rv, field, fields[field])
 
-      return rv
+        return rv
 
-  return patched
+    return patched
+
 
 def instrument(tracer=None):
     """
@@ -51,7 +54,7 @@ def instrument(tracer=None):
 
     if utils.is_instrumented(logging):
         return
-  
+
     if not config.injection_enabled:
         return
 
