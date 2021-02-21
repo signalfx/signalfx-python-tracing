@@ -345,6 +345,4 @@ def _tornado_via_extras(session, tornado):
 def logging(session):
     install_unit_tests(session)
     session.run('sfx-py-trace-bootstrap')
-    pip_check(session)
-    pip_freeze(session)
     session.run('pytest', 'tests/unit/libraries/logging_')
