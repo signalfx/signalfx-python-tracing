@@ -22,3 +22,5 @@ SFX_TRACING_VERSION = 'signalfx.tracing.version'
 
 # SFX_TRACING_LIBRARY specifies the SignalFx tracing library version.
 SFX_TRACING_LIBRARY = 'signalfx.tracing.library'
+
+SFX_ENVIRONMENT = 'signalfx.environment'

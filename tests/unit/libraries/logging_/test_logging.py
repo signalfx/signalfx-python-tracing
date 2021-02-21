@@ -4,7 +4,7 @@ import sys
 import opentracing
 import logging
 
-from signalfx_tracing import create_tracer
+from signalfx_tracing import create_tracer, tags
 from signalfx_tracing.utils import trace
 from signalfx_tracing.libraries.logging_.instrument import instrument, config
 
@@ -19,13 +19,13 @@ else:
 class TestLogging(LoggingTestSuite):
 
     def setup_tracing(self, caplog):
-        self.tracer = create_tracer()
+        self.tracer = create_tracer(config={'service_name': 'loginject', 'service_environment': 'test'})
         instrument(self.tracer)
         opentracing.tracer = self.tracer
         caplog.set_level(logging.INFO)
 
     def test_injection_disabled(self, caplog):
-        config.enabled = False
+        config.injection_enabled = False
 
         self.setup_tracing(caplog)
 
@@ -40,24 +40,34 @@ class TestLogging(LoggingTestSuite):
 
         assert len(caplog.records) == 1
         assert len(caplog.messages) == 1
-        assert 'sfxSpanId' not in caplog.records[0].__dict__
-        assert 'sfxTraceId' not in caplog.records[0].__dict__
+
+        fields = caplog.records[0].__dict__
+
+        assert 'sfxSpanId' not in fields
+        assert 'sfxTraceId' not in fields
+        assert 'sfxService' not in fields
+        assert 'sfxEnvironment' not in fields
 
     def test_injection(self, caplog):
-        config.enabled = True
+        config.injection_enabled = True
         self.setup_tracing(caplog)
-
+     
         @trace
         def traced_function(*args, **kwargs):
             assert args == (1,)
             assert kwargs == dict(one=1)
+            trace_id = opentracing.tracer.active_span.trace_id
+            span_id = opentracing.tracer.active_span.span_id
             logging.getLogger().info('log statement')
-            return 123
+            return trace_id, span_id
 
-        assert traced_function(1, one=1) == 123
+        trace_id, span_id = traced_function(1, one=1)
+
         assert len(caplog.records) == 1
         assert len(caplog.messages) == 1
-        record = caplog.records[0]
+        fields = caplog.records[0].__dict__
 
-        assert 'sfxSpanId' in record.__dict__
-        assert 'sfxTraceId' in record.__dict__
+        assert fields.get('sfxSpanId') == '{:016x}'.format(span_id)
+        assert fields.get('sfxTraceId') == '{:016x}'.format(trace_id)
+        assert fields.get('sfxService') == 'loginject'
+        assert fields.get('sfxEnvironment') == 'test'
