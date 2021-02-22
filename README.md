@@ -68,7 +68,7 @@ default value:
 | Config kwarg | environment variable | default value | notes |
 |--------------|----------------------|---------------|-------|
 | `service_name` | `SIGNALFX_SERVICE_NAME` | `'SignalFx-Tracing'` | The name to identify the service in SignalFx. |
-| `service_environment` | `SIGNALFX_SERVICE_ENVIRONMENT` | `'unknown'` | The service's environment name - attached to a span's Process tags (`signalfx.environment`)
+| `service_environment` | `SIGNALFX_ENV` | `'unknown'` | The service's environment name - attached to a span's Process tags (`signalfx.environment`)
 and when log injection is enabled, is added to log messages.
 | `jaeger_endpoint` | `SIGNALFX_ENDPOINT_URL` | `'http://localhost:9080/v1/trace'` | The endpoint the tracer sends spans to. Send spans to a Smart Agent, OpenTelemetry Collector, or a SignalFx ingest endpoint. |
 | `jaeger_password` | `SIGNALFX_ACCESS_TOKEN` | `None` | The SignalFx organization access token. |
@@ -118,7 +118,7 @@ corresponding `instrument()` [keyword argument](#Supported-Frameworks-and-Librar
     ```bash
     # Specify a name and environment for the service in SignalFx.
     $ export SIGNALFX_SERVICE_NAME="your_service"
-    $ export SIGNALFX_SERVICE_ENVIRONMENT="prod"
+    $ export SIGNALFX_ENV="prod"
     # Set the endpoint URL for the Smart Agent, OpenTelemetry Collector, or ingest endpoint.
     $ export SIGNALFX_ENDPOINT_URL="http://localhost:9080/v1/trace"
     # If you're reporting directly to SignalFx without a Smart Agent or Collector, provide the access token for your SignalFx organization.
