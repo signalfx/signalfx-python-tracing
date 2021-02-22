@@ -6,6 +6,7 @@ import logging
 
 from signalfx_tracing import create_tracer
 from signalfx_tracing.utils import trace
+from signalfx_tracing.tags import SFX_ENVIRONMENT
 from signalfx_tracing.libraries.logging_.instrument import instrument, config
 
 from .conftest import LoggingTestSuite
@@ -19,7 +20,8 @@ else:
 class TestLogging(LoggingTestSuite):
 
     def setup_tracing(self, caplog):
-        self.tracer = create_tracer(config={'service_name': 'loginject', 'service_environment': 'test'})
+        tags = {SFX_ENVIRONMENT: 'test'}
+        self.tracer = create_tracer(config={'service_name': 'loginject', 'tags': tags})
         instrument(self.tracer)
         opentracing.tracer = self.tracer
         caplog.set_level(logging.INFO)

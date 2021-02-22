@@ -68,8 +68,7 @@ default value:
 | Config kwarg | environment variable | default value | notes |
 |--------------|----------------------|---------------|-------|
 | `service_name` | `SIGNALFX_SERVICE_NAME` | `'SignalFx-Tracing'` | The name to identify the service in SignalFx. |
-| `service_environment` | `SIGNALFX_ENV` | `''` | The service's environment name - attached to a span's Process tags (`signalfx.environment`)
-and when log injection is enabled, is added to log messages.
+| `N/A` | `SIGNALFX_ENV` | `''` | The environment name to attach to span's process tags and, if log is injection is enabled, to be injected to logs. Can also be set when creating a tracer: `create_tracer(config={'tags': {'environment': 'my-prod'}})`. |
 | `jaeger_endpoint` | `SIGNALFX_ENDPOINT_URL` | `'http://localhost:9080/v1/trace'` | The endpoint the tracer sends spans to. Send spans to a Smart Agent, OpenTelemetry Collector, or a SignalFx ingest endpoint. |
 | `jaeger_password` | `SIGNALFX_ACCESS_TOKEN` | `None` | The SignalFx organization access token. |
 | `N/A` | `SIGNALFX_RECORDED_VALUE_MAX_LENGTH` | `1200` | The maximum length an attribute value can have. Values longer than this are truncated. |
@@ -220,6 +219,9 @@ deploying in a test environment.
       from signalfx_tracing import create_tracer, instrument
 
       tracer = create_tracer()
+      # or to specify service name and environment
+      tracer = create_tracer(config={'service_name': 'my-python-service', 'tags': {'environment': 'prod'}})
+
       instrument(tracer, flask=True)
       # or
       instrument(flask=True)  # uses the global Tracer from opentracing.tracer by default
@@ -282,12 +284,12 @@ deploying in a test environment.
 The tracer can be configured to log debugging information by setting `SIGNALFX_TRACING_DEBUG` to `true`. This tell the tracer to log additional information that might be
 helpful in understanding how it operates. Note that in order for debug logging to work, you application must initialize logging with `logging.basicConfig()` first.
 
-## Inject trace IDs in logs
+## Inject trace ID, span ID, service name and environment into logs
 
 Link individual log entries with trace IDs and span IDs associated with corresponding events. The SignalFx Python instrumentation patches `logging.Logger.makeRecord` method to automatically inject trace context into all `LogRecord` objects. When `SIGNALFX_LOGS_INJECTION` environment variable is set to `true`, the logging instrumentation also sets a custom logging format to automatically inject the trace context into logs. The default format looks like the following:
 
 ```
-%(asctime)s %(levelname)s [%(name)s] [%(filename)s:%(lineno)d] [signalfx.trace_id=%(sfxTraceId)s signalfx.span_id=%(sfxSpanId)s] - %(message)s
+%(asctime)s %(levelname)s [%(name)s] [%(filename)s:%(lineno)d] [signalfx.trace_id=%(sfxTraceId)s signalfx.span_id=%(sfxSpanId)s signalfx.service=%(sfxService)s signalfx.environment=%(sfxEnvironment)s] - %(message)s
 ```
 
 If you don't want the instrumentation to set a custom logging format and would rather use your format, you can set `SIGNALFX_LOGS_INJECTION` to `false` to disable automatic injection. You can then add `%(sfxSpanId)s` and `%(sfxTraceId)s` to your log format to inject the trace context. Alternately, you can keep automatic injection enabled and pass your custom logging format to the instrumentation by setting the `SIGNALFX_LOGGING_FORMAT` env var. 
