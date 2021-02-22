@@ -34,7 +34,7 @@ def makeRecordPatched(tracer):
             fields['sfxTraceId'] = padded_hex(span.trace_id)
             fields['sfxSpanId'] = padded_hex(span.span_id)
             fields['sfxService'] = tracer.service_name
-            fields['sfxEnvironment'] = tracer.tags.get(tags.SFX_ENVIRONMENT, 'unknown')
+            fields['sfxEnvironment'] = tracer.tags.get(tags.SFX_ENVIRONMENT, '')
 
         for field in fields:
             setattr(rv, field, fields[field])

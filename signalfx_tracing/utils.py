@@ -145,7 +145,7 @@ def create_tracer(access_token=None, set_global=True, config=None, *args, **kwar
     }
 
     tags = config.get('tags', {})
-    tags[SFX_ENVIRONMENT] = _get_env_var('SIGNALFX_ENV', config.get('service_environment', 'unknown'))
+    tags[SFX_ENVIRONMENT] = _get_env_var('SIGNALFX_ENV', config.get('service_environment', ''))
     config['tags'] = tags
 
     config['max_tag_value_length'] = int(_get_env_var(
