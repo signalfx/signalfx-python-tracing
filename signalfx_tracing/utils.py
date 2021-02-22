@@ -10,7 +10,7 @@ from wrapt import decorator, ObjectProxy
 import opentracing
 
 from .constants import default_max_tag_value_length, instrumented_attr
-from .tags import SFX_TRACING_LIBRARY, SFX_TRACING_VERSION
+from .tags import SFX_ENVIRONMENT, SFX_TRACING_LIBRARY, SFX_TRACING_VERSION
 from .version import __version__
 
 
@@ -143,6 +143,10 @@ def create_tracer(access_token=None, set_global=True, config=None, *args, **kwar
         SFX_TRACING_LIBRARY: 'python-tracing',
         SFX_TRACING_VERSION: __version__
     }
+
+    tags = config.get('tags', {})
+    tags[SFX_ENVIRONMENT] = tags.get(SFX_ENVIRONMENT, _get_env_var('SIGNALFX_ENV', ''))
+    config['tags'] = tags
 
     config['max_tag_value_length'] = int(_get_env_var(
         'SIGNALFX_RECORDED_VALUE_MAX_LENGTH',
