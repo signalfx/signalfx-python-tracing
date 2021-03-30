@@ -1,4 +1,5 @@
 # Copyright (C) 2020 SignalFx. All rights reserved.
+import os
 from wrapt import wrap_function_wrapper
 import opentracing
 
@@ -10,6 +11,7 @@ from .middleware import TraceMiddleware
 config = utils.Config(
     tracer=None,
     traced_attributes=['path'],
+    trace_response_header=None,
 )
 
 
@@ -23,7 +25,11 @@ def instrument(tracer=None):
     def traced_init(wrapped, instance, args, kwargs):
         mw = kwargs.pop("middleware", [])
 
-        mw.insert(0, TraceMiddleware(_tracer, config.traced_attributes))
+        trace_response_header = config.trace_response_header or utils.is_truthy(
+            os.environ.get('SPLUNK_CONTEXT_SERVER_TIMING_ENABLED', 'false')
+        )
+
+        mw.insert(0, TraceMiddleware(_tracer, config.traced_attributes, trace_response_header))
         kwargs["middleware"] = mw
 
         wrapped(*args, **kwargs)

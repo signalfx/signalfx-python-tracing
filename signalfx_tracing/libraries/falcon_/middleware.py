@@ -4,13 +4,16 @@ import traceback
 import opentracing
 from opentracing.ext import tags
 
+from signalfx_tracing.utils import padded_hex
+
 SCOPE_KEY = "_signalfx_scope_key"
 
 
 class TraceMiddleware(object):
-    def __init__(self, tracer=None, attributes=None):
+    def __init__(self, tracer=None, attributes=None, trace_response_header=False):
         self.tracer = tracer or opentracing.tracer
         self.attributes = attributes or []
+        self.trace_response_header_enabled = trace_response_header
 
     def process_request(self, req, resp):
         operation_name = req.path
@@ -73,4 +76,13 @@ class TraceMiddleware(object):
                         )
 
         scope.span.set_tag(tags.HTTP_STATUS_CODE, status.split(" ")[0])
+
+        if self.trace_response_header_enabled:
+            resp.append_header("Access-Control-Expose-Headers", "Server-Timing")
+            resp.set_header(
+                "Server-Timing", 'traceparent;desc="00-{trace_id}-{span_id}-01"'.format(
+                    trace_id=padded_hex(scope.span.context.trace_id),
+                    span_id=padded_hex(scope.span.context.span_id),
+                ),
+            )
         scope.close()

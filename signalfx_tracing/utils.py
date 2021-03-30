@@ -23,7 +23,7 @@ _tracer = None
 
 
 def is_truthy(value):
-    return bool(value) and str(value).lower() not in _falsy
+    return bool(value) and str(value).lower().strip() not in _falsy
 
 
 def get_module(library):
@@ -220,3 +220,7 @@ class TracerProxy(ObjectProxy):
 
     def set_tracer(self, tracer):
         self.__wrapped__ = tracer
+
+
+def padded_hex(num):
+    return '{:016x}'.format(num)
