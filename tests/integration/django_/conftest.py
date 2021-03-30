@@ -19,6 +19,7 @@ tracer_parameters = app_settings.SIGNALFX_TRACER_PARAMETERS
 settings.configure(ROOT_URLCONF=rel_urlconf, INSTALLED_APPS=installed_apps,
                    SIGNALFX_SET_GLOBAL_TRACER=set_global_tracer,
                    SIGNALFX_TRACER_CALLABLE=tracer_callable,
-                   SIGNALFX_TRACER_PARAMETERS=tracer_parameters)
+                   SIGNALFX_TRACER_PARAMETERS=tracer_parameters,
+                   SECRET_KEY='antiquing')
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'tests_e2e.django_.app.settings'
