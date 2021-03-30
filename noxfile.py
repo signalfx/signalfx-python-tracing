@@ -51,14 +51,14 @@ def flake8(session):
     session.run('flake8', 'setup.py', 'scripts', 'signalfx_tracing', 'tests', 'noxfile.py')
 
 
-@nox.session(python=('2.7', '3.4', '3.5', '3.6', '3.7'), reuse_venv=True)
+@nox.session(python=('2.7', '3.5', '3.6', '3.7'), reuse_venv=True)
 def unit(session):
     install_unit_tests(session)
     pip_freeze(session)
     session.run('pytest', 'tests/unit', '--ignore', 'tests/unit/libraries', '-p', 'no:django')
 
 
-@nox.session(python=('2.7', '3.4', '3.5', '3.6', '3.7'), reuse_venv=True)
+@nox.session(python=('2.7', '3.5', '3.6', '3.7'), reuse_venv=True)
 def bootstrap_with_target(session):
     build(session)
     session.install(sdist)
@@ -87,7 +87,7 @@ def test_django(session):
     session.run('pytest', 'tests/integration/django_')
 
 
-@nox.session(python=('2.7', '3.4', '3.5', '3.6', '3.7'), reuse_venv=True)
+@nox.session(python=('2.7', '3.5', '3.6', '3.7'), reuse_venv=True)
 def django18_via_bootstrap(session):
     # provides coverage for desired version installation via bootstrap
     install_unit_tests(session, 'django>=1.8,<1.9', 'pytest-django<4.0', 'django-opentracing')
@@ -97,7 +97,7 @@ def django18_via_bootstrap(session):
     test_django(session)
 
 
-@nox.session(python=('2.7', '3.4', '3.5', '3.6', '3.7'), reuse_venv=True)
+@nox.session(python=('2.7', '3.5', '3.6', '3.7'), reuse_venv=True)
 @nox.parametrize('pip', ('<11', '>=18,<19', '>=19,<20'))
 def django18_via_extras(session, pip):
     install_unit_tests(session, f'pip{pip}', 'django>=1.8,<1.9', 'pytest-django<4.0')
@@ -112,7 +112,7 @@ def django18_via_extras(session, pip):
     test_django(session)
 
 
-@nox.session(python=('2.7', '3.4', '3.5', '3.6', '3.7'), reuse_venv=True)
+@nox.session(python=('2.7', '3.5', '3.6', '3.7'), reuse_venv=True)
 @nox.parametrize('django', ('>=1.9,<1.10', '>=1.10,<1.11', '>=1.11,<1.12'))
 def django19_110_111_via_extras(session, django):
     install_unit_tests(session, f'django{django}', 'pytest-django<4.0')
@@ -122,7 +122,7 @@ def django19_110_111_via_extras(session, django):
     test_django(session)
 
 
-@nox.session(python=('3.4', '3.5', '3.6', '3.7'), reuse_venv=True)
+@nox.session(python=('3.5', '3.6', '3.7'), reuse_venv=True)
 def django20_via_extras(session):
     install_unit_tests(session, 'django>=2.0,<2.1', 'pytest-django<4.0')
     session.install(f'{sdist}[django]')
@@ -146,7 +146,7 @@ def test_elasticsearch(session, image_version):
     session.run('pytest', '--elasticsearch-image-version', image_version, 'tests/integration/elasticsearch_')
 
 
-@nox.session(python=('2.7', '3.4', '3.5', '3.6', '3.7'), reuse_venv=True)
+@nox.session(python=('2.7', '3.5', '3.6', '3.7'), reuse_venv=True)
 @nox.parametrize('elasticsearch', ('>=2.0,<2.1', '>=2.1,<2.2', '>=2.2,<2.3', '>=2.3,<2.4', '>=2.4,<2.5'))
 def elasticsearch2_via_extras(session, elasticsearch):
     install_unit_tests(session, f'elasticsearch{elasticsearch}', 'docker')
@@ -156,7 +156,7 @@ def elasticsearch2_via_extras(session, elasticsearch):
     test_elasticsearch(session, '2.4.6')
 
 
-@nox.session(python=('2.7', '3.4', '3.5', '3.6', '3.7'), reuse_venv=True)
+@nox.session(python=('2.7', '3.5', '3.6', '3.7'), reuse_venv=True)
 @nox.parametrize('elasticsearch', ('>=5.0,<5.1', '>=5.1,<5.2', '>=5.2,<5.3', '>=5.3,<5.4', '>=5.4,<5.5', '>=5.5,<5.6'))
 def elasticsearch5_via_extras(session, elasticsearch):
     install_unit_tests(session, f'elasticsearch{elasticsearch}', 'docker')
@@ -166,7 +166,7 @@ def elasticsearch5_via_extras(session, elasticsearch):
     test_elasticsearch(session, '5.6.14')
 
 
-@nox.session(python=('2.7', '3.4', '3.5', '3.6', '3.7'), reuse_venv=True)
+@nox.session(python=('2.7', '3.5', '3.6', '3.7'), reuse_venv=True)
 @nox.parametrize('elasticsearch', ('>=6.0,<6.1', '>=6.1,<6.2', '>=6.2,<6.3', '>=6.3,<6.4'))
 def elasticsearch6i_via_extras(session, elasticsearch):
     install_unit_tests(session, f'elasticsearch{elasticsearch}', 'docker')
@@ -181,7 +181,7 @@ def test_falcon(session):
     session.run('pytest', 'tests/integration/falcon_')
 
 
-@nox.session(python=('3.4', '3.5', '3.6', '3.7'), reuse_venv=True)
+@nox.session(python=('3.5', '3.6', '3.7'), reuse_venv=True)
 def falcon_via_bootstrap(session):
     install_unit_tests(session, 'falcon>=2.0', 'requests')
     session.run('sfx-py-trace-bootstrap')
@@ -195,7 +195,7 @@ def test_flask(session):
     session.run('pytest', 'tests/integration/flask_')
 
 
-@nox.session(python=('2.7', '3.4', '3.5', '3.6', '3.7'), reuse_venv=True)
+@nox.session(python=('2.7', '3.5', '3.6', '3.7'), reuse_venv=True)
 def flask010_via_bootstrap(session):
     # provides coverage for desired version installation via bootstrap
     install_unit_tests(session, 'flask>=0.10,<0.11', 'requests', 'flask-opentracing')
@@ -205,7 +205,7 @@ def flask010_via_bootstrap(session):
     test_flask(session)
 
 
-@nox.session(python=('2.7', '3.4', '3.5', '3.6', '3.7'), reuse_venv=True)
+@nox.session(python=('2.7', '3.5', '3.6', '3.7'), reuse_venv=True)
 @nox.parametrize('pip', ('<11', '>=18,<19', '>=19,<20'))
 def flask010_via_extras(session, pip):
     install_unit_tests(session, f'pip{pip}', 'flask>=0.10,<0.11', 'requests')
@@ -219,7 +219,7 @@ def flask010_via_extras(session, pip):
     test_flask(session)
 
 
-@nox.session(python=('2.7', '3.4', '3.5', '3.6', '3.7'), reuse_venv=True)
+@nox.session(python=('2.7', '3.5', '3.6', '3.7'), reuse_venv=True)
 @nox.parametrize('flask', ('>=0.11,<0.12', '>=0.12,<0.13', '>=1.0,<1.1'))
 def flask_via_extras(session, flask):
     install_unit_tests(session, f'flask{flask}', 'requests')
@@ -234,7 +234,7 @@ def test_jaeger(session):
     session.run('pytest', 'tests/integration/test_runner.py')
 
 
-@nox.session(python=('2.7', '3.4', '3.5', '3.6', '3.7'), reuse_venv=True)
+@nox.session(python=('2.7', '3.5', '3.6', '3.7'), reuse_venv=True)
 def jaeger_via_bootstrap(session):
     install_unit_tests(session, 'jaeger-client', 'sfx-jaeger-client')
     session.run('sfx-py-trace-bootstrap')
@@ -243,7 +243,7 @@ def jaeger_via_bootstrap(session):
     test_jaeger(session)
 
 
-@nox.session(python=('2.7', '3.4', '3.5', '3.6', '3.7'), reuse_venv=True)
+@nox.session(python=('2.7', '3.5', '3.6', '3.7'), reuse_venv=True)
 @nox.parametrize('pip', ('<11', '>=18,<19', '>=19,<20'))
 def jaeger_via_extras(session, pip):
     install_unit_tests(session, f'pip{pip}')
@@ -263,7 +263,7 @@ def test_psycopg(session):
     session.run('pytest', 'tests/integration/psycopg2_')
 
 
-@nox.session(python=('2.7', '3.4', '3.5', '3.6', '3.7'), reuse_venv=True)
+@nox.session(python=('2.7', '3.5', '3.6', '3.7'), reuse_venv=True)
 @nox.parametrize('psycopg2', ('>=2.7,<2.8', '>=2.8,<2.9'))
 def psycopg2_via_extras(session, psycopg2):
     install_unit_tests(session, f'psycopg2{psycopg2}', 'docker')
@@ -271,7 +271,7 @@ def psycopg2_via_extras(session, psycopg2):
     test_psycopg(session)
 
 
-@nox.session(python=('2.7', '3.4', '3.5', '3.6', '3.7'), reuse_venv=True)
+@nox.session(python=('2.7', '3.5', '3.6', '3.7'), reuse_venv=True)
 @nox.parametrize('psycopg2', ('>=2.7,<2.8', '>=2.8,<2.9'))
 def psycopg2_binary_via_extras(session, psycopg2):
     install_unit_tests(session, f'psycopg2-binary{psycopg2}', 'docker')
@@ -279,7 +279,7 @@ def psycopg2_binary_via_extras(session, psycopg2):
     test_psycopg(session)
 
 
-@nox.session(python=('2.7', '3.4', '3.5', '3.6', '3.7'), reuse_venv=True)
+@nox.session(python=('2.7', '3.5', '3.6', '3.7'), reuse_venv=True)
 @nox.parametrize('pymongo', ('>=3.1,<3.2', '>=3.2,<3.3', '>=3.3,<3.4', '>=3.4,<3.5',
                              '>=3.5,<3.6', '>=3.6,<3.7', '>=3.7,<3.8'))
 def pymongo_via_extras(session, pymongo):
@@ -289,7 +289,7 @@ def pymongo_via_extras(session, pymongo):
     session.run('pytest', 'tests/integration/pymongo_')
 
 
-@nox.session(python=('2.7', '3.4', '3.5', '3.6', '3.7'), reuse_venv=True)
+@nox.session(python=('2.7', '3.5', '3.6', '3.7'), reuse_venv=True)
 @nox.parametrize('pymysql', ('>=0.8,<0.9', '>=0.9,<0.10'))
 def pymysql_via_extras(session, pymysql):
     install_unit_tests(session, f'pymysql{pymysql}', 'docker')
@@ -298,7 +298,7 @@ def pymysql_via_extras(session, pymysql):
     session.run('pytest', 'tests/integration/pymysql_')
 
 
-@nox.session(python=('2.7', '3.4', '3.5', '3.6', '3.7'), reuse_venv=True)
+@nox.session(python=('2.7', '3.5', '3.6', '3.7'), reuse_venv=True)
 @nox.parametrize('redis', ('>=2.10,<2.11', '>=3.0,<3.1', '>=3.1,<3.2', '>=3.2,<3.3',
                            '>=3.3,<3.4', '>=3.4,<3.5'))
 def redis_via_extras(session, redis):
@@ -308,7 +308,7 @@ def redis_via_extras(session, redis):
     session.run('pytest', 'tests/integration/redis_')
 
 
-@nox.session(python=('2.7', '3.4', '3.5', '3.6', '3.7'), reuse_venv=True)
+@nox.session(python=('2.7', '3.5', '3.6', '3.7'), reuse_venv=True)
 @nox.parametrize('requests', ('>=2.0,<2.1', '>=2.10,<2.11', '>=2.11,<2.12', '>=2.12,<2.13',
                               '>=2.13,<2.14', '>=2.14,<2.15', '>=2.15,<2.16', '>=2.16,<2.17',
                               '>=2.17,<2.18', '>=2.18,<2.19', '>=2.19,<2.20', '>=2.20,<2.21',
@@ -328,7 +328,7 @@ def tornado_via_extras(session, tornado):
     _tornado_via_extras(session, tornado)
 
 
-@nox.session(python=('2.7', '3.4', '3.5', '3.6', '3.7'), reuse_venv=True)
+@nox.session(python=('2.7', '3.5', '3.6', '3.7'), reuse_venv=True)
 @nox.parametrize('tornado', ('>=4.3,<4.4', '>=4.4,<4.5', '>=4.5,<5.0', '>=5.0,<5.1', '>=5.1,<5.2'))
 def tornado_legacy_via_extras(session, tornado):
     _tornado_via_extras(session, tornado)
@@ -341,7 +341,7 @@ def _tornado_via_extras(session, tornado):
     session.run('pytest', 'tests/integration/tornado_')
 
 
-@nox.session(python=('2.7', '3.4', '3.5', '3.6', '3.7'), reuse_venv=True)
+@nox.session(python=('2.7', '3.5', '3.6', '3.7'), reuse_venv=True)
 def logging(session):
     install_unit_tests(session)
     session.run('sfx-py-trace-bootstrap')
