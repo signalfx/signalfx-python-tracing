@@ -1,12 +1,14 @@
 # Copyright (C) 2020 SignalFx. All rights reserved.
+import os
+
 import opentracing
 import falcon
-
 from falcon import testing
 from opentracing.mocktracer import MockTracer
 
 from signalfx_tracing.libraries.falcon_ import config, instrument, uninstrument
 from signalfx_tracing.libraries.falcon_.middleware import TraceMiddleware
+from signalfx_tracing.utils import padded_hex
 from .conftest import FalconTestSuite
 
 
@@ -80,6 +82,37 @@ class TestFalconApplication(FalconTestSuite):
             "span.kind": "server",
             "falcon.resource": "HelloWorldResource",
         }
+
+    def test_response_trace_header_no_server_timing(self):
+        os.environ['SPLUNK_CONTEXT_SERVER_TIMING_ENABLED'] = 'false'
+        tracer = MockTracer()
+        instrument(tracer)
+        app = self.make_app()
+
+        client = self.client(app)
+        result = client.simulate_get("/hello?qs=1")
+
+        assert 'access-control-expose-headers' not in result.headers
+        assert 'server-timing' not in result.headers
+        del os.environ['SPLUNK_CONTEXT_SERVER_TIMING_ENABLED']
+
+    def test_response_trace_header_server_timing(self):
+        tracer = MockTracer()
+        instrument(tracer)
+        app = self.make_app()
+
+        client = self.client(app)
+        result = client.simulate_get("/hello?qs=1")
+
+        spans = tracer.finished_spans()
+        assert len(spans) == 1
+        span = spans[0]
+
+        assert result.headers.get('access-control-expose-headers') == 'Server-Timing'
+        assert result.headers.get('Server-Timing') == 'traceparent;desc="00-{trace_id}-{span_id}-01"'.format(
+            trace_id=padded_hex(span.context.trace_id),
+            span_id=padded_hex(span.context.span_id),
+        )
 
     def test_uninstrument_reverts_wrapper(self):
         tracer = MockTracer()

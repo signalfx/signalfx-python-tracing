@@ -1,6 +1,6 @@
 # Copyright (C) 2018 SignalFx. All rights reserved.
-from wrapt import wrap_function_wrapper
 import opentracing
+from wrapt import wrap_function_wrapper
 
 from signalfx_tracing import utils
 
@@ -36,6 +36,7 @@ def instrument(tracer=None):
             trace_all_requests=config.trace_all,
             app=app,
             traced_attributes=config.traced_attributes,
+            trace_response_header=utils.is_trace_response_header_enabled(),
         )
 
     wrap_function_wrapper("flask", "Flask.__init__", flask_tracer)

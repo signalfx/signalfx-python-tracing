@@ -6,15 +6,12 @@ import opentracing
 
 from signalfx_tracing import utils, tags
 from signalfx_tracing.constants import logging_format
+from signalfx_tracing.utils import padded_hex
 
 config = utils.Config(
     injection_enabled=utils.is_truthy(os.environ.get("SIGNALFX_LOGS_INJECTION", False)),
     logging_format=os.environ.get("SIGNALFX_LOGGING_FORMAT", logging_format),
 )
-
-
-def padded_hex(num):
-    return "{:016x}".format(num)
 
 
 def makeRecordPatched(tracer):

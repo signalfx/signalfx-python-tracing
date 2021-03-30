@@ -40,6 +40,7 @@ def instrument(tracer=None):
         kwargs["opentracing_trace_client"] = config.trace_client
         kwargs["opentracing_traced_attributes"] = config.traced_attributes
         kwargs["opentracing_start_span_cb"] = config.start_span_cb
+        kwargs["signalfx_trace_response_headers"] = utils.is_trace_response_header_enabled()
 
         wrapped_tracer_config(__init__, app, args, kwargs)
 

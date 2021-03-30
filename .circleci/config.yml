@@ -28,12 +28,12 @@ jobs:
           command: python3.7 -m pip install nox
       - restore_cache:
          keys:
-           - nox-v1-<<parameters.session>>-{{ checksum "noxfile.py" }}-{{ checksum "requirements-test.txt" }}
+           - nox-v2-<<parameters.session>>-{{ checksum "noxfile.py" }}-{{ checksum "requirements-test.txt" }}-{{ checksum "requirements-inst.txt" }}
       - run:
           name: <<parameters.session>>
           command: python3.7 -m nox <<parameters.cli_params>> <<parameters.session>> 
       - save_cache:
-         key: nox-v1-<<parameters.session>>-{{ checksum "noxfile.py" }}-{{ checksum "requirements-test.txt" }}
+         key: nox-v2-<<parameters.session>>-{{ checksum "noxfile.py" }}-{{ checksum "requirements-test.txt" }}-{{ checksum "requirements-inst.txt" }}
          paths:
            - .nox 
 

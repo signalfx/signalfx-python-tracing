@@ -23,7 +23,14 @@ def instrument(tracer=None):
     def traced_init(wrapped, instance, args, kwargs):
         mw = kwargs.pop("middleware", [])
 
-        mw.insert(0, TraceMiddleware(_tracer, config.traced_attributes))
+        mw.insert(
+            0,
+            TraceMiddleware(
+                _tracer,
+                config.traced_attributes,
+                trace_response_header_enabled=utils.is_trace_response_header_enabled(),
+            ),
+        )
         kwargs["middleware"] = mw
 
         wrapped(*args, **kwargs)

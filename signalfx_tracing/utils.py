@@ -23,7 +23,7 @@ _tracer = None
 
 
 def is_truthy(value):
-    return bool(value) and str(value).lower() not in _falsy
+    return bool(value) and str(value).lower().strip() not in _falsy
 
 
 def get_module(library):
@@ -236,3 +236,11 @@ class TracerProxy(ObjectProxy):
 
     def set_tracer(self, tracer):
         self.__wrapped__ = tracer
+
+
+def padded_hex(num):
+    return "{:016x}".format(num)
+
+
+def is_trace_response_header_enabled():
+    return is_truthy(os.environ.get("SPLUNK_CONTEXT_SERVER_TIMING_ENABLED", "true"))
