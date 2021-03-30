@@ -19,4 +19,4 @@ def _wrapped_span_on_error(wrapped, instance, args, kwargs):
     return inner(*args, **kwargs)
 
 
-wrap_function_wrapper('opentracing', 'Span._on_error', _wrapped_span_on_error)
+wrap_function_wrapper("opentracing", "Span._on_error", _wrapped_span_on_error)

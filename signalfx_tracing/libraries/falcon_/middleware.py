@@ -41,9 +41,9 @@ class TraceMiddleware(object):
         if scope is None:
             return
         resource_name = resource.__class__.__name__
-        scope.span.set_tag('falcon.resource', resource_name)
+        scope.span.set_tag("falcon.resource", resource_name)
         scope.span.set_operation_name(
-            '{0}.on_{1}'.format(resource_name, req.method.lower())
+            "{0}.on_{1}".format(resource_name, req.method.lower())
         )
 
     def process_response(self, req, resp, resource, req_succeeded=None):

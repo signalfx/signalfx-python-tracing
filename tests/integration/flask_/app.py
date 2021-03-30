@@ -4,37 +4,37 @@ import flask
 
 from signalfx_tracing import trace
 
-app = flask.Flask('MyFlaskApplication')
+app = flask.Flask("MyFlaskApplication")
 
 
-@app.route('/hello/<username>', methods=['GET', 'POST', 'PATCH', 'PUT', 'DELETE'])
+@app.route("/hello/<username>", methods=["GET", "POST", "PATCH", "PUT", "DELETE"])
 def my_route(username):
     span = opentracing.tracer.scope_manager.active.span
-    span.set_tag('handled', 'tag')
-    return 'Hello, {}!'.format(username)
+    span.set_tag("handled", "tag")
+    return "Hello, {}!".format(username)
 
 
-@trace('myTracedHelper', tags=dict(one=1, two=2))
+@trace("myTracedHelper", tags=dict(one=1, two=2))
 def my_traced_helper():
     return True
 
 
-@app.route('/traced', methods=['GET'])
+@app.route("/traced", methods=["GET"])
 def my_traced_route():
     span = opentracing.tracer.scope_manager.active.span
-    span.set_tag('handled', 'tag')
+    span.set_tag("handled", "tag")
     my_traced_helper()
-    return 'Traced!'
+    return "Traced!"
 
 
-bp = flask.Blueprint('MyBlueprint', 'MyFlaskApplication')
+bp = flask.Blueprint("MyBlueprint", "MyFlaskApplication")
 
 
-@bp.route('/<page>', methods=['GET', 'POST', 'PATCH', 'PUT', 'DELETE'])
+@bp.route("/<page>", methods=["GET", "POST", "PATCH", "PUT", "DELETE"])
 def my_blueprint_route(page):
     span = opentracing.tracer.scope_manager.active.span
-    span.set_tag('handled', 'tag')
-    return 'Rendering {}'.format(page)
+    span.set_tag("handled", "tag")
+    return "Rendering {}".format(page)
 
 
-app.register_blueprint(bp, url_prefix='/bp')
+app.register_blueprint(bp, url_prefix="/bp")

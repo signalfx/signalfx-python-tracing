@@ -12,10 +12,12 @@ from signalfx_tracing.libraries import redis_config as config
 from signalfx_tracing import instrument, uninstrument
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope="session")
 def redis_container():
     session = docker.from_env()
-    redis = session.containers.run('redis:latest', ports={'6379/tcp': 6379}, detach=True)
+    redis = session.containers.run(
+        "redis:latest", ports={"6379/tcp": 6379}, detach=True
+    )
     try:
         conn = Connection()
         for i in range(60):
@@ -27,8 +29,8 @@ def redis_container():
                 pass
 
             if i == 59:
-                raise RuntimeError('Failed to connect to Redis.')
-            sleep(.5)
+                raise RuntimeError("Failed to connect to Redis.")
+            sleep(0.5)
 
         yield redis
     finally:
@@ -36,7 +38,6 @@ def redis_container():
 
 
 class TestClientTracing(object):
-
     @pytest.fixture
     def client_tracing(self, redis_container):
         tracer = MockTracer()
@@ -46,7 +47,7 @@ class TestClientTracing(object):
         try:
             yield tracer
         finally:
-            uninstrument('redis')
+            uninstrument("redis")
 
     @pytest.fixture
     def tracer(self, client_tracing):
@@ -57,47 +58,47 @@ class TestClientTracing(object):
         return StrictRedis()
 
     def test_successfully_traced_command(self, tracer, client):
-        with tracer.start_active_span('root'):
-            client.set('key', 'val')
+        with tracer.start_active_span("root"):
+            client.set("key", "val")
         spans = tracer.finished_spans()
         assert len(spans) == 2
         req_span, root_span = spans
-        assert req_span.operation_name == 'SET'
+        assert req_span.operation_name == "SET"
 
         tags = req_span.tags
-        assert tags[ext_tags.COMPONENT] == 'redis-py'
+        assert tags[ext_tags.COMPONENT] == "redis-py"
         assert tags[ext_tags.SPAN_KIND] == ext_tags.SPAN_KIND_RPC_CLIENT
-        assert tags[ext_tags.DATABASE_TYPE] == 'redis'
-        assert tags[ext_tags.DATABASE_STATEMENT] == 'SET key val'
+        assert tags[ext_tags.DATABASE_TYPE] == "redis"
+        assert tags[ext_tags.DATABASE_STATEMENT] == "SET key val"
         assert ext_tags.ERROR not in tags
 
     def test_successfully_traced_pubsub(self, tracer, client):
-        with tracer.start_active_span('root'):
+        with tracer.start_active_span("root"):
             pubsub = client.pubsub()
-            pubsub.subscribe('myChannel')
-            client.publish('myChannel', 'hey')
+            pubsub.subscribe("myChannel")
+            client.publish("myChannel", "hey")
             pubsub.parse_response()
-            pubsub.unsubscribe('myChannel')
+            pubsub.unsubscribe("myChannel")
 
             pubsub = client.pubsub()
-            pubsub.subscribe('myOtherChannel')
-            client.publish('myOtherChannel', 'hey')
+            pubsub.subscribe("myOtherChannel")
+            client.publish("myOtherChannel", "hey")
             pubsub.parse_response()
-            pubsub.unsubscribe('myOtherChannel')
+            pubsub.unsubscribe("myOtherChannel")
 
         spans = tracer.finished_spans()
         assert len(spans) == 9
 
     def test_successfully_traced_pipeline(self, tracer, client):
-        with tracer.start_active_span('root'):
+        with tracer.start_active_span("root"):
             pipeline = client.pipeline()
-            pipeline.set('key', 'value')
-            pipeline.get('key')
+            pipeline.set("key", "value")
+            pipeline.get("key")
             pipeline.execute()
 
             pipeline = client.pipeline()
-            pipeline.set('another_key', 'value')
-            pipeline.get('another_key')
+            pipeline.set("another_key", "value")
+            pipeline.get("another_key")
             pipeline.execute()
 
         spans = tracer.finished_spans()

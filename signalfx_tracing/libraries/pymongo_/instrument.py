@@ -14,11 +14,11 @@ config = utils.Config(
 
 
 def instrument(tracer=None):
-    pymongo = utils.get_module('pymongo')
+    pymongo = utils.get_module("pymongo")
     if utils.is_instrumented(pymongo):
         return
 
-    pymongo_opentracing = utils.get_module('pymongo_opentracing')
+    pymongo_opentracing = utils.get_module("pymongo_opentracing")
 
     def pymongo_tracer(__init__, app, args, kwargs):
         """
@@ -28,15 +28,16 @@ def instrument(tracer=None):
         _tracer = tracer or config.tracer or opentracing.tracer
 
         command_tracing = pymongo_opentracing.CommandTracing(
-            tracer=_tracer, span_tags=config.span_tags or {},
+            tracer=_tracer,
+            span_tags=config.span_tags or {},
         )
 
-        event_listeners = list(kwargs.pop('event_listeners', []))
+        event_listeners = list(kwargs.pop("event_listeners", []))
         event_listeners.insert(0, command_tracing)
-        kwargs['event_listeners'] = event_listeners
+        kwargs["event_listeners"] = event_listeners
         __init__(*args, **kwargs)
 
-    wrap_function_wrapper('pymongo', 'MongoClient.__init__', pymongo_tracer)
+    wrap_function_wrapper("pymongo", "MongoClient.__init__", pymongo_tracer)
     utils.mark_instrumented(pymongo)
 
 
@@ -46,9 +47,9 @@ def uninstrument():
     It's not reasonably feasible to remove existing before/after_request
     trace methods of existing clients.
     """
-    pymongo = utils.get_module('pymongo')
+    pymongo = utils.get_module("pymongo")
     if not utils.is_instrumented(pymongo):
         return
 
-    utils.revert_wrapper(pymongo.MongoClient, '__init__')
+    utils.revert_wrapper(pymongo.MongoClient, "__init__")
     utils.mark_uninstrumented(pymongo)

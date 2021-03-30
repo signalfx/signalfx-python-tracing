@@ -15,8 +15,9 @@ log = logging.getLogger(__name__)
 # is a string representation of a python package/module name
 # and a module is the item in sys.modules after import, keyed by library name.
 
+
 def _tracing_enabled():
-    return is_truthy(os.environ.get('SIGNALFX_TRACING_ENABLED', True))
+    return is_truthy(os.environ.get("SIGNALFX_TRACING_ENABLED", True))
 
 
 def _importable_libraries(*libraries):
@@ -39,7 +40,7 @@ def imported_instrumentor(library):
     Convert a library name to that of the correlated auto-instrumentor
     in the libraries package.
     """
-    instrumentor_lib = 'signalfx_tracing.libraries.{}_'.format(library)
+    instrumentor_lib = "signalfx_tracing.libraries.{}_".format(library)
     return get_module(instrumentor_lib)
 
 
@@ -58,16 +59,20 @@ def instrument(tracer=None, **libraries):
 
     for library, inst in libraries.items():
         if library not in traceable_libraries:
-            log.warn('Unable to trace {}'.format(library))
+            log.warn("Unable to trace {}".format(library))
         elif instrumentation_disabled(library) or not inst:
             uninstrument(library)
         else:
             try:
                 imported_instrumentor(library).instrument(tracer)
             except ModuleNotFoundError:
-                log.warning('Instrumentation package not found for library: "{0}"'.format(library))
+                log.warning(
+                    'Instrumentation package not found for library: "{0}"'.format(
+                        library
+                    )
+                )
             except Exception:
-                log.exception('Failed to instrument {}'.format(library))
+                log.exception("Failed to instrument {}".format(library))
 
 
 def uninstrument(*libraries):
@@ -87,5 +92,5 @@ def auto_instrument(tracer=None):
 
     available, unavailable = _importable_libraries(*auto_instrumentable_libraries)
     for library in unavailable:
-        log.debug('Unable to auto-instrument {} as it is unavailable.'.format(library))
+        log.debug("Unable to auto-instrument {} as it is unavailable.".format(library))
     instrument(tracer, **{lib: True for lib in available})

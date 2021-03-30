@@ -8,14 +8,16 @@ from ._test_case import AsyncHTTPTestCase as BaseTestCase
 use_wait_stop = tornado_version < (5, 0, 0)
 
 if use_wait_stop:
+
     def gen_test(func):
         return func
+
+
 else:
     gen_test = tornado.testing.gen_test
 
 
 class AsyncHTTPTestCase(BaseTestCase):
-
     @gen_test
     def _http_fetch_gen(self, url, *args, **kwargs):
         try:

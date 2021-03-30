@@ -8,13 +8,13 @@ from signalfx_tracing import utils, tags
 from signalfx_tracing.constants import logging_format
 
 config = utils.Config(
-    injection_enabled=utils.is_truthy(os.environ.get('SIGNALFX_LOGS_INJECTION', False)),
-    logging_format=os.environ.get('SIGNALFX_LOGGING_FORMAT', logging_format)
+    injection_enabled=utils.is_truthy(os.environ.get("SIGNALFX_LOGS_INJECTION", False)),
+    logging_format=os.environ.get("SIGNALFX_LOGGING_FORMAT", logging_format),
 )
 
 
 def padded_hex(num):
-    return '{:016x}'.format(num)
+    return "{:016x}".format(num)
 
 
 def makeRecordPatched(tracer):
@@ -22,19 +22,19 @@ def makeRecordPatched(tracer):
         rv = makeRecord(*args, **kwargs)
 
         fields = {
-          'sfxTraceId': '',
-          'sfxSpanId': '',
-          'sfxService': '',
-          'sfxEnvironment': ''
+            "sfxTraceId": "",
+            "sfxSpanId": "",
+            "sfxService": "",
+            "sfxEnvironment": "",
         }
 
         span = tracer.active_span
 
         if span is not None:
-            fields['sfxTraceId'] = padded_hex(span.trace_id)
-            fields['sfxSpanId'] = padded_hex(span.span_id)
-            fields['sfxService'] = tracer.service_name
-            fields['sfxEnvironment'] = tracer.tags.get(tags.SFX_ENVIRONMENT, '')
+            fields["sfxTraceId"] = padded_hex(span.trace_id)
+            fields["sfxSpanId"] = padded_hex(span.span_id)
+            fields["sfxService"] = tracer.service_name
+            fields["sfxEnvironment"] = tracer.tags.get(tags.SFX_ENVIRONMENT, "")
 
         for field in fields:
             setattr(rv, field, fields[field])
@@ -50,7 +50,7 @@ def instrument(tracer=None):
     lib to automatically generate spans. Instead it patches the lib to automatically
     inject trace context into logs.
     """
-    logging = utils.get_module('logging')
+    logging = utils.get_module("logging")
 
     if utils.is_instrumented(logging):
         return
@@ -59,10 +59,10 @@ def instrument(tracer=None):
         return
 
     tracer = tracer or opentracing.tracer
-    wrap_function_wrapper(logging, 'Logger.makeRecord', makeRecordPatched(tracer))
+    wrap_function_wrapper(logging, "Logger.makeRecord", makeRecordPatched(tracer))
     level = logging.INFO
 
-    if utils.is_truthy(os.environ.get('SIGNALFX_TRACING_DEBUG', False)):
+    if utils.is_truthy(os.environ.get("SIGNALFX_TRACING_DEBUG", False)):
         level = logging.DEBUG
 
     logging.basicConfig(level=level, format=config.logging_format)
@@ -71,9 +71,9 @@ def instrument(tracer=None):
 
 
 def uninstrument():
-    logging = utils.get_module('logging')
+    logging = utils.get_module("logging")
     if not utils.is_instrumented(logging):
         return
 
-    utils.revert_wrapper(logging.Logger, 'makeRecord')
+    utils.revert_wrapper(logging.Logger, "makeRecord")
     utils.mark_uninstrumented(logging)

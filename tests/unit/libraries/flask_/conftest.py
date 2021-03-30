@@ -5,7 +5,6 @@ from signalfx_tracing.libraries.flask_.instrument import config, uninstrument
 
 
 class FlaskTestSuite(object):
-
     @pytest.fixture(autouse=True)
     def restored_flask_config(self):
         orig = dict(config.__dict__)

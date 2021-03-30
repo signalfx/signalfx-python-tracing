@@ -8,8 +8,7 @@ class MyApplication(tornado.web.Application):
 
 
 class HelloHandler(tornado.web.RequestHandler):
-
-    def get(self, username='', *args, **kwargs):
-        return self.write('hello {}!'.format(username or 'anonymous'))
+    def get(self, username="", *args, **kwargs):
+        return self.write("hello {}!".format(username or "anonymous"))
 
     head = post = delete = patch = put = options = get

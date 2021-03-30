@@ -2,4 +2,4 @@
 
 
 def pytest_addoption(parser):
-    parser.addoption('--elasticsearch-image-version', action='store', default='6.5.4')
+    parser.addoption("--elasticsearch-image-version", action="store", default="6.5.4")

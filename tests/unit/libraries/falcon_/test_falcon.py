@@ -78,7 +78,7 @@ class TestFalconApplication(FalconTestSuite):
             "http.method": "GET",
             "path": "/hello",
             "span.kind": "server",
-            "falcon.resource": "HelloWorldResource"
+            "falcon.resource": "HelloWorldResource",
         }
 
     def test_uninstrument_reverts_wrapper(self):

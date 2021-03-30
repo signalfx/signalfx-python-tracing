@@ -15,8 +15,7 @@ class DummyAMQP(object):
 
 
 class TestCeleryConfig(CeleryTestSuite):
-
-    @pytest.mark.parametrize('propagate', (True, False))
+    @pytest.mark.parametrize("propagate", (True, False))
     def test_instrument_celery_values_set_by_config(self, propagate):
         tracer = MockTracer()
         config.tracer = tracer
@@ -25,12 +24,12 @@ class TestCeleryConfig(CeleryTestSuite):
 
         instrument()
 
-        app = celery.Celery('MyCeleryApplication', amqp=DummyAMQP)
+        app = celery.Celery("MyCeleryApplication", amqp=DummyAMQP)
 
         assert isinstance(app, CeleryTracing)
         assert app._tracer is tracer
         assert app._span_tags == dict(one=1, two=2)
-        assert app.main == 'MyCeleryApplication'
+        assert app.main == "MyCeleryApplication"
         assert app.amqp_cls == DummyAMQP
 
         if propagate:
