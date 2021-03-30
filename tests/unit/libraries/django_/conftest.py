@@ -14,15 +14,14 @@ from .app import settings as app_settings
 
 # We should be able to invoke pytest from any project directory
 root_urlconf = app_settings.ROOT_URLCONF
-rel_package = os.path.dirname(os.path.relpath(__file__)).replace('/', '.')
-rel_urlconf = '{}.{}'.format(rel_package, root_urlconf)
+rel_package = os.path.dirname(os.path.relpath(__file__)).replace("/", ".")
+rel_urlconf = "{}.{}".format(rel_package, root_urlconf)
 settings.configure(ROOT_URLCONF=rel_urlconf)
 
-os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.unit.libraries.django_.app.settings'
+os.environ["DJANGO_SETTINGS_MODULE"] = "tests.unit.libraries.django_.app.settings"
 
 
 class DjangoTestSuite(object):
-
     @pytest.fixture(autouse=True)
     def restored_django_config(self):
         orig = dict(config.__dict__)
@@ -32,7 +31,7 @@ class DjangoTestSuite(object):
     @pytest.fixture(autouse=True)
     def uninstrument_django(self):
         yield
-        uninstrument('django')
+        uninstrument("django")
 
     @pytest.fixture(autouse=True)
     def reset_opentracing(self):

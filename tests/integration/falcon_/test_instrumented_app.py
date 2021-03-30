@@ -96,7 +96,7 @@ class TestFalconApp(object):
             "http.method": tagged_method,
             "path": "/hello",
             "span.kind": "server",
-            "falcon.resource": "HelloWorldResource"
+            "falcon.resource": "HelloWorldResource",
         }
         assert span.tags == expected_tags
 
@@ -135,9 +135,7 @@ class TestFalconApp(object):
         spans = self.tracer.finished_spans()
         assert len(spans) == 1
         span = spans.pop()
-        assert span.operation_name == "ErrorResource.on_{0}".format(
-            http_method.lower()
-        )
+        assert span.operation_name == "ErrorResource.on_{0}".format(http_method.lower())
         tagged_method = http_method.upper()
         expected_tags = {
             "component": "Falcon",
@@ -149,7 +147,7 @@ class TestFalconApp(object):
             "span.kind": "server",
             "error": True,
             "sfx.error.kind": "NameError",
-            "falcon.resource": "ErrorResource"
+            "falcon.resource": "ErrorResource",
         }
 
         err_message = span.tags.pop("sfx.error.message")

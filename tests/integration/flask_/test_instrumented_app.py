@@ -12,10 +12,10 @@ import six
 from signalfx_tracing.libraries import flask_config
 from signalfx_tracing import instrument
 
-base_url = 'http://127.0.0.1:32321/'
-app_endpoint = '{0}hello/MyName'.format(base_url)
-bp_endpoint = '{0}bp/MyPage'.format(base_url)
-traced_endpoint = '{0}traced'.format(base_url)
+base_url = "http://127.0.0.1:32321/"
+app_endpoint = "{0}hello/MyName".format(base_url)
+bp_endpoint = "{0}bp/MyPage".format(base_url)
+traced_endpoint = "{0}traced".format(base_url)
 
 
 class TestFlaskApp(object):
@@ -31,17 +31,18 @@ class TestFlaskApp(object):
         return self._tracer_store[0]
 
     @classmethod
-    @pytest.fixture(scope='class', autouse=True)
+    @pytest.fixture(scope="class", autouse=True)
     def instrumented_app(cls):
         tracer = MockTracer(scope_manager=FlaskScopeManager())
         opentracing.tracer = tracer
         cls._tracer_store[0] = tracer
 
-        flask_config.traced_attributes = ['path', 'method', 'query_string', 'blueprint']
+        flask_config.traced_attributes = ["path", "method", "query_string", "blueprint"]
 
         instrument(tracer, flask=True)
 
         from .app import app
+
         cls._app_store[0] = app
 
         app_thread = Thread(target=cls.run_app)
@@ -55,7 +56,7 @@ class TestFlaskApp(object):
             except Exception:
                 if i == 19:
                     raise
-                sleep(.25)
+                sleep(0.25)
 
         tracer.reset()
 
@@ -63,63 +64,69 @@ class TestFlaskApp(object):
 
     @classmethod
     def run_app(cls):
-        cls._app_store[0].run(host='127.0.0.1', port=32321)
+        cls._app_store[0].run(host="127.0.0.1", port=32321)
 
     @pytest.fixture(autouse=True)
     def reset_tracer(self):
         yield
         self.tracer.reset()
 
-    @pytest.mark.parametrize('http_method', ('get', 'head', 'post', 'delete',
-                                             'patch', 'put', 'options'))
+    @pytest.mark.parametrize(
+        "http_method", ("get", "head", "post", "delete", "patch", "put", "options")
+    )
     def test_traced_app_request(self, http_method):
-        query = 'one=1&two=2'
+        query = "one=1&two=2"
         method = getattr(requests, http_method)
-        assert method('{}?{}'.format(app_endpoint, query)).status_code == 200
+        assert method("{}?{}".format(app_endpoint, query)).status_code == 200
 
         spans = self.tracer.finished_spans()
         assert len(spans) == 1
         span = spans.pop()
-        assert span.operation_name == 'my_route'
+        assert span.operation_name == "my_route"
         tagged_method = http_method.upper()
-        expected_query_string = query if six.PY2 else str(bytes(query, 'ascii'))
-        expected_tags = {'blueprint': 'None',
-                         'component': 'Flask',
-                         'http.method': tagged_method,
-                         'http.status_code': 200,
-                         'http.url': app_endpoint,
-                         'method': tagged_method,
-                         'path': '/hello/MyName',
-                         'query_string': expected_query_string,
-                         'span.kind': 'server'}
-        if http_method != 'options':
-            expected_tags['handled'] = 'tag'
+        expected_query_string = query if six.PY2 else str(bytes(query, "ascii"))
+        expected_tags = {
+            "blueprint": "None",
+            "component": "Flask",
+            "http.method": tagged_method,
+            "http.status_code": 200,
+            "http.url": app_endpoint,
+            "method": tagged_method,
+            "path": "/hello/MyName",
+            "query_string": expected_query_string,
+            "span.kind": "server",
+        }
+        if http_method != "options":
+            expected_tags["handled"] = "tag"
         assert span.tags == expected_tags
 
-    @pytest.mark.parametrize('http_method', ('get', 'head', 'post', 'delete',
-                                             'patch', 'put', 'options'))
+    @pytest.mark.parametrize(
+        "http_method", ("get", "head", "post", "delete", "patch", "put", "options")
+    )
     def test_traced_blueprint_request(self, http_method):
-        query = 'one=1&two=2'
+        query = "one=1&two=2"
         method = getattr(requests, http_method)
-        assert method('{}?{}'.format(bp_endpoint, query)).status_code == 200
+        assert method("{}?{}".format(bp_endpoint, query)).status_code == 200
 
         spans = self.tracer.finished_spans()
         assert len(spans) == 1
         span = spans.pop()
-        assert span.operation_name == 'MyBlueprint.my_blueprint_route'
+        assert span.operation_name == "MyBlueprint.my_blueprint_route"
         tagged_method = http_method.upper()
-        expected_query_string = query if six.PY2 else str(bytes(query, 'ascii'))
-        expected_tags = {'blueprint': 'MyBlueprint',
-                         'component': 'Flask',
-                         'http.method': tagged_method,
-                         'http.status_code': 200,
-                         'http.url': bp_endpoint,
-                         'method': tagged_method,
-                         'path': '/bp/MyPage',
-                         'query_string': expected_query_string,
-                         'span.kind': 'server'}
-        if http_method != 'options':
-            expected_tags['handled'] = 'tag'
+        expected_query_string = query if six.PY2 else str(bytes(query, "ascii"))
+        expected_tags = {
+            "blueprint": "MyBlueprint",
+            "component": "Flask",
+            "http.method": tagged_method,
+            "http.status_code": 200,
+            "http.url": bp_endpoint,
+            "method": tagged_method,
+            "path": "/bp/MyPage",
+            "query_string": expected_query_string,
+            "span.kind": "server",
+        }
+        if http_method != "options":
+            expected_tags["handled"] = "tag"
         assert span.tags == expected_tags
 
     def test_traced_helper(self):  # piggyback integration test for trace decorator
@@ -129,24 +136,26 @@ class TestFlaskApp(object):
         child, parent = spans
 
         assert child.tags == dict(one=1, two=2)
-        assert child.operation_name == 'myTracedHelper'
+        assert child.operation_name == "myTracedHelper"
         assert child.context.trace_id == parent.context.trace_id
         assert child.parent_id == parent.context.span_id
 
-        assert parent.operation_name == 'my_traced_route'
-        expected_tags = {'blueprint': 'None',
-                         'component': 'Flask',
-                         'http.method': 'GET',
-                         'http.status_code': 200,
-                         'http.url': traced_endpoint,
-                         'method': 'GET',
-                         'path': '/traced',
-                         'span.kind': 'server',
-                         'handled': 'tag'}
+        assert parent.operation_name == "my_traced_route"
+        expected_tags = {
+            "blueprint": "None",
+            "component": "Flask",
+            "http.method": "GET",
+            "http.status_code": 200,
+            "http.url": traced_endpoint,
+            "method": "GET",
+            "path": "/traced",
+            "span.kind": "server",
+            "handled": "tag",
+        }
 
         # some versions of flask add query_string attribute with an empty
         # string as the attribute value
         if len(expected_tags) < len(parent.tags):
-            expected_tags['query_string'] = "b''"
+            expected_tags["query_string"] = "b''"
 
         assert parent.tags == expected_tags

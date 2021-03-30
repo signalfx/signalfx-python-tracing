@@ -7,7 +7,6 @@ from signalfx_tracing.libraries.elasticsearch_.instrument import config, uninstr
 
 
 class ElasticsearchTestSuite(unittest.TestCase):
-
     @pytest.fixture(autouse=True)
     def restored_elasticsearch_config(self):
         orig = dict(config.__dict__)

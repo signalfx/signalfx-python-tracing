@@ -18,10 +18,9 @@ else:
 
 
 class TestLogging(LoggingTestSuite):
-
     def setup_tracing(self, caplog):
-        tags = {SFX_ENVIRONMENT: 'test'}
-        self.tracer = create_tracer(config={'service_name': 'loginject', 'tags': tags})
+        tags = {SFX_ENVIRONMENT: "test"}
+        self.tracer = create_tracer(config={"service_name": "loginject", "tags": tags})
         instrument(self.tracer)
         opentracing.tracer = self.tracer
         caplog.set_level(logging.INFO)
@@ -35,7 +34,7 @@ class TestLogging(LoggingTestSuite):
         def traced_function(*args, **kwargs):
             assert args == (1,)
             assert kwargs == dict(one=1)
-            logging.getLogger().info('log statement')
+            logging.getLogger().info("log statement")
             return 123
 
         assert traced_function(1, one=1) == 123
@@ -45,10 +44,10 @@ class TestLogging(LoggingTestSuite):
 
         fields = caplog.records[0].__dict__
 
-        assert 'sfxSpanId' not in fields
-        assert 'sfxTraceId' not in fields
-        assert 'sfxService' not in fields
-        assert 'sfxEnvironment' not in fields
+        assert "sfxSpanId" not in fields
+        assert "sfxTraceId" not in fields
+        assert "sfxService" not in fields
+        assert "sfxEnvironment" not in fields
 
     def test_injection(self, caplog):
         config.injection_enabled = True
@@ -60,7 +59,7 @@ class TestLogging(LoggingTestSuite):
             assert kwargs == dict(one=1)
             trace_id = opentracing.tracer.active_span.trace_id
             span_id = opentracing.tracer.active_span.span_id
-            logging.getLogger().info('log statement')
+            logging.getLogger().info("log statement")
             return trace_id, span_id
 
         trace_id, span_id = traced_function(1, one=1)
@@ -69,7 +68,7 @@ class TestLogging(LoggingTestSuite):
         assert len(caplog.messages) == 1
         fields = caplog.records[0].__dict__
 
-        assert fields.get('sfxSpanId') == '{:016x}'.format(span_id)
-        assert fields.get('sfxTraceId') == '{:016x}'.format(trace_id)
-        assert fields.get('sfxService') == 'loginject'
-        assert fields.get('sfxEnvironment') == 'test'
+        assert fields.get("sfxSpanId") == "{:016x}".format(span_id)
+        assert fields.get("sfxTraceId") == "{:016x}".format(trace_id)
+        assert fields.get("sfxService") == "loginject"
+        assert fields.get("sfxEnvironment") == "test"

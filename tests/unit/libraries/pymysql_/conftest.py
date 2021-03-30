@@ -5,7 +5,6 @@ from signalfx_tracing.libraries.pymysql_.instrument import config, uninstrument
 
 
 class PyMySQLTestSuite(object):
-
     @pytest.fixture(autouse=True)
     def restored_pymysql_config(self):
         orig = dict(config.__dict__)

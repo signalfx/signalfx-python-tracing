@@ -5,7 +5,6 @@ from signalfx_tracing.libraries.requests_.instrument import config, uninstrument
 
 
 class LoggingTestSuite(object):
-
     @pytest.fixture(autouse=True)
     def restored_logging_config(self):
         orig = dict(config.__dict__)

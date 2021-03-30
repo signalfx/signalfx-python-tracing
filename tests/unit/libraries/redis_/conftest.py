@@ -5,7 +5,6 @@ from signalfx_tracing.libraries.redis_.instrument import config, uninstrument
 
 
 class RedisTestSuite(object):
-
     @pytest.fixture(autouse=True)
     def restored_redis_config(self):
         orig = dict(config.__dict__)

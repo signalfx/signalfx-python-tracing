@@ -9,7 +9,7 @@ from .middleware import TraceMiddleware
 
 config = utils.Config(
     tracer=None,
-    traced_attributes=['path'],
+    traced_attributes=["path"],
 )
 
 

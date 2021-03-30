@@ -9,17 +9,17 @@ from signalfx_tracing import utils
 # https://github.com/opentracing-contrib/python-flask/blob/master/README.rst
 config = utils.Config(
     trace_all=True,
-    traced_attributes=['path', 'method'],
+    traced_attributes=["path", "method"],
     tracer=None,
 )
 
 
 def instrument(tracer=None):
-    flask = utils.get_module('flask')
+    flask = utils.get_module("flask")
     if utils.is_instrumented(flask):
         return
 
-    flask_opentracing = utils.get_module('flask_opentracing')
+    flask_opentracing = utils.get_module("flask_opentracing")
 
     def flask_tracer(__init__, app, args, kwargs):
         """
@@ -31,12 +31,14 @@ def instrument(tracer=None):
 
         _tracer = tracer or config.tracer or opentracing.tracer
 
-        app.config['FLASK_TRACER'] = flask_opentracing.FlaskTracer(
-            tracer=_tracer, trace_all_requests=config.trace_all,
-            app=app, traced_attributes=config.traced_attributes
+        app.config["FLASK_TRACER"] = flask_opentracing.FlaskTracer(
+            tracer=_tracer,
+            trace_all_requests=config.trace_all,
+            app=app,
+            traced_attributes=config.traced_attributes,
         )
 
-    wrap_function_wrapper('flask', 'Flask.__init__', flask_tracer)
+    wrap_function_wrapper("flask", "Flask.__init__", flask_tracer)
     utils.mark_instrumented(flask)
 
 
@@ -46,9 +48,9 @@ def uninstrument():
     It's not reasonably feasible to remove existing before/after_request
     trace methods of existing apps.
     """
-    flask = utils.get_module('flask')
+    flask = utils.get_module("flask")
     if not utils.is_instrumented(flask):
         return
 
-    utils.revert_wrapper(flask.Flask, '__init__')
+    utils.revert_wrapper(flask.Flask, "__init__")
     utils.mark_uninstrumented(flask)

@@ -5,7 +5,6 @@ from signalfx_tracing.libraries.celery_.instrument import config, uninstrument
 
 
 class CeleryTestSuite(object):
-
     @pytest.fixture(autouse=True)
     def restored_celery_config(self):
         orig = dict(config.__dict__)
@@ -21,5 +20,6 @@ class CeleryTestSuite(object):
     def reset_signals(self):
         yield
         from celery import signals
+
         signals.before_task_publish.receivers = []
         signals.after_task_publish.receivers = []

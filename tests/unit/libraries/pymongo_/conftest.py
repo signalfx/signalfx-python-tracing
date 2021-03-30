@@ -6,7 +6,6 @@ from signalfx_tracing.libraries.pymongo_.instrument import config, uninstrument
 
 
 class PyMongoTestSuite(object):
-
     @pytest.fixture(autouse=True)
     def mocked_mongo(self):
         try:
