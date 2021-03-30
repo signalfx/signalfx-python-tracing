@@ -21,13 +21,26 @@ server = "http://localhost:{}".format(server_port)
 def echo_container():
     app = Flask(__name__)
 
-    @app.route('/', methods=['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'CONNECT', 'OPTIONS', 'TRACE', 'PATCH'])
+    @app.route(
+        "/",
+        methods=[
+            "GET",
+            "HEAD",
+            "POST",
+            "PUT",
+            "DELETE",
+            "CONNECT",
+            "OPTIONS",
+            "TRACE",
+            "PATCH",
+        ],
+    )
     def echo():
-        if request.method == 'HEAD':
-            return ''
-        return 'hello world\n'
+        if request.method == "HEAD":
+            return ""
+        return "hello world\n"
 
-    srv = make_server('localhost', server_port, app)
+    srv = make_server("localhost", server_port, app)
     thread = threading.Thread(target=srv.serve_forever)
 
     try:

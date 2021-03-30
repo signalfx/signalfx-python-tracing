@@ -1,217 +1,95 @@
-version: 2
-
-pyenv: &pyenv
-  machine:
-    image: ubuntu-1604:201903-01
-  working_directory: ~/signalfx-python-tracing
-  resource_class: medium
-  steps:
-    - checkout
-    - &pyenv-versions
-      run:
-        name: Pyenv
-        command: pyenv versions
-    - &pyenv-set-local
-      run:
-        name: Pyenv
-        command: pyenv local 2.7.12 3.5.2 3.6.5 3.7.0
-    - &install-nox
-      run:
-        name: Install nox
-        command: python3.7 -m pip install nox
+version: 2.1
 
 jobs:
-  lint:
-    <<: *pyenv
+  nox:
+    machine:
+      image: ubuntu-1604:201903-01
+    working_directory: ~/signalfx-python-tracing
+    resource_class: medium
+    parameters:
+      session:
+        type: string
+      cli_params:
+        default: "-k"
+        type: string
     steps:
       - checkout
-      - *pyenv-versions
-      - *pyenv-set-local
-      - *install-nox
+      - &pyenv-versions
+        run:
+          name: Pyenv
+          command: pyenv versions
+      - &pyenv-set-local
+        run:
+          name: Pyenv
+          command: pyenv local 2.7.12 3.5.2 3.6.5 3.7.0
+      - &install-nox
+        run:
+          name: Install nox
+          command: python3.7 -m pip install nox
+      - restore_cache:
+         keys:
+           - nox-v1-<<parameters.session>>-{{ checksum "noxfile.py" }}-{{ checksum "requirements*.txt" }}
       - run:
-          name: Lint
-          command: python3.7 -m nox -s flake8
-  unit:
-    <<: *pyenv
-    steps:
-      - checkout
-      - *pyenv-versions
-      - *pyenv-set-local
-      - *install-nox
-      - run:
-          name: Unit
-          command: python3.7 -m nox -s unit
-  jaeger_bootstrap:
-    <<: *pyenv
-    steps:
-      - checkout
-      - *pyenv-versions
-      - *pyenv-set-local
-      - *install-nox
-      - run:
-          name: Bootstrap
-          command: python3.7 -m nox -s jaeger_via_bootstrap
-  jaeger_extras:
-    <<: *pyenv
-    steps:
-    - checkout
-    - *pyenv-versions
-    - *pyenv-set-local
-    - *install-nox
-    - run:
-        name: Extras
-        command: python3.7 -m nox -s jaeger_via_extras
-
-  nox_all:
-    <<: *pyenv
-    steps:
-    - checkout
-    - *pyenv-versions
-    - *pyenv-set-local
-    - *install-nox
-    - run:
-        name: All Nox 
-        command: python3.7 -m nox
-
-  tornado:
-    <<: *pyenv
-    steps:
-    - checkout
-    - *pyenv-versions
-    - *pyenv-set-local
-    - *install-nox
-    - run:
-        name: Tornado Legacy 
-        command: python3.7 -m nox -k tornado
-
-  requests:
-    <<: *pyenv
-    steps:
-    - checkout
-    - *pyenv-versions
-    - *pyenv-set-local
-    - *install-nox
-    - run:
-        name: Requests 
-        command: python3.7 -m nox -k requests
-
-  redis:
-    <<: *pyenv
-    steps:
-    - checkout
-    - *pyenv-versions
-    - *pyenv-set-local
-    - *install-nox
-    - run:
-        name: Redis 
-        command: python3.7 -m nox -k redis
-
-  pymysql:
-    <<: *pyenv
-    steps:
-    - checkout
-    - *pyenv-versions
-    - *pyenv-set-local
-    - *install-nox
-    - run:
-        name: PyMysql 
-        command: python3.7 -m nox -k pymysql
-
-  pymongo:
-    <<: *pyenv
-    steps:
-    - checkout
-    - *pyenv-versions
-    - *pyenv-set-local
-    - *install-nox
-    - run:
-        name: PyMongo
-        command: python3.7 -m nox -k pymongo
-
-  psycopg2:
-    <<: *pyenv
-    steps:
-    - checkout
-    - *pyenv-versions
-    - *pyenv-set-local
-    - *install-nox
-    - run:
-        name: Psycopg2
-        command: python3.7 -m nox -k psycopg2
-
-  flask:
-    <<: *pyenv
-    steps:
-    - checkout
-    - *pyenv-versions
-    - *pyenv-set-local
-    - *install-nox
-    - run:
-        name: Flask 
-        command: python3.7 -m nox -k flask
-
-  falcon:
-    <<: *pyenv
-    steps:
-    - checkout
-    - *pyenv-versions
-    - *pyenv-set-local
-    - *install-nox
-    - run:
-        name: Falcon 
-        command: python3.7 -m nox -k falcon
-
-  django:
-    <<: *pyenv
-    steps:
-    - checkout
-    - *pyenv-versions
-    - *pyenv-set-local
-    - *install-nox
-    - run:
-        name: Django
-        command: python3.7 -m nox -k django
-
-  celery:
-    <<: *pyenv
-    steps:
-    - checkout
-    - *pyenv-versions
-    - *pyenv-set-local
-    - *install-nox
-    - run:
-        name: Celery 
-        command: python3.7 -m nox -k celery 
-
-  elasticsearch:
-    <<: *pyenv
-    steps:
-    - checkout
-    - *pyenv-versions
-    - *pyenv-set-local
-    - *install-nox
-    - run:
-        name: ElasticSearch 
-        command: python3.7 -m nox -k elasticsearch 
-
+          name: <<parameters.session>>
+          command: python3.7 -m nox <<parameters.cli_params>> <<parameters.session>> 
+      - save_cache:
+         key: nox-v1-<<parameters.session>>-{{ checksum "noxfile.py" }}-{{ checksum "requirements*.txt" }}
+         paths:
+           - .nox 
 
 
 workflows:
   version: 2
   build:
     jobs:
-      - lint
-      - unit
-      - jaeger_bootstrap
-      - tornado
-      - requests
-      - redis
-      - pymongo
-      - pymysql
-      - flask
-      - falcon 
-      - django
-      - celery
+      - nox:
+          name: lint 
+          session: flake8
+          cli_params: -s
+      - nox:
+          name: unit 
+          session: unit 
+          cli_params: -s
+      - nox:
+          name: jaeger bootstrap
+          session: jaeger_via_bootstrap
+          cli_params: -s
+      - nox:
+          name: tornado
+          session: tornado
+      - nox:
+          name: requests
+          session: requests
+      - nox:
+          name: redis
+          session: redis
+      - nox:
+          name: pymongo
+          session: pymongo
+      - nox:
+          name: pymysql
+          session: pymysql
+      #- nox:
+      #    name: psycopg2 
+      #    session: psycopg2 
+      - nox:
+          name: flask
+          session: flask
+      - nox:
+          name: falcon 
+          session: falcon 
+      - nox:
+          name: django
+          session: django
+      - nox:
+          name: celery
+          session: celery
+      #- nox:
+      #    name: elasticsearch 
+      #    session: elasticsearch 
+      - nox:
+          name: logging 
+          session: logging 
 
   nightly:
     triggers:
@@ -222,19 +100,55 @@ workflows:
               only:
                 - master
     jobs:
-      - lint
-      - unit
-      - jaeger_bootstrap
-      - jaeger_extras
-      - lint
-      - unit
-      - jaeger_bootstrap
-      - tornado
-      - requests
-      - redis
-      - pymongo
-      - pymysql
-      - flask
-      - falcon 
-      - django
-      - celery
+      - nox:
+          name: lint
+          session: flake8 
+          cli_params: -s
+      - nox:
+          name: unit
+          session: unit
+          cli_params: -s
+      - nox:
+          name: jaeger bootstrap
+          session: jaeger_via_bootstrap
+          cli_params: -s
+      - nox:
+          name: jaeger extras
+          session: jaeger_via_extras
+          cli_params: -s
+      - nox:
+          name: tornado
+          session: tornado
+      - nox:
+          name: requests
+          session: requests
+      - nox:
+          name: redis
+          session: redis
+      - nox:
+          name: pymongo
+          session: pymongo
+      - nox:
+          name: pymysql
+          session: pymysql
+      #- nox:
+      #    name: psycopg2 
+      #    session: psycopg2 
+      - nox:
+          name: flask
+          session: flask
+      - nox:
+          name: falcon 
+          session: falcon 
+      - nox:
+          name: django
+          session: django
+      - nox:
+          name: celery
+          session: celery
+      #- nox:
+      #    name: elasticsearch 
+      #    session: elasticsearch 
+      - nox:
+          name: logging 
+          session: logging 

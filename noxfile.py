@@ -387,10 +387,10 @@ def redis_via_extras(session, redis):
     ),
 )
 def requests_via_extras(session, requests):
-    install_unit_tests(session, f'requests{requests}', 'flask')
-    session.install(f'{sdist}[requests]')
-    session.run('pytest', 'tests/unit/libraries/requests_')
-    session.run('pytest', 'tests/integration/requests_')
+    install_unit_tests(session, f"requests{requests}", "flask")
+    session.install(f"{sdist}[requests]")
+    session.run("pytest", "tests/unit/libraries/requests_")
+    session.run("pytest", "tests/integration/requests_")
 
 
 @nox.session(python=("3.5", "3.6", "3.7"), reuse_venv=True)
