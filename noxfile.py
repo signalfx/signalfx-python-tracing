@@ -387,7 +387,7 @@ def redis_via_extras(session, redis):
     ),
 )
 def requests_via_extras(session, requests):
-    install_unit_tests(session, f"requests{requests}", "docker")
+    install_unit_tests(session, f"requests{requests}", "flask")
     session.install(f"{sdist}[requests]")
     session.run("pytest", "tests/unit/libraries/requests_")
     session.run("pytest", "tests/integration/requests_")

@@ -1,6 +1,7 @@
 django
 docker
 elasticsearch
+flask
 flake8
 falcon
 mock

@@ -1,10 +1,13 @@
 # Copyright (C) 2018 SignalFx. All rights reserved.
+import threading
+
+import requests
+import pytest
 from opentracing.mocktracer import MockTracer
 from opentracing.ext import tags as ext_tags
 from requests.sessions import Session
-import requests
-import docker
-import pytest
+from flask import Flask, request
+from werkzeug.serving import make_server
 
 from signalfx_tracing.libraries import requests_config as config
 from signalfx_tracing import instrument, uninstrument
@@ -16,17 +19,34 @@ server = "http://localhost:{}".format(server_port)
 
 @pytest.fixture(scope="session")
 def echo_container():
-    session = docker.from_env()
-    echo = session.containers.run(
-        "hashicorp/http-echo:latest",
-        '-text="hello world"',
-        ports={"5678/tcp": server_port},
-        detach=True,
+    app = Flask(__name__)
+
+    @app.route(
+        "/",
+        methods=[
+            "GET",
+            "HEAD",
+            "POST",
+            "PUT",
+            "DELETE",
+            "CONNECT",
+            "OPTIONS",
+            "TRACE",
+            "PATCH",
+        ],
     )
+    def echo():
+        if request.method == "HEAD":
+            return ""
+        return "hello world\n"
+
+    srv = make_server("localhost", server_port, app)
+    thread = threading.Thread(target=srv.serve_forever)
+
     try:
-        yield echo
+        yield thread.start()
     finally:
-        echo.remove(force=True, v=True)
+        srv.shutdown()
 
 
 class TestSessionTracing(object):
