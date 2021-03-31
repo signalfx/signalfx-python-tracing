@@ -31,15 +31,15 @@ old_instrumentors = [
 # target library to desired instrumentor path/versioned package name
 instrumentors = {
     "celery": "signalfx-instrumentation-celery>=1.0.0",
-    "django": "signalfx-instrumentation-django>=1.0.0",
+    "django": "signalfx-instrumentation-django>=1.2.0",
     "elasticsearch": "signalfx-instrumentation-elasticsearch>=1.0.0",
-    "flask": "signalfx-instrumentation-flask>=1.0.0",
+    "flask": "signalfx-instrumentation-flask>=1.3.0",
     "psycopg2": "signalfx-instrumentation-dbapi>=1.0.0",
     "pymongo": "signalfx-instrumentation-pymongo>=1.0.0",
     "pymysql": "signalfx-instrumentation-dbapi>=1.0.0",
     "redis": "signalfx-instrumentation-redis>=1.0.0",
     "requests": "signalfx-instrumentation-requests>=1.0.0",
-    "tornado": "signalfx-instrumentation-tornado>=1.0.0",
+    "tornado": "signalfx-instrumentation-tornado>=1.2.0",
 }
 
 # relevant instrumentors and tracers to uninstall and check for conflicts for target libraries

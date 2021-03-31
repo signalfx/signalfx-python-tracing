@@ -52,6 +52,10 @@ def instrument(tracer=None):
         settings.OPENTRACING_TRACER_CALLABLE = config.tracer_callable
         settings.OPENTRACING_TRACER_PARAMETERS = config.tracer_parameters or {}
 
+    settings.SIGNALFX_TRACE_RESPONSE_HEADER_ENABLED = (
+        utils.is_trace_response_header_enabled()
+    )
+
     middleware_classes, setting = get_middleware_and_setting_name()
     setattr(settings, setting, [config.middleware_class] + list(middleware_classes))
     utils.mark_instrumented(django)
@@ -71,6 +75,7 @@ def uninstrument():
         "OPENTRACING_SET_GLOBAL_TRACER",
         "OPENTRACING_TRACING",
         "OPENTRACING_TRACER",
+        "SIGNALFX_TRACE_RESPONSE_HEADER_ENABLED",
     ):
         try:
             delattr(settings, setting)
