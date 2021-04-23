@@ -84,7 +84,7 @@ class TestFalconApplication(FalconTestSuite):
         }
 
     def test_response_trace_header_no_server_timing(self):
-        os.environ['SPLUNK_CONTEXT_SERVER_TIMING_ENABLED'] = 'false'
+        os.environ['SPLUNK_TRACE_RESPONSE_HEADER_ENABLED'] = 'false'
         tracer = MockTracer()
         instrument(tracer)
         app = self.make_app()
@@ -94,7 +94,7 @@ class TestFalconApplication(FalconTestSuite):
 
         assert 'access-control-expose-headers' not in result.headers
         assert 'server-timing' not in result.headers
-        del os.environ['SPLUNK_CONTEXT_SERVER_TIMING_ENABLED']
+        del os.environ['SPLUNK_TRACE_RESPONSE_HEADER_ENABLED']
 
     def test_response_trace_header_server_timing(self):
         tracer = MockTracer()

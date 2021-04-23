@@ -243,4 +243,4 @@ def padded_hex(num):
 
 
 def is_trace_response_header_enabled():
-    return is_truthy(os.environ.get("SPLUNK_CONTEXT_SERVER_TIMING_ENABLED", "true"))
+    return is_truthy(os.environ.get("SPLUNK_TRACE_RESPONSE_HEADER_ENABLED", "true"))

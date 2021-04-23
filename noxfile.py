@@ -214,7 +214,7 @@ def test_falcon(session):
 
 @nox.session(python=("3.5", "3.6", "3.7"), reuse_venv=True)
 def falcon_via_bootstrap(session):
-    install_unit_tests(session, "falcon>=2.0", "requests")
+    install_unit_tests(session, "falcon>=2.0,<3.0", "requests")
     session.run("sfx-py-trace-bootstrap")
     pip_check(session)
     pip_freeze(session)

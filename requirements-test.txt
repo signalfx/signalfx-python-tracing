@@ -3,7 +3,7 @@ docker
 elasticsearch
 flask
 flake8
-falcon
+falcon<3.0
 mock
 mockupdb
 psycopg2
