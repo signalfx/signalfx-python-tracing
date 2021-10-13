@@ -1,11 +1,10 @@
-# Deprecation Notice
+> # :warning: Deprecation Notice
+> **The SignalFx Tracing Library for Python is deprecated for Python 3.6 and higher and will reach End of Support on December 17th, 2022. After that date, this repository will be archived and no longer receive updates. Until then, only critical security fixes and bug fixes will be provided.**
+>
+>Going forward, Python 3.6 or higher applications should use the [Splunk Distribution of OpenTelemetry
+>Python](https://github.com/signalfx/splunk-otel-python), which offers similar capabilities and fully supports the OpenTelemetry standard. To learn how to migrate, see [Migrate from the SignalFx Python Tracing Library](https://quickdraw.splunk.com/redirect/?product=Observability&location=python.otel.repo.migration&version=current).
 
-:warning: **Please be advised this project is deprecated. Only critical security
-fixes and bugs will be provided.** :warning:
-
-We recommend using our [Splunk Distribution of OpenTelemetry
-Python](https://github.com/signalfx/splunk-otel-python) going forward, which offers
-the same capabilities and fully supports the OpenTelemetry standard.
+---
 
 # SignalFx Tracing Library for Python
 
