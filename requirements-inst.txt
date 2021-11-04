@@ -7,4 +7,4 @@ signalfx-instrumentation-pymongo>=1.0.0
 signalfx-instrumentation-redis>=1.0.0
 signalfx-instrumentation-requests>=1.0.0
 signalfx-instrumentation-tornado>=1.2.0
-sfx-jaeger-client>=3.13.1b0.dev5
+sfx-jaeger-client>=3.13.1b0.dev6
