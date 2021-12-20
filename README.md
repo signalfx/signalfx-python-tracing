@@ -1,3 +1,5 @@
+>ℹ️&nbsp;&nbsp;SignalFx was acquired by Splunk in October 2019. See [Splunk SignalFx](https://www.splunk.com/en_us/investor-relations/acquisitions/signalfx.html) for more information.
+
 > # :warning: Deprecation Notice
 > **The SignalFx Tracing Library for Python is deprecated for Python 3 and will reach End of Support on December 17th, 2022. After that date, this repository will be archived and no longer receive updates. Until then, only critical security fixes and bug fixes will be provided.**
 >
